@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .error-container {
+            text-align: center;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            color: #343a40;
+        }
+        .error-message {
+            font-size: 24px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        .error-description {
+            font-size: 16px;
+            color: #6c757d;
+        }
+        .back-btn {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <div class="error-message">Oops! Page Not Found</div>
+        <div class="error-description">
+            Sorry, the page you're looking for doesn't exist. <br> You may have mistyped the address or the page may have moved.
+        </div>
+        <a href="/" class="back-btn">Go Back Home</a>
+    </div>
+
+</body>
+</html>
