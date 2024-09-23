@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .form-container {
+            padding: 40px;
+            width: 50%;
+        }
+
+        .form-container h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-container label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .form-container button:hover {
+            background-color: #218838;
+        }
+
+        .image-container {
+            width: 50%;
+            background-image: url('https://www.example.com/organic-products.jpg'); /* Replace with your image URL */
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .form-container, .image-container {
+                width: 100%;
+            }
+
+            .image-container {
+                height: 300px;
+            }
+        }
+        .error-message{
+            color:red;
+            font-size: 0.75rem;
+            
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Signup</h2>
+            <form method="POST" action="/signup" id="signform">
+                <label for="email">Email</label>
+                <input type="text" id="email" name="email" placeholder="Enter your email">
+                <div id="error1" class="error-message"></div>
+                <label for="email">phone</label>
+                <input type="text" id="phone" name="phone" placeholder="Enter your phonenumber" >
+                <div id="error2" class="error-message"></div>
+
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username">
+                <div id="error3" class="error-message"></div>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" >
+                <div id="error4" class="error-message"></div>
+                <% if(locals.message&&message.length>0){%>
+                    <div class="alert alert-danger text-center">
+                        <%=message%>
+
+                    </div>
+
+               <% }%>
+
+                <button type="submit">Signup</button>
+                <p>Or signup with</p>
+                <div class="social-btns">
+                    <a href="/auth/google" class="btn btn-outline-danger">
+                      <img
+                        src="images/googlesignup.png"
+                        alt="Google Logo"
+                        style="width: 24px; height: 24px"
+                      />
+                    </a>
+                  </div>
+            </form>
+        </div>
+        <div class="image-container"></div>
+        
+        
+
+    </div>
+    
+    <script>
+        const emailid=document.getElementById("email")
+        const phoneid=document.getElementById("phone")
+        const nameid=document.getElementById("username")
+        const passid=document.getElementById("password")
+        const error1=document.getElementById("error1")
+        const error2=document.getElementById("error2")
+        const error3=document.getElementById("error3")
+        const error4=document.getElementById("error4")
+        const signform=document.getElementById("signform")
+        function nameValidateChecking(){
+            const nameval=nameid.value;
+            const namepattern=/^[A-Za-z\s]+$/;
+            if(nameval.trim()===""){
+                error3.style.display="block"
+                error3.innerHTML="please enter a name"
+            }else if(!namepattern.test(nameval)){
+                error3.style.display="block"
+                error3.innerHTML="name can only contain alphabets and spaces"
+            }else{
+                error3.style.display="none"
+                error3.innerHTML="";
+            }
+        }
+        function emailValidateChecking(){
+            const emailval=emailid.value
+            const emailpattern= /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if(!emailpattern.test(emailval)){
+                error1.style.display="block";
+                error1.innerHTML="invalid format"
+
+            }else{
+                error1.style.display="none"
+                error1.innerHTML="";
+            }
+        }
+        function phoneValidateChecking(){
+            const phoneval=phoneid.value;
+            if(phoneval.trim()===""){
+                error2.style.display="block";
+                error2.innerHTML="enter valid phone number"
+            }else if(phoneval.length<10||phoneval.length>10){
+                error2.style.display="block";
+                error2.innerHTML="Enter 10 digit"
+                }else{
+                    error2.style.display="none"
+                    error2.innerHTML="";
+                }
+        }
+        function passValidateChecking(){
+            passval=passid.value;
+            const alpha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if(passval.length<8){
+                error4.style.display="block"
+                error4.innerHTML="Should contain atleast 8 characters"
+            }else if(!alpha.test(passval)){
+                error4.style.display="block"
+                error4.innerHTML="Should contain numbers and aphabets"
+            }else{
+                error4.style.display="none";
+                error4.innerHTML="";
+            }
+
+        }
+
+        
+        document.addEventListener("DOMContentLoaded",function(){
+            signform.addEventListener("submit",function(e){
+                nameValidateChecking();
+                emailValidateChecking();
+                phoneValidateChecking();
+                passValidateChecking();
+                
+                if (error1.innerHTML !== "" || error2.innerHTML !== "" || error3.innerHTML !== "" || error4.innerHTML !== "") {
+                    e.preventDefault(); // Prevent form submission if there are any validation errors
+                }
+            })
+
+        })
+        
+        
+        
+
+
+    </script>
+
+</body>
+</html>
