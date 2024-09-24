@@ -13,10 +13,12 @@
             height: 100%;
         }
         .navbar {
-            background-color:green;
+            background-color: green;
             padding: 10px;
             color: white;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: fixed;
             width: 100%;
             top: 0;
@@ -24,12 +26,20 @@
         }
         .navbar img {
             height: 40px;
-            vertical-align: middle;
+        }
+        .logout-btn {
+            background-color: white;
+            color: green;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
         }
         .sidebar {
             margin-top: 50px;
             width: 250px;
-            background-color:green;
+            background-color: green;
             height: 100vh;
             position: fixed;
             overflow: auto;
@@ -54,18 +64,21 @@
             margin-bottom: 20px;
         }
     </style>
+    <link href="css/customer.css" rel="stylesheet">
 </head>
 <body>
 
     <!-- Top Navbar -->
-    <div class="navbar">
-        <img src="images/organic-store-white-logo.png" alt="Website Logo"> <!-- Replace with your logo URL -->
+    <div class="navbar" >
+        <img src="images/organic-store-white-logo.png" alt="Website Logo"> 
+        <a href="/logout"><button class="logout-btn">Logout</button>
+        </a>
+   
     </div>
-
     <!-- Sidebar -->
     <div class="sidebar">
         <a href="#">Dashboard</a>
-        <a href="#">Customers</a>
+        <a href="admin/users">Customers</a>
         <a href="#">Category</a>
         <a href="#">Brands</a>
         <a href="#">Add Product</a>

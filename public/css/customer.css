@@ -1,0 +1,14 @@
+.action-btn {
+    cursor: pointer;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    margin-right: 5px;
+}
+.block-btn {
+    background-color: #dc3545;
+}
+.unblock-btn {
+    background-color: #28a745;
+}
