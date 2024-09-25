@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose; // Destructure Schema from mongoose
 
-const addressSchema = new mongoose.Schema({
+const productSchema = new Schema({
     productName:{
         type:String,
         required:true
