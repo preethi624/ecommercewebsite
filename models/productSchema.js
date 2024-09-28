@@ -33,7 +33,7 @@ const productSchema = new Schema({
     },
     quantity:{
         type:Number,
-        default:true
+        default:1
     },
     color:{
         type:String,
@@ -50,10 +50,10 @@ const productSchema = new Schema({
     },
     status:{
         type:String,
-        enum:["Available","out of stock","Discontinued"],
+        enum:["Available","Out of stock","Discontinued"],
         required:true,
         default:"Available"
     },
-},{timestamp:true});
+},{timestamps:true});
 const Product=mongoose.model("Product",productSchema)
 module.exports=Product;

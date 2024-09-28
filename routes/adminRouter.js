@@ -43,6 +43,9 @@ router.post("/restoreCategory",categoryController.restore);
 router.get("/addProducts",adminAuth,productController.getProductAddPage)
 router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts)
 router.get("/product",adminAuth,productController.getAllProducts);
+router.post("/addProductOffer",adminAuth,productController.addProductOffer);
+router.post("/removeProductOffer",adminAuth,productController.removeProductOffer)
+router.get("/editProduct",adminAuth,productController.getEditProduct);
 
 
 

@@ -318,7 +318,7 @@
             });
             let cropperContainer=document.querySelector("#croppedImg"+index).parentNode;
             cropperContainer.style.display='block';
-            let saveButton=document.querySelector('#saveButton+index');
+            let saveButton=document.querySelector('#saveButton${index}');
             saveButton.addEventListener('click',async function(){
                 let croppedCanvas=cropper.getCroppedCanvas();
                 let croppedImage=document.getElementById("croppedImg"+index)
