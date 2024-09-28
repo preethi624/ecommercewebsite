@@ -178,12 +178,18 @@
                       <%}%>
                     </td>
                     <td class="text-start">
-                      <a href="#" class="btn btn-info text-white">Edit</a>
+                      <a href="/admin/editCategory?id=<%=category._id%>" class="btn btn-info text-white">Edit</a>
                     </td>
+                    <td class="text-start">
+                      <button  class="btn btn-info text-white" onclick="softDelete('<%=category._id%>')">softDelete</button>
+                    </td>
+                    
                   </tr>
                   <% }) %>
                 </tbody>
               </table>
+              <a href="/admin/soft">View Soft-Deleted Categories</a>
+
             </div>
           </div>
         </div>
@@ -345,6 +351,32 @@
 
       }
     }
+
+    async function softDelete(categoryId){
+      try{
+        const response=await fetch("/admin/softDeleteCategory",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+
+          },
+          body:JSON.stringify({id:categoryId}),
+        });
+        const data=await response.json();
+        if(response.ok && data.status){
+          Swal.fire("Deleted","The category was soft deleted","success").then(()=>{
+            location.reload();
+          })
+        }else{
+          Swal.fire("failed",data.message||"soft delete failed","error");
+        }
+
+      }catch(error){
+        Swal.fire("Error","An error occured while deleting the category",error)
+
+      }
+    }
+    
   </script>
 </body>
 

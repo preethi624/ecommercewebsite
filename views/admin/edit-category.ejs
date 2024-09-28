@@ -1,0 +1,84 @@
+<%- include("../../views/partials/admin/header") %> <!-- Include header -->
+
+<style>
+    /* Basic styling for layout */
+    body, html {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        height: 100%;
+    }
+
+    /* Ensure the main content does not overlap with the navbar */
+    .main-content {
+        margin-left: 250px; /* To avoid the sidebar */
+        padding: 20px;
+        margin-top: 70px; /* To avoid the fixed navbar */
+    }
+
+    /* Form container styling */
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styling the form elements */
+    .form-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .btn-primary {
+        background-color: green;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: darkgreen;
+    }
+
+    /* Grid adjustments for the submit button */
+    .d-grid {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+
+<div class="main-content">
+    <div class="container">
+        <h2>Edit Category</h2>
+        <form method="post" action="/admin/editCategory/<%=category._id%>">
+            <div class="mb-4 mt-30">
+                <label for="categoryName" class="form-label">Name</label>
+                <input type="text" name="categoryName" value="<%=category.name%>" class="form-control border" />
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label">Description</label>
+                <textarea name="description" class="form-control border"><%=category.description%></textarea>
+            </div>
+
+            <div class="d-grid text-end mt-30 col-md-5">
+                <button class="btn btn-primary" type="submit">Update Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+ <!-- Include footer if needed -->

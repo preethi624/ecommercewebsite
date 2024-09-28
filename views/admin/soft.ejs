@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soft Deleted Categories</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body>
+  <h1>Soft Deleted Categories</h1>
+  <ul>
+    <% categories.forEach(category => { %>
+      <li>
+        <%= category.name %> - <%= category.description %>
+        <button onclick="restoreCategory(`<%= category._id %>`)">Restore</button>
+      </li>
+    <% }); %>
+  </ul>
+  <a href="/admin/category">Back to Category Management</a>
+
+  <script>
+    async function restoreCategory(categoryId) {
+      console.log("Category ID being restored:", categoryId); // Log the categoryId to check if it's being passed correctly
+
+      try {
+        const response = await fetch('/admin/restoreCategory', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: categoryId })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status) {
+          Swal.fire('Success', 'Category restored successfully!', 'success').then(() => {
+            location.reload(); // Reload the page to reflect changes
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to restore category', 'error');
+        }
+      } catch (error) {
+        
+        Swal.fire('Error', 'An error occurred while restoring the category', 'error');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -22,9 +22,14 @@ const categorySchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default:Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false   // New field for soft delete
     }
+}, { timestamps: true });
 
-})
+
 
 const Category = mongoose.model("Category",categorySchema);
 

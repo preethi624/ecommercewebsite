@@ -1,11 +1,25 @@
 const express=require("express")
+const path=require('path')
 const router=express.Router();
 const adminController=require("../controllers/admin/adminController")
 const {userAuth,adminAuth}=require("../middleware/auth")
 const customerController=require("../controllers/admin/cusomerController")
+const productController=require("../controllers/admin/productController")
+const multer = require('multer');
 
 
 const categoryController=require("../controllers/admin/categoryController")
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/uploads/product-images'); // Destination folder
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Appending extension
+    }
+});
+
+const uploads = multer({ storage: storage }); // Create multer instance
+
 router.get("/pageError",adminController.pageError)
 router.get("/login",adminController.loadLogin)
 router.post("/login",adminController.login)
@@ -20,5 +34,16 @@ router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
 router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
 router.get("/listCategory",adminAuth,categoryController.getListCategory);
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
+router.get("/editCategory",adminAuth,categoryController.getEditCategory);
+router.post("/editCategory/:id",adminAuth,categoryController.editCategory)
+
+router.post("/softDeleteCategory", adminAuth, categoryController.softDeleteCategory);
+router.get("/soft",adminAuth,categoryController.viewSoftDeleted);
+router.post("/restoreCategory",categoryController.restore);
+router.get("/addProducts",adminAuth,productController.getProductAddPage)
+router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts)
+router.get("/product",adminAuth,productController.getAllProducts);
+
+
 
 module.exports=router

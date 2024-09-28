@@ -10,11 +10,11 @@ const categoryInfo=async(req,res)=>{
         const page=parseInt(req.query.page)||1;
         const limit=4;
         const skip=(page-1)*limit;
-        const categoryData=await Category.find({})
+        const categoryData=await Category.find({isDeleted:false})
         .sort({createdAt:-1})
         .skip(skip)
         .limit(limit);
-        const totalCategories=await Category.countDocuments()
+        const totalCategories=await Category.countDocuments({isDeleted:false})
         const totalPages=Math.ceil(totalCategories/limit)
         res.render("category",{
             cat:categoryData,
@@ -40,6 +40,8 @@ const addCategory=async (req,res)=>{
         if(existingCategory){
             return res.status(400).json({error:"Category already exists"})
         }
+
+        
         const newCategory=new Category({
             name,
             description
@@ -143,11 +145,111 @@ const getUnlistCategory=async (req,res)=>{
         
     }
 }
+const getEditCategory=async (req,res)=>{
+    try {
+        const id=req.query.id;
+        const category=await Category.findOne({_id:id})
+        res.render("edit-category",{category:category})
+        
+    } catch (error) {
+        
+        res.redirect("/pageError")
+    }
+}
+const editCategory=async (req,res)=>{
+    try {
+        const id=req.params.id;
+        const {categoryName,description}=req.body;
+        const existingCategory=await Category.findOne({name:categoryName});
+        if(existingCategory){
+            return res.status(400).json({error:"Category exists,please choose another name"})
+        }
+        const updatedCategory=await Category.findByIdAndUpdate(id,{
+            name:categoryName,
+            description:description
+        },{new:true})
+        if(updatedCategory){
+            res.redirect("/admin/category")
+        }else{
+            res.status(400).json({error:"Category not found"})
+        }
+
+        
+    } catch (error) {
+        res.status(500).json({error:"Internal server error"})
+        
+    }
+
+}
+const softDeleteCategory=async (req,res)=>{
+    const categoryId=req.body.id;
+    try {
+        const result=await Category.updateOne({_id:categoryId},{$set:{isDeleted:true}});
+        if(result.nModified===0){
+            return res.stautus(404).json({status:false,message:"Category not found or already soft deleted"});
+
+        }
+        return res.json({ status: true, message: 'Category successfully soft-deleted' });
+        
+    } catch (error) {
+        return res.status(500).json({ status: false, error: 'Failed to soft delete the category' });
+        
+    }
+
+}
+/*const getSoftDeletedCategories=async(req,res)=>{
+    try {
+        const categories = await Category.find({ isDeleted: true });
+    res.render("softDeletedCategories", { categories });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching categories", error });
+        
+    }
+}*/
+const viewSoftDeleted=async(req,res)=>{
+    try {
+        // Fetch soft-deleted categories (assuming you mark deleted categories with a flag)
+        const softDeletedCategories = await Category.find({ isDeleted: true });
+        
+        // Render the soft-deleted categories view
+        res.render('soft.ejs', {
+          categories: softDeletedCategories
+        });
+      } catch (error) {
+        console.error("Error fetching soft-deleted categories:", error);
+        res.status(500).send("Internal Server Error");
+      }
+}
+const restore=async (req,res)=>{
+    try {
+        console.log("Request body:", req.body);
+        console.log(req.body)
+        const { id } = req.body;
+    await Category.findByIdAndUpdate(id, { isDeleted: false });
+    res.json({ status: true, message: 'Category restored successfully' })
+    } catch (error) {
+        console.error('Error restoring category:', error);
+    res.status(500).json({ status: false, message: 'Failed to restore category' });
+        
+    }
+}
+
+
 module.exports={categoryInfo,
     addCategory,
     addCategoryOffer,
     removeCategoryOffer,
     getListCategory,
     getUnlistCategory,
+    getEditCategory,
+    editCategory,
+    softDeleteCategory,
+    viewSoftDeleted,
+    restore,
+    
+
+    
+   
 
 }

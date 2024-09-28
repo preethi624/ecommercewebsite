@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Your original navbar styles (unchanged) */
+        .navbar {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1001;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 50px; /* Adjust based on your navbar height */
+            left: 0;
+            height: calc(100% - 100px); /* Subtract navbar and footer height */
+            width: 250px;
+            background-color: green;
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            padding: 15px 20px;
+            display: block;
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-left: 250px; /* Account for sidebar width */
+            padding: 20px;
+            margin-top: 50px; /* Same height as navbar */
+            min-height: calc(100vh - 100px); /* Ensure no overlap with footer */
+            background-color: #f4f4f4;
+        }
+
+        .content-header {
+            margin-top: 20px;
+        }
+
+        /* Table and input styling */
+        .table {
+            margin-top: 30px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            margin: 5px;
+        }
+
+        .input-group {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer styles */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            z-index: 1001;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                margin-left: 200px;
+            }
+
+            .input-group {
+                width: 100%;
+            }
+
+            .table {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <%-include("../../views/partials/user/header")%>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#">Dashboard</a>
+        <a href="admin/users">Customers</a>
+        <a href="#">Category</a>
+        <a href="#">Brands</a>
+        <a href="/admin/product">Add Product</a>
+        <a href="#">Products</a>
+        <a href="#">Coupon</a>
+        <a href="#">Banner</a>
+        <a href="#">Orders</a>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <div class="content-header">
+            <h2 class="content-title card-title">Products</h2>
+        </div>
+
+        <header class="card-header text-center">
+            <form action="" method="get" class="d-inline">
+                <div class="input-group input-group-sm border border-1 border-grey rounded-pill" style="width: 500px;">
+                    <input type="text" class="form-control border-0 rounded-pill" placeholder="Search products or brands" name="search">
+                    <button class="btn border-0" type="submit">Search</button>
+                </div>
+            </form>
+        </header>
+
+        <div class="right mt-5">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col"><b>Product name</b></th>
+                        
+                        <th scope="col"><b>Category</b></th>
+                        <th scope="col"><b>Sale Price</b></th>
+                        <th scope="col"><b>Offer Price</b></th>
+                        <th scope="col"><b>Offer</b></th>
+                        <th scope="col"><b>Quantity</b></th>
+                        <th scope="col"><b>Action</b></th>
+                        <th scope="col"><b>Edit</b></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (data && data.length > 0) { %>
+                    <%for(let i=data.length-1;i>=0;i--){%>
+                    <tr>
+                        <td><%=data[i].productName%></td>
+                        <td><%=data[i].category.name%></td>
+                        <td><%=data[i].salePrice%></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <button class="btn btn-info" style="width: 100px;">
+                                <a href="#" class="text-white">Add Offer</a>
+                            </button>
+
+                            <button class="btn btn-info" style="width: 100px;">
+                                <a href="#" class="text-white">Remove</a>
+                            </button>
+                        </td>
+                        <td></td>
+                        <td>
+                            <button class="btn btn-danger" style="width: 80px;">
+                                <a href="" class="text-white">Block</a>
+                            </button>
+
+                            <button class="btn btn-success" style="width: 80px;">
+                                <a href="" class="text-white">Unblock</a>
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-info" style="width: 80px;">
+                                <a href="" class="text-white">Edit</a>
+                            </button>
+                        </td>
+                    </tr>
+                    <%}%>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="8">No products found</td>
+                          </tr>
+                          <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2024 Admin Panel - All Rights Reserved</p>
+    </div>
+    <div class="pagination-container">
+        <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+        <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
+        currentPage) { %>
+        <span class="current-page"><%= i %></span>
+        <% } else { %>
+        <a href="?page=<%= i %>"><%= i %></a>
+        <% } %> <% } %> <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+        <% } %>
+      </div>
+  
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</body>
+
+</html>
