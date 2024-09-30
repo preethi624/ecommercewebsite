@@ -122,7 +122,7 @@
 
 <body>
 
-    <%-include("../../views/partials/user/header")%>  
+    <%-include("../../views/partials/admin/header")%>  
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -215,15 +215,12 @@
                         </td>
                         <td>
                             <button class="btn btn-info" style="width: 80px;">
-                                <a href="" class="text-white">Edit</a>
+                                <a href="/admin/editProduct?id=<%=data[i]._id%>" class="text-white">Edit</a>
                             </button>
                         </td>
+                        
                         <td>
-                            <td>
-                                <button class="btn btn-info" style="width: 80px;">
-                                    <a href="/admin/editProduct?id=<%data[i]._id%>" class="text-white">Edit</a>
-                                </button>
-                            </td>
+                            
                             <td>
                                 <% if (data[i].productImage && data[i].productImage.length > 0) { %>
                                     <img src="/uploads/product-images/<%=data[i].productImage[0]%>" alt="Product Image" style="width: 80px; height: auto;">
