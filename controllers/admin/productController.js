@@ -179,8 +179,10 @@ const getEditProduct=async(req,res)=>{
         const id=req.query.id;
         const product=await Product.findOne({_id:id});
         const category=await Category.find({});
+        console.log(product)
         res.render("edit-product",{
             product:product,
+           
             cat:category
         })
     } catch (error) {
@@ -189,71 +191,88 @@ const getEditProduct=async(req,res)=>{
         res.redirect("/pageError")
     }
 }
-const editProduct=async(req,res)=>{
+const editProduct = async (req, res) => {
     try {
-        const id=req.params.id;
-        const product=await Product.findOne({_id:id});
-        const data=req.body;
-        const existingProduct=await Product.findOne({
-            productName:data.productName,
-            _id:{$ne:id}
-        })
-        if(existingProduct){
-            return res.status(400).json({error:"Product with this name already exists.please try with another name"})
-        }
-        const images=[];
-        if(req.files&&req.files.length>0){
-            for(let i=0;i<req.files.length;i++){
-                images.push(req.files[i].filename)
-            }
-        }
-        const updateFields={
-            productName:data.productName,
-            description:data.description,
-            category:product.category,
-            regularPrice:data.regularPrice,
-            salePrice:data.salePrice,
-            quantity:data.quantity,
-            size:data.size,
-            color:data.color
-        }
-        if (req.files.length > 0) {
-            await Product.findByIdAndUpdate(id, {
-                $push: { productImage: { $each: images } },
-                $set: updateFields
-            }, { new: true });
-        } else{
+        const id = req.params.id;
+        const product=await Product.findOne({_id:id})
+        const data = req.body;
 
-         await Product.findByIdAndUpdate(id,updateFields,{new:true});
-        res.redirect("/admin/products")
+        
+        const existingProduct = await Product.findOne({
+            productName: data.productName,
+            _id: { $ne: id },
+        });
+        if (existingProduct) {
+            return res.status(400).json({ error: "Product with this name already exists. Please try another name." });
         }
+
        
+
+        const images = [];
+        if (req.files && req.files.length > 0) {
+            for (let i = 0; i < req.files.length; i++) {
+                images.push(req.files[i].filename); // Collect new images
+            }
+           
+        }
+
+ const updateFields = {
+            productName: data.productName,
+            description: data.description,
+            regularPrice: data.regularPrice,
+            salePrice: data.salePrice,
+            quantity: data.quantity,
+            size: data.size,
+            color: data.color,
+        };
+       if(req.files.length>0){
+        updateFields.$push={productImage:{$each:images}};
+       }
+       await Product.findByIdAndUpdate(id,  updateFields , { new: true });
+        
+        res.redirect("/admin/product");
         
     } catch (error) {
-        console.error(error)
-        res.redirect("/pageError")
-
-        
+        console.error(error);
+        res.redirect("/pageError");
     }
-}
+};
+
+
 const deleteSingleImage=async(req,res)=>{
     console.log("deleteSingleImage route hit");
+    console.log(req.body)
     try {
-        const {imageNameToserver,productIdToServer}=req.body;
-        console.log(imageNameToserver)
-        const product=await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToserver}})
-        const imagePath=path.join("public","uploads","product-images",imageNameToserver)
+        const {imageNameToServer,productIdToServer,newImage}=req.body;
+        console.log('Image Name:', imageNameToServer);  // Log destructured values
+        console.log('Product ID:', productIdToServer);
+        const product=await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
+        const imagePath=path.join("public","uploads","re-image",imageNameToServer)
         if(fs.existsSync(imagePath)){
             await fs.unlinkSync(imagePath);
-            console.log(`Image ${imageNameToserver}deleted successfully`)
+            console.log(`Image ${imageNameToServer}deleted successfully`)
         }else{
-            console.log(`Imagem${imageNameToserver} not found`)
+            console.log(`Imagem${imageNameToServer} not found`)
         }
         res.send({status:true})
         
     } catch (error) {
         console.log(error)
         res.redirect("/pageError")
+        
+    }
+}
+const softDeleteProduct=async(req,res)=>{
+    const productId=req.body._id
+    
+    try {
+       
+        await Product.findByIdAndUpdate(productId,{isDeleted:true});
+        res.json({ status: true, message: 'Product deleted successfully' });
+        
+    } catch (error) {
+        console.error(error);
+        res.json({ status: false, message: 'Error deleting product' });
         
     }
 }
@@ -267,4 +286,5 @@ module.exports={
     getEditProduct,
     editProduct,
     deleteSingleImage,
+    softDeleteProduct,
 }

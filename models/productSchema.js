@@ -54,6 +54,7 @@ const productSchema = new Schema({
         required:true,
         default:"Available"
     },
+    isDeleted:{type:Boolean,default:false},
 },{timestamps:true});
 const Product=mongoose.model("Product",productSchema)
 module.exports=Product;

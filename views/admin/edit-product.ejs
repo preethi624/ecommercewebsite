@@ -229,18 +229,18 @@
                                   
                                        <div class="col-md-12">
                                            <div class="mb-4">
-                                               <div class="col-12">
-                                                   <td>
-                                                       <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
-                                                       <img class="rounded" style="width: 50px; height: 60px;"
-                                                           src="/uploads/product-images/<%=product.productImage[i]%>"
-                                                           alt="">
-                                                           <button onclick="deleteSingleImage(event,'<%= product.productImage[i] %>','<%= product._id %>')
-" style=" margin-left: .5rem; cursor: pointer;" type="button">Test</button>
+                                            
+                                            <div class="col-12">
+                                                <td>
+                                                    <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
+                                                    <img class="rounded" style="width: 50px; height: 60px;"
+                                                        src="/uploads/product-images/<%=product.productImage[i]%>"
+                                                        alt="">
+                                                    <i onclick="deleteSingleImage('<%= product.productImage[i] %>','<%= product._id %>')
+" style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
+                                                </td>
+                                            </div>
 
-
-                                                   </td>
-                                               </div>
                                               
                                            </div>
                                        </div>
@@ -307,7 +307,7 @@
 
 
                                <button class="btn btn-md rounded font-sm hover-up   btn-sm btn-primary " id="updatebtn"
-                                   type="button"   onclick="validateAndSubmit()">Update</button>
+                                   type="submit"   onclick="validateAndSubmit()">Update</button>
                            </div>
                        </form>
                    </div>
@@ -509,13 +509,13 @@ function viewImage1(event) {
                addedImagesContainer.appendChild(thumbnail);
            }
        };
-       function deleteSingleImage(event,imageId,productId){
-        alert(productId)
-        event.preventDefault()
+       function deleteSingleImage(imageId,productId){
+        
+       
         
         console.log("deleteSingleImage function triggered");
         $.ajax({
-            url:"admin/deleteImage",
+            url:"/admin/deleteImage",
             method:'post',
             data:{imageNameToServer:imageId,productIdToServer:productId},
             success:((response)=>{

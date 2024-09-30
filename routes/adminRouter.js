@@ -17,17 +17,17 @@ const productStorage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname)); // Appending extension
     }
 });
-const reImageStorage = multer.diskStorage({
+/*const reImageStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'public/uploads/re-image'); // Destination for re-images
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname)); // Unique name for each image
     }
-});
+});*/
 
 const uploads = multer({ storage: productStorage }); // Create multer instance
-const reImageUploads = multer({ storage: reImageStorage });
+//const reImageUploads = multer({ storage: reImageStorage });
 
 router.get("/pageError",adminController.pageError)
 router.get("/login",adminController.loadLogin)
@@ -55,8 +55,9 @@ router.get("/product",adminAuth,productController.getAllProducts);
 router.post("/addProductOffer",adminAuth,productController.addProductOffer);
 router.post("/removeProductOffer",adminAuth,productController.removeProductOffer)
 router.get("/editProduct",adminAuth,productController.getEditProduct);
-router.post("/editProduct/:id",adminAuth,reImageUploads.array("images",4),productController.editProduct)
+router.post("/editProduct/:id",adminAuth,uploads.array("images",4),productController.editProduct)
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
+router.post('/softDeleteProduct',adminAuth,productController.softDeleteProduct)
 
 
 
