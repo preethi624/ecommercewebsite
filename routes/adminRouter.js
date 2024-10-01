@@ -57,7 +57,10 @@ router.post("/removeProductOffer",adminAuth,productController.removeProductOffer
 router.get("/editProduct",adminAuth,productController.getEditProduct);
 router.post("/editProduct/:id",adminAuth,uploads.array("images",4),productController.editProduct)
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
-router.post('/softDeleteProduct',adminAuth,productController.softDeleteProduct)
+router.post("/softDeleteProduct",adminAuth,productController.softDeleteProduct)
+router.get('/softProducts',adminAuth,productController.viewSoftDeletedProduct)
+router.post("/restoreProduct",adminAuth,productController.restore)
+
 
 
 

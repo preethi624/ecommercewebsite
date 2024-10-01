@@ -158,7 +158,7 @@ const loadLogin=async(req,res)=>{
         }
         
     } catch (error) {
-        res.redirect("page not found")
+        res.redirect("/page not found")
         
     }
 }

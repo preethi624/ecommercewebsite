@@ -74,7 +74,7 @@ const getAllProducts=async(req,res)=>{
         const page=parseInt(req.query.page)||1;
         const limit=4;
         const productData=await Product.find({
-            $or:[
+            $and:[{isDeleted:false},
                 {productName:{$regex:new RegExp(".*"+search+".*","i")}}
 
             ]
@@ -83,7 +83,7 @@ const getAllProducts=async(req,res)=>{
             console.log(product.productImage);
         });
         const count=await Product.find({
-            $or:[
+            $and:[{isDeleted:false},
                 {productName:{$regex:new RegExp(".*"+search+".*","i")}}
 
             ] 
@@ -263,16 +263,46 @@ const deleteSingleImage=async(req,res)=>{
     }
 }
 const softDeleteProduct=async(req,res)=>{
-    const productId=req.body._id
+    const {productId}=req.body
     
     try {
        
-        await Product.findByIdAndUpdate(productId,{isDeleted:true});
+        await Product.findByIdAndUpdate(productId,{$set:{isDeleted:true}});
         res.json({ status: true, message: 'Product deleted successfully' });
         
     } catch (error) {
         console.error(error);
         res.json({ status: false, message: 'Error deleting product' });
+        
+    }
+}
+const viewSoftDeletedProduct=async(req,res)=>{
+    try {
+        const softDeletedProducts = await Product.find({ isDeleted: true });
+        
+        
+        res.render('soft-products.ejs', {
+          products: softDeletedProducts
+        })
+        
+    } catch (error) {
+        console.error("Error fetching soft-deleted products:", error);
+        res.status(500).send("Internal Server Error");
+        
+    }
+}
+const restore=async(req,res)=>{
+    try {
+        console.log("Request body:", req.body);
+        console.log(req.body)
+        const { id } = req.body;
+    await Product.findByIdAndUpdate(id, { isDeleted: false });
+    res.json({ status: true, message: 'Product restored successfully' })
+        
+    } catch (error) {
+        console.error('Error restoring product:', error);
+    res.status(500).json({ status: false, message: 'Failed to restore product' });
+        
         
     }
 }
@@ -287,4 +317,6 @@ module.exports={
     editProduct,
     deleteSingleImage,
     softDeleteProduct,
+    viewSoftDeletedProduct,
+    restore,
 }

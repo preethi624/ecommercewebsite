@@ -235,8 +235,8 @@
                             <%= JSON.stringify(data[i].images) %>
                         </td>
                         <td>
-                            <button class="btn btn-danger" style="width: 80px" onclick="softDelete('<%=data[i]._id%>')">
-                                <a href="" class="text-white">Delete</a>
+                            <button class="btn btn-danger" style="width: 80px" onclick="softDeleteProduct('<%=data[i]._id%>')">
+                               Delete
                             </button>
                           </td
 
@@ -252,6 +252,7 @@
                          
                 </tbody>
             </table>
+            <a href="/admin/softProducts">View soft deleted products</a>
         </div>
         <div class="pagination-container">
            

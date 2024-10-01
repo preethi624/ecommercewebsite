@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soft Deleted Products</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body>
+  <h1>Soft Deleted Products</h1>
+  <ul>
+    <% products.forEach(product => { %>
+      <li>
+        <%= product.productName %> - <%= product.description %>
+        <button onclick="restoreProduct(`<%= product._id %>`)">Restore</button>
+      </li>
+    <% }); %>
+  </ul>
+  <a href="/admin/product">Back to Product Management</a>
+
+  <script>
+    async function restoreProduct(productId) {
+      console.log("Product ID being restored:", productId); 
+      try {
+        const response = await fetch('/admin/restoreProduct', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ id: productId })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status) {
+          Swal.fire('Success', 'Product restored successfully!', 'success').then(() => {
+            location.reload(); // Reload the page to reflect changes
+          });
+        } else {
+          Swal.fire('Error', data.message || 'Failed to restore category', 'error');
+        }
+      } catch (error) {
+        
+        Swal.fire('Error', 'An error occurred while restoring the category', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
