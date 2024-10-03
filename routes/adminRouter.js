@@ -60,6 +60,7 @@ router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 router.post("/softDeleteProduct",adminAuth,productController.softDeleteProduct)
 router.get('/softProducts',adminAuth,productController.viewSoftDeletedProduct)
 router.post("/restoreProduct",adminAuth,productController.restore)
+router.get("/demoAdmin",adminAuth,customerController.demo)
 
 
 

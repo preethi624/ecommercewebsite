@@ -1,4 +1,6 @@
 const User = require("../../models/userSchema");
+const Category=require("../../models/categorySchema")
+const Product=require("../../models/productSchema")
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -10,23 +12,47 @@ const pageNotFound = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 };
-
 const loadHomepage = async (req, res) => {
     try {
-        const user=req.session.user;
-        if(user){
-            const userData=await User.findOne({_id:user.id})
-            res.render("home",{user:userData.username})
-        }else{
-
-return res.render("home");
-        }
+        const user = req.session.user;  // Fetch the session data for the user
+        const categories = await Category.find({ isListed: true });
         
+        let productData = await Product.find({
+            isBlocked: false,
+            category: { $in: categories.map(category => category._id) }
+        });
+
+        // Sort products by creation date and limit to 8
+        productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        productData = productData.slice(0, 8);
+
+        res.setHeader('Cache-Control', 'no-store');
+
+        if (user) {
+            // If the user is a demo user, render the home page with demo-specific logic
+            if (user.isDemo) {
+                return res.render("home", { user: user.username, products: productData });
+            } 
+            
+            // Handle regular user
+            if (user.id) {
+                const userData = await User.findOne({ _id: user.id });
+                
+                if (userData) {
+                    return res.render("home", { user: userData.username, products: productData });
+                }
+            }
+        }
+
+        // If no user is logged in, or user details aren't available, render home without user
+        return res.render("home", { products: productData });
+
     } catch (error) {
-        console.log("homepage not found");
-        res.status(500).send("server error");
+        console.error(error);
+        res.status(500).send("Server error occurred while loading the homepage.");
     }
 };
+
 
 const loadSignup = async (req, res) => {
     try {
@@ -152,7 +178,8 @@ const resendOtp=async (req,res)=>{
 const loadLogin=async(req,res)=>{
     try {
         if(!req.session.user){
-            return res.render("login")
+            res.setHeader('Cache-Control', 'no-store');
+            return res.render("login",{message:""})
         }else{
             res.redirect("/")
         }
@@ -196,6 +223,8 @@ const logout=async (req,res)=>{
                 console.log("Session destruction error",err.message)
                 return res.redirect("/pageNotFound")
             }
+            res.clearCookie('connect.sid');
+            res.setHeader('Cache-Control', 'no-store');
             return res.redirect("/login")
         })
         
@@ -207,14 +236,34 @@ const logout=async (req,res)=>{
 }
 const products=async (req,res)=>{
     try {
+        const productId=req.query.id;
+        const product=await Product.findById(productId);
+        if(!product){
+            return res.status(404).send("product not found")
+        }
+        res.render("product.ejs",{product})
         
         
     } catch (error) {
+        res.status(500).send("server error")
         
     }
 }
-    
+const productDetails=async(req,res)=>{
+    try {
+        const productId=req.query.id;
+        const product=await Product.findById(productId);
+        if(!product){
+            return res.status(404).send("product not found")
+        }
+        res.render('product-details.ejs',{product})
         
+    } catch (error) {
+        res.status(500).send("server error")
+        
+    }
+}
+   
 
 
 module.exports = {
@@ -227,5 +276,7 @@ module.exports = {
     loadLogin,
     login,
     logout,
+    productDetails,
+    products,
     
 };

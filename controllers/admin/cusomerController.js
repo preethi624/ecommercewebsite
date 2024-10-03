@@ -62,8 +62,21 @@ const customerunBlocked=async(req,res)=>{
         
     }
 }
+const demo=async(req,res)=>{
+    try {
+        res.render("dashboard.ejs")
+        
+    } catch (error) {
+        res.redirect("/pageError")
+        
+    }
+
+}
+
 module.exports={
     customerinfo,
     customerBlocked,
     customerunBlocked,
+    demo,
+    
 }

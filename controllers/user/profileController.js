@@ -156,6 +156,13 @@ const postNewPassword=async(req,res)=>{
         
     }
 }
+const demo=async(req,res)=>{
+    req.session.user={username:'user',role:'user',id:'demo-user-id',isDemo:true}
+    
+res.redirect('/')
+
+
+}
 
 module.exports={
     getForgotPassPage,
@@ -164,4 +171,5 @@ module.exports={
     getResetPassPage,
     resendOtp,
     postNewPassword,
+    demo,
 }

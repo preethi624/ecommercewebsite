@@ -5,7 +5,8 @@ const env=require("dotenv").config()
 const session=require("express-session")
 const db=require("./config/db")
 const userRouter=require("./routes/userRouter")
-const passport=require("./config/passport")
+const passport=require("passport")
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const adminRouter=require('./routes/adminRouter')
 
 db()
@@ -24,6 +25,24 @@ app.use(session({
 }))
 app.use(passport.initialize());
 app.use(passport.session())
+passport.use(new GoogleStrategy({
+    clientID: '432955743179-70aj40hp7shh7j9iq6c8bupq8m491g53.apps.googleusercontent.com',
+    clientSecret: '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',
+    callbackURL: '/auth/google/callback' // Callback route
+}, function (accessToken, refreshToken, profile, done) {
+    // Here, you would usually save the profile information in the database
+    // But for this example, we'll just return the profile
+    return done(null, profile);
+}));
+
+// Serialize and deserialize user (used for session handling)
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
 app.use((req,res,next)=>{
     res.set('cache-control','no-atore')
     next()

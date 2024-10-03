@@ -1,0 +1,164 @@
+<%- include("../../views/partials/user/header") %>
+<!-- Breadcrumbs Section -->
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    
+    <li><a href="#"> <%= product.productName %></a></li>
+</ul>
+
+<style>
+    /* Breadcrumbs Style */
+    .breadcrumb {
+        display: flex;
+        list-style: none;
+        padding: 10px 0;
+        margin-bottom: 20px;
+        background-color: transparent;
+    }
+
+    .breadcrumb li {
+        margin-right: 5px;
+    }
+
+    .breadcrumb li a {
+        text-decoration: none;
+        color: #007bff;
+        transition: color 0.2s ease;
+    }
+
+    .breadcrumb li a:hover {
+        color: #0056b3;
+    }
+
+    .breadcrumb li::after {
+        content: '>';
+        margin-left: 5px;
+    }
+
+    .breadcrumb li:last-child::after {
+        content: ''; /* Remove '>' after the last breadcrumb */
+    }
+
+    .breadcrumb li:last-child a {
+        color: #6c757d; /* Different color for the current page */
+        pointer-events: none; /* Disable link for current page */
+    }
+
+    .product-section {
+        display: flex;
+        align-items: flex-start;
+        gap: 30px;
+    }
+
+    .product-img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+        transition: transform 0.25s ease;
+    }
+
+    .thumbnail-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-right: 20px;
+    }
+
+    .thumbnail-gallery img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid #ddd;
+        border-radius: 4px;
+        transition: border-color 0.2s ease;
+    }
+
+    .thumbnail-gallery img:hover {
+        border-color: #007bff;
+    }
+
+    .details {
+        max-width: 500px;
+    }
+
+    .notify-section button {
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+        .product-section {
+            flex-direction: column;
+        }
+
+        .product-img {
+            width: 100%;
+        }
+    }
+</style>
+
+<section class="product-details">
+    <div class="container" style="margin: 200px;">
+        
+
+        <!-- Product section layout: thumbnails, main image, details in one row -->
+        <div class="product-section">
+            <div class="thumbnail-gallery">
+                <% if (product.productImage.length > 1) { %>
+                    <% product.productImage.forEach(function(image, index) { %>
+                        <img src="/uploads/product-images/<%= image %>" alt="Image <%= index + 1 %>" onclick="changeMainImage('/uploads/product-images/<%= image %>')">
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <div class="main-image-container">
+                <img id="main-product-img" class="product-img" src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+            </div>
+
+            <div class="details">
+                <h2><%= product.productName %></h2>
+                <p style="color: gray; font-size: smaller; margin-top: 0">0 ratings & 0 reviews</p>
+                <h4>Price: Rs <%= product.salePrice %></h4>
+                <p><%= product.description %></p>
+
+                <% if (product.quantity > 0) { %>
+                    <h4>Stock: <%= product.quantity %> Kg</h4>
+                <% } else { %>
+                    <h4>Sold Out</h4>
+                    <h4 style="color: gray;">The item is currently out of stock</h4>
+                    <div class="notify-section">
+                        <input type="email" placeholder="Enter your email" required>
+                        <button type="button">Notify Me</button>
+                    </div>
+                <% } %>
+
+                <p style="margin-top: 50px;">Highlights: <%= product.description %></p>
+                <p>Expiry: 10 days</p>
+                <p>30-day return policy</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Function to change the main product image when a thumbnail is clicked
+    function changeMainImage(newImageUrl) {
+        const mainImg = document.getElementById('main-product-img');
+        mainImg.src = newImageUrl;
+    }
+
+    // Zoom functionality
+    const mainImg = document.getElementById('main-product-img');
+    mainImg.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.5)';
+    });
+
+    mainImg.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+    });
+</script>

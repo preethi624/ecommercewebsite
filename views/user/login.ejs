@@ -143,16 +143,30 @@
 
                 
                 <button type="submit">Login</button>
+                <%if(message){%>
+                    <p style="color: red;"><%=message%></p>
+                    <%}%>
                 
                 <p>Or login with</p>
                 <div class="social-btns">
-                    <a href="/auth/google" class="btn btn-outline-danger">
+                    <a href="/auth/google" class="btn btn-outline-danger  google-login">
                       <img src="images/googlesignup.png" alt="Google Logo" style="width: 24px; height: 24px">
                     </a>
                 </div>
+                <div class="form-group" style="margin-top: 50px;">
+                    <label for="role">Demo login</label>
+                    <select style="background-color: green; color:white" id="role" name="role" class="form-control" required>
+                        <option value="user">Demo User</option>
+                        <option value="admin">Demo Admin</option>
+                    </select>
+                </div>
+
+         <button type="button" id="demoLoginButton" class="btn btn-success" style="margin-top: 10px;">Demo Login</button>
+
             </form>
+
             <div style="margin-top: 100px; margin-left:100px;">
-                <p>Not registerd?<a href="#">Signup</a></p>
+                <p>Not registerd?<a href="/signup">Signup</a></p>
 
             </div>
            
@@ -161,46 +175,60 @@
         <div class="image-container"></div>
     </div>
     <script>
-        // Get form and input fields
+      
         const form = document.getElementById('loginForm');
         const email = document.getElementById('email');
         const password = document.getElementById('password');
         const emailError = document.getElementById('emailError');
         const passwordError = document.getElementById('passwordError');
-    
-        // Regex for email validation
+
+       
+
+        document.getElementById('demoLoginButton').addEventListener('click', function () {
+        const role = document.getElementById('role').value;
+        if (role === 'user') {
+            window.location.href = '/demoUser';
+        } else if (role === 'admin') {
+            window.location.href ="/admin/demoAdmin";
+        }
+    });
+        
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     
         // Client-side validation
         form.addEventListener('submit', function(event) {
             let valid = true;
-            console.log('Validation started');
     
-            // Email validation
-            if (!emailRegex.test(email.value)) {
-                emailError.textContent = 'Please enter a valid email address.';
-                valid = false;
-                console.log('Invalid email');
-            } else {
-                emailError.textContent = ''; // Clear error if valid
-            }
-    
-            // Password validation
-            if (password.value.length < 6) {
-                passwordError.textContent = 'Password must be at least 6 characters long.';
-                valid = false;
-                console.log('Invalid password');
-            } else {
-                passwordError.textContent = ''; // Clear error if valid
-            }
-    
-            // If validation fails, prevent form submission
-            if (!valid) {
-                console.log('Form submission prevented');
-                event.preventDefault();
-            } else {
-                console.log('Form is valid and will be submitted');
-            }
+    // Reset errors
+    emailError.textContent = '';
+    passwordError.textContent = '';
+
+    // Email validation
+    if (email.value.trim() === '') {
+        emailError.textContent = 'Email is required.';
+        valid = false;
+    } else if (!emailRegex.test(email.value)) {
+        emailError.textContent = 'Please enter a valid email address.';
+        valid = false;
+    }
+
+    // Password validation
+    if (password.value.trim() === '') {
+        passwordError.textContent = 'Password is required.';
+        valid = false;
+    } else if (password.value.length < 6) {
+        passwordError.textContent = 'Password must be at least 6 characters long.';
+        valid = false;
+    } else if (!passwordRegex.test(password.value)) {
+        passwordError.textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.';
+        valid = false;
+    }
+
+    // If validation fails, prevent form submission
+    if (!valid) {
+        event.preventDefault();
+    }
         });
     </script>
 
