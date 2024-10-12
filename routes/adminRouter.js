@@ -55,5 +55,6 @@ router.post("/softDeleteProduct",adminAuth1,productController.softDeleteProduct)
 router.get('/softProducts',adminAuth1,productController.viewSoftDeletedProduct)
 router.post("/restoreProduct",adminAuth,productController.restore)
 router.get("/demoAdmin",adminAuth1,customerController.demo)
+router.get("/admin/orders",)
 
 module.exports=router
