@@ -57,7 +57,7 @@ const addProducts=async(req,res)=>{
 
             })
             await newProduct.save();
-            return res.redirect("/admin/addProducts")
+            return res.redirect("/admin/product")
         }else{
             return res.status(400).json("Product already exist,try with another name")
         }
@@ -139,38 +139,38 @@ const removeProductOffer = async (req, res) => {
     try {
         const { productId } = req.body;
 
-        // Check if productId is provided
+        
         if (!productId) {
             return res.status(400).json({ status: false, message: "Product ID is required" });
         }
 
-        // Find the product by ID
+        
         const findProduct = await Product.findOne({ _id: productId });
 
-        // Check if product exists
+       
         if (!findProduct) {
             return res.status(404).json({ status: false, message: "Product not found" });
         }
 
-        // Log product details before updating
+      
         console.log("Product found:", findProduct);
 
-        // Reset the sale price to regular price and product offer to 0
+        
         findProduct.salePrice = findProduct.regularPrice;
         findProduct.productOffer = 0;
 
-        // Save the updated product
+       
         await findProduct.save();
 
-        // Log after saving
+       
         console.log("Product offer removed successfully:", findProduct);
 
-        // Send success response
+        
         return res.json({ status: true, message: "Product offer removed successfully" });
     } catch (error) {
         console.error("Error removing product offer:", error);
 
-        // Return an error response
+      
         return res.status(500).json({ status: false, message: "Internal server error" });
     }
 };
@@ -193,48 +193,52 @@ const getEditProduct=async(req,res)=>{
 }
 const editProduct = async (req, res) => {
     try {
-        const id = req.params.id;
-        const product=await Product.findOne({_id:id})
-        const data = req.body;
+        const productId = req.params.id;
 
+        // Extract the form data
+        const { productName, description, regularPrice, salePrice, quantity, color, category: categoryName, existingImages, replaceImages } = req.body;
+        const newImages = req.files; // This will be an array of uploaded files
+
+        // Find the category by name to get the ObjectId
+        const category = await Category.findOne({ name: categoryName });
         
-        const existingProduct = await Product.findOne({
-            productName: data.productName,
-            _id: { $ne: id },
-        });
-        if (existingProduct) {
-            return res.status(400).json({ error: "Product with this name already exists. Please try another name." });
+        if (!category) {
+            return res.status(400).send('Category not found');
         }
 
-       
-
-        const images = [];
-        if (req.files && req.files.length > 0) {
-            for (let i = 0; i < req.files.length; i++) {
-                images.push(req.files[i].filename); // Collect new images
-            }
-           
-        }
-
- const updateFields = {
-            productName: data.productName,
-            description: data.description,
-            regularPrice: data.regularPrice,
-            salePrice: data.salePrice,
-            quantity: data.quantity,
-            size: data.size,
-            color: data.color,
+        // Construct the updated product data
+        const updatedProductData = {
+            productName,
+            description,
+            regularPrice,
+            salePrice,
+            quantity,
+            color,
+            category: category._id, // Use the ObjectId for the category
         };
-       if(req.files.length>0){
-        updateFields.$push={productImage:{$each:images}};
-       }
-       await Product.findByIdAndUpdate(id,  updateFields , { new: true });
-        
-        res.redirect("/admin/product");
-        
+
+        // Check if we should replace existing images
+        if (replaceImages) {
+            // If replaceImages is true, overwrite existing images
+            updatedProductData.productImage = newImages.map(file => file.filename); // Only new uploads
+        } else {
+            // If not replacing, keep existing images and add new ones
+            updatedProductData.productImage = existingImages ? existingImages : []; // Start with existing images
+            if (newImages && newImages.length > 0) {
+                const newImagePaths = newImages.map(file => file.filename); // Get filenames of new uploads
+                updatedProductData.productImage.push(...newImagePaths); // Add new images
+            }
+        }
+
+        // Update the product in the database
+        await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+
+        // Redirect or respond with a success message
+        res.redirect('/admin/product'); // Redirect to the products list or any other page
+
     } catch (error) {
-        console.error(error);
-        res.redirect("/pageError");
+        console.error('Error updating product:', error);
+        res.status(500).send('Internal Server Error');
     }
 };
 
@@ -306,6 +310,59 @@ const restore=async(req,res)=>{
         
     }
 }
+const updateImage=async(req,res)=>{
+    try {
+        const { productId, oldImage } = req.params;
+
+    // Remove old image
+    const oldImagePath = path.join(__dirname, 'public/uploads/product-images/', oldImage);
+    if (fs.existsSync(oldImagePath)) {
+      fs.unlinkSync(oldImagePath);
+    }
+
+    // Save the new image path to the product's database record
+    const product = await Product.findById(productId);
+    const index = product.productImage.indexOf(oldImage);
+    if (index !== -1) {
+      product.productImage[index] = req.file.filename;
+    }
+    await product.save();
+
+    res.status(200).send('Image updated successfully');
+  
+    } catch (error) {
+
+        console.error(error);
+    res.status(500).send('Server error');
+    }
+}
+
+const saveCropped=async(req,res)=>{
+    try {
+      console.log("save cropped called")
+        console.log("request body",req.body)
+        
+        const croppedImageData = req.body.croppedImage;
+    const oldImagePath = req.body.oldImagePath;
+    console.log("old image path",oldImagePath)
+    const base64Data = croppedImageData.replace(/^data:image\/png;base64,/, "");
+    
+    // Use the old image path to replace the old image
+    const imagePath = path.join(__dirname, oldImagePath);
+    fs.writeFile(imagePath,base64Data,'base64',(err)=>{
+        if (err) {
+            return res.status(500).send('Error replacing image');
+        }
+        res.status(200).send('Image replaced successfully');
+    })
+        
+    } catch (error) {
+        res.status(500).send("server error")
+        
+    }
+}
+
+
 
 module.exports={
     getProductAddPage,
@@ -319,4 +376,8 @@ module.exports={
     softDeleteProduct,
     viewSoftDeletedProduct,
     restore,
+    updateImage,
+    saveCropped,
+    
+    
 }

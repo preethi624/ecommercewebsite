@@ -1,6 +1,7 @@
 const User = require("../../models/userSchema");
 const Category=require("../../models/categorySchema")
 const Product=require("../../models/productSchema")
+
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -14,7 +15,7 @@ const pageNotFound = async (req, res) => {
 };
 const loadHomepage = async (req, res) => {
     try {
-        const user = req.session.user;  // Fetch the session data for the user
+        const user = req.session.user;  
         const categories = await Category.find({ isListed: true });
         
         let productData = await Product.find({
@@ -22,29 +23,36 @@ const loadHomepage = async (req, res) => {
             category: { $in: categories.map(category => category._id) }
         });
 
-        // Sort products by creation date and limit to 8
+      
         productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productData = productData.slice(0, 8);
 
         res.setHeader('Cache-Control', 'no-store');
 
         if (user) {
-            // If the user is a demo user, render the home page with demo-specific logic
             if (user.isDemo) {
-                return res.render("home", { user: user.username, products: productData });
-            } 
+                
+                return res.render("home", { user: user, products: productData });
+            }
+            const userData = await User.findById(user.id);
             
-            // Handle regular user
+            if(userData.isBlocked){
+                return res.render("home.ejs",{ products: productData })
+            }
+            
+            
+            
+           
             if (user.id) {
                 const userData = await User.findOne({ _id: user.id });
                 
                 if (userData) {
-                    return res.render("home", { user: userData.username, products: productData });
+                    return res.render("home", { user: userData, products: productData });
                 }
             }
         }
 
-        // If no user is logged in, or user details aren't available, render home without user
+       
         return res.render("home", { products: productData });
 
     } catch (error) {
@@ -96,6 +104,13 @@ async function sendVerificationEmail(email, otp) {
 const signup = async (req, res) => {
     try {
         const { username, phone, email, password } = req.body;
+        if (req.session.user) {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error("Error clearing old session", err);
+                }
+            });
+        }
         const findUser = await User.findOne({ email });
         if (findUser) {
             return res.render("signup", { message: "User with this email already exists." });
@@ -139,8 +154,14 @@ const verifyOtp = async (req, res) => {
                 password:passwordHash
             })
             await saveUserData.save()
+            req.session.regenerate((err) => {
+                if (err) {
+                    console.error("Error regenerating session", err);
+                    return res.status(500).json({ success: false, message: "Session error" });
+                }
             req.session.user=saveUserData._id;
             res.json({success:true,redirectUrl:"/"})
+            })
         }else{
             res.status(400).json({success:false,message:"Invalid OTP,please try again"})
         }

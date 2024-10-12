@@ -1,0 +1,61 @@
+<!-- ... existing code ... -->
+
+<!-- Shipping Address with Edit Option -->
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Order Summary</h1>
+  
+  <div class="row">
+    <!-- Product Details -->
+    <div class="col-md-6">
+      <h4>Product Details</h4>
+      <div class="card p-3 mb-4">
+        <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>" class="img-fluid mb-3" style="width: 200px;">
+        <h5><%= product.productName %></h5>
+        <p>Price: Rs <%= product.salePrice %></p>
+        <p>Quantity: <%= quantity %> Kg</p>
+        <p><strong>Total: Rs <%= (product.salePrice * quantity).toFixed(2) %></strong></p>
+      </div>
+    </div>
+    
+    <!-- Billing & Shipping Section -->
+    <div class="col-md-6">
+      <!-- Shipping Address -->
+      <h4>Shipping Address</h4>
+      <div class="card p-3 mb-4">
+        <% if (user.defaultAddress) { %>
+          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+          <% if (defaultAddress) { %>
+            <p>
+              <strong><%= defaultAddress.fullName %></strong><br>
+              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+            </p>
+          <% } else { %>
+            <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+          <% } %>
+          <button class="btn btn-outline-primary mb-3" onclick="window.location.href='/user/addresses'">Change Address</button>
+        <% } else { %>
+          <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+        <% } %>
+      </div>
+
+      <!-- Billing Details -->
+      <h4>Billing Details</h4>
+      <div class="card p-3">
+        <p>Subtotal: Rs <%= (product.salePrice * quantity).toFixed(2) %></p>
+        <p>Shipping Fee: <%=shippingFee%></p>
+        <p>Taxes: <%=taxes%></p>
+        <hr>
+        <p><strong>Total: Rs <%= ((product.salePrice *quantity) + shippingFee + taxes).toFixed(2) %></strong></p>
+      </div>
+
+      <!-- Proceed to Checkout -->
+      <div class="mt-4">
+        <a href="/order/checkout" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include("../partials/user/footer") %>

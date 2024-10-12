@@ -212,7 +212,7 @@
                             <td>
                                 <%if(userData[i].isBlocked===false){%>
                                     <button class="btn btn-danger">
-                                        <a href="/admin/blockCustomer?id=<%=userData[i]._id%>" class="text-white">Block</a>
+                                        <a href="/admin/blockCustomer?id=<%=userData[i]._id%>" onclick="return confirmBlock()" class="text-white">Block</a>
                                     </button>
                                     <%}else{%>
     
@@ -244,6 +244,11 @@
             </nav>
         </div>
     </div>
+    <script>
+        function confirmBlock(){
+            return confirm("Are you sure you want to block this customer")
+        }
+    </script>
     
     </body>
     

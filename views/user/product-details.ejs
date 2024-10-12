@@ -119,15 +119,18 @@
             <div class="main-image-container">
                 <img id="main-product-img" class="product-img" src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
             </div>
+            <form action="/cart/add/<%=product._id%>" method="POST">
 
             <div class="details">
                 <h2><%= product.productName %></h2>
                 <p style="color: gray; font-size: smaller; margin-top: 0">0 ratings & 0 reviews</p>
                 <h4>Price: Rs <%= product.salePrice %></h4>
-                <p><%= product.description %></p>
+               
 
                 <% if (product.quantity > 0) { %>
                     <h4>Stock: <%= product.quantity %> Kg</h4>
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="<%= product.quantity %>">
                 <% } else { %>
                     <h4>Sold Out</h4>
                     <h4 style="color: gray;">The item is currently out of stock</h4>
@@ -140,9 +143,22 @@
                 <p style="margin-top: 50px;">Highlights: <%= product.description %></p>
                 <p>Expiry: 10 days</p>
                 <p>30-day return policy</p>
+                <button>AddToCart</button>
+                
             </div>
+        </form> 
+
+        
         </div>
+        <%if(product.quantity>0){%>
+        <div style="margin-left: 1000px; margin-top:5px;">
+
+            <a href="/order/summary/<%= product._id %>" class="btn btn-primary">Order Now</a>
+        </div>
+        <%}%>
+      
     </div>
+    
 </section>
 
 <script>

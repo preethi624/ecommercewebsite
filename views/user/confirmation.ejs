@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmation</title>
+  <link rel="stylesheet" href="/path/to/your/css/styles.css"> <!-- Add your CSS here -->
+</head>
+<body>
+  <h1>Order Confirmation</h1>
+  
+  <div>
+    <h2>Order ID: <%= order.orderId %></h2>
+    <p>Status: <%= order.status %></p>
+    <p>Invoice Date: <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
+    
+    <h3>Shipping Address:</h3>
+    <p>
+      <%= order.address.street %>, <%= order.address.city %>, 
+      <%= order.address.state %>, <%= order.address.zipcode %>
+    </p>
+
+    <h3>Ordered Items:</h3>
+    <ul>
+      <% order.orderedItems.forEach(item => { %>
+        <li>
+          <strong><%= item.product.name %></strong> - 
+          Quantity: <%= item.quantity %> - 
+          Price: $<%= item.price %>
+        </li>
+      <% }); %>
+    </ul>
+
+    <h3>Summary:</h3>
+    <p>Total Price: $<%= order.totalPrice %></p>
+    <p>Discount: $<%= order.discount %></p>
+    <p>Final Amount: $<%= order.finalAmount %></p>
+  </div>
+  
+  <a href="/">Return to Home</a>
+</body>
+</html>

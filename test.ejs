@@ -1,26 +1,308 @@
-const loadHomepage = async (req, res) => {
-    try {
-        const user=req.session.user;
-        const categories=await Category.find({isListed:true})
-        let productData=await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)}})
-        productData.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))
-        productData=productData.slice(0,8);
-        res.setHeader('Cache-Control', 'no-store');
-        if(user){
-            if (user.isDemo) {
-                res.render("home", { user: user.username, products: productData });
-            }else{
-            const userData=await User.findOne({_id:user.id})
-            res.render("home",{user:userData.username,products:productData})
-            }
-        }else{
-
-return res.render("home",{products:productData});
-        }
-        
-    } catch (error) {
-        console.error(error)
-        console.log("homepage not found");
-        res.status(500).send("server error");
+const getCheckout=async(req,res)=>{
+  try {
+    const userId = req.session.user.id;
+    
+   
+    const user = await User.findById(userId).populate('addresses');
+    const productId=req.params.productId
+    console.log("product id",productId)
+    
+   
+    if (user.cart.length === 0) {
+      return res.redirect('/cart'); 
     }
-};
+
+    const cartItem = user.cart.find(item => item.product.toString() === productId);
+    
+    if (!cartItem) {
+      return res.status(404).send('Product not found in the cart.');
+    }
+    
+    const product = await Product.findById(cartItem.product);
+    const quantity = cartItem.quantity;
+    const total = product.salePrice * quantity;
+    
+    
+    const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString());
+    
+    res.render('checkout', {
+      order: {
+        product,
+        quantity,
+        total,
+        address: defaultAddress,
+        
+      },
+      user
+
+    
+    });
+    
+  } catch (error) {
+
+   console.error('Error fetching checkout page:', error);
+    res.status(500).send('An error occurred while preparing the checkout.'); 
+  }
+}
+const postCheckout=async(req,res)=>{
+  try {
+    const userId = req.session.user.id;
+    const { paymentMethod ,productId} = req.body;
+    
+    const user = await User.findById(userId).populate('addresses').populate('cart.product');
+    
+    if (!user || user.cart.length === 0) {
+      return res.redirect('/cart'); // Or show an appropriate message
+    }
+    
+    const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString());
+    
+    if (!defaultAddress) {
+      return res.redirect('/userProfile'); // Or prompt to add an address
+
+    }
+    const cartItem = user.cart.find(item => item.product._id.toString() === productId);
+
+    if (!cartItem) {
+      return res.status(400).send('Product not found in cart.');
+    }
+    
+    // Create order items
+    const orderItems = {
+      product: cartItem.product._id,
+      quantity: cartItem.quantity,
+      price: cartItem.product.salePrice,
+      
+    }
+    const totalPrice = orderItems.price * orderItems.quantity;
+    const finalAmount = totalPrice;
+   
+   
+    const newOrder = new Order({
+      user: userId,
+      orderedItems: [orderItems],
+      totalPrice,
+      finalAmount,  
+      address: defaultAddress._id,  
+      status: 'Pending', 
+      invoiceDate: new Date(),
+    });
+    
+    await newOrder.save();
+    
+    
+      const product = await Product.findById(cartItem.product._id);
+      if (product.quantity < cartItem.quantity) {
+        return res.status(400).send(`Not enough stock for ${product.productName}.`);
+      }
+      product.quantity -= cartItem.quantity;
+      await product.save();
+    
+      user.cart = user.cart.filter(item => item.product._id.toString() !== productId);
+
+    await user.save();
+    
+      
+      
+      res.redirect(`/order/confirmation/${newOrder._id}`);
+  
+    
+    
+    
+ 
+    
+  } catch (error) {
+    console.error('Error during checkout:', error);
+    res.status(500).send('An error occurred while placing the order.');  
+    
+  }
+
+}
+const confirmation=async(req,res)=>{
+  try {
+    const orderId = req.params.newOrderId;
+
+    
+    const order = await Order.findById(orderId)
+      .populate('orderedItems.product') 
+
+    if (!order) {
+      return res.status(404).send("Order not found");
+    }
+
+   
+    res.render("confirmation", {
+      order: order,  
+      orderedItems: order.orderedItems,
+      totalPrice: order.totalPrice,
+      finalAmount: order.finalAmount,
+      status: order.status,
+      address: order.address,
+      invoiceDate: order.invoiceDate
+    });
+    
+  } catch (error) {
+
+    console.error("Error retrieving order confirmation:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+module.exports={
+    addToCart,
+    getCart,
+    removeCart,
+    updateCart,
+    getOrderSummary,
+    getCheckout,
+    postCheckout,
+    confirmation,
+}
+
+
+
+
+//checckout
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+  
+  <form action="/order/checkout" method="POST">
+    <input type="hidden" name="productId" value="<%= order.product._id %>">
+    <!-- Order Summary -->
+    <div class="mb-4">
+      <h4>Order Summary</h4>
+      <p><strong>Product:</strong> <%= order.product.productName %></p>
+      <p><strong>Price:</strong> Rs <%= order.product.salePrice %></p>
+      <p><strong>Quantity:</strong> <%= order.product.quantity %> Kg</p>
+      <p><strong>Total:</strong> Rs <%= order.product.total %></p>
+    </div>
+    
+    <!-- Shipping Address -->
+    <div class="mb-4">
+      <h4>Shipping Address</h4>
+      <div class="card p-3 mb-4">
+        <% if (user.defaultAddress) { %>
+          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+          <% if (defaultAddress) { %>
+            <p>
+              <strong><%= defaultAddress.fullName %></strong><br>
+              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+            </p>
+            <button class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+          <% } else { %>
+            <p>No default address set. Please <a href="/userprofile">add an address</a>.</p>
+          <% } %>
+        <% } else { %>
+          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Payment Information (Placeholder) -->
+    <div class="mb-4">
+      <h4>Payment Information</h4>
+      <div class="form-group">
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+          <option value="">Select a payment method</option>
+          <option value="cod">Cash on Delivery</option>
+          <option value="card">Credit/Debit Card</option>
+          <!-- Add more payment methods as needed -->
+        </select>
+      </div>
+      <!-- Additional payment fields can be added here -->
+    </div>
+    
+    <!-- Place Order Button -->
+    <button type="submit" class="btn btn-success">Place Order</button>
+  </form>
+</div>
+
+<%- include("../partials/user/footer") %>
+
+
+
+
+
+
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+  
+  <form action="/order/checkout" method="POST">
+    <% if (order.items.length===1) { %> 
+      <!-- Single Product -->
+      <input type="hidden" name="productId" value="<%= order.items[0].product._id %>">
+    <% } %>
+    
+    <!-- Order Summary -->
+    <div class="mb-4">
+      <h4>Order Summary</h4>
+      
+      <% if ( order.items.length > 1) { %>
+        <!-- Multiple Products from Cart -->
+        <ul>
+          <% order.items.forEach(item => { %>
+            <li>
+              <p><strong>Product:</strong> <%= item.product.productName %></p>
+              <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
+              <p><strong>Quantity:</strong> <%= item.quantity %> Kg</p>
+              <p><strong>Total:</strong> Rs <%= item.total %></p>
+              <hr>
+            </li>
+          <% }); %>
+        </ul>
+        <p><strong>Grand Total:</strong> Rs <%= order.totalPrice %></p>
+      <% } else { %>
+        <!-- Single Product -->
+        <p><strong>Product:</strong> <%= order.product.productName %></p>
+        <p><strong>Price:</strong> Rs <%= order.product.salePrice %></p>
+        <p><strong>Quantity:</strong> <%= order.quantity %> Kg</p>
+        <p><strong>Total:</strong> Rs <%= order.total %></p>
+      <% } %>
+    </div>
+    
+    <!-- Shipping Address -->
+    <div class="mb-4">
+      <h4>Shipping Address</h4>
+      <div class="card p-3 mb-4">
+        <% if (user.defaultAddress) { %>
+          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+          <% if (defaultAddress) { %>
+            <p>
+              <strong><%= defaultAddress.fullName %></strong><br>
+              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+            </p>
+            <button class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+          <% } else { %>
+            <p>No default address set. Please <a href="/userprofile">add an address</a>.</p>
+          <% } %>
+        <% } else { %>
+          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Payment Information (Placeholder) -->
+    <div class="mb-4">
+      <h4>Payment Information</h4>
+      <div class="form-group">
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+          <option value="">Select a payment method</option>
+          <option value="cod">Cash on Delivery</option>
+          <option value="card">Credit/Debit Card</option>
+          <!-- Add more payment methods as needed -->
+        </select>
+      </div>
+      <!-- Additional payment fields can be added here -->
+    </div>
+    
+    <!-- Place Order Button -->
+    <button type="submit" class="btn btn-success">Place Order</button>
+  </form>
+</div>
+
+<%- include("../partials/user/footer") %>

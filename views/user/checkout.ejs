@@ -1,0 +1,81 @@
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+  
+  <form action="/order/checkout/" method="POST">
+
+    <% if (order.items.length===1) { %> 
+      <!-- Single Product -->
+      <input type="hidden" name="productId" value="<%= order.items[0].product._id %>">
+    <% } %>
+    
+    <!-- Order Summary -->
+    <div class="mb-4">
+      <h4>Order Summary</h4>
+      
+      <% if ( order.items.length > 1) { %>
+        <!-- Multiple Products from Cart -->
+        <ul>
+          <% order.items.forEach(item => { %>
+            <li>
+              <p><strong>Product:</strong> <%= item.product.productName %></p>
+              <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
+              <p><strong>Quantity:</strong> <%= item.quantity %> Kg</p>
+              <p><strong>Total:</strong> Rs <%= item.total %></p>
+              <hr>
+            </li>
+          <% }); %>
+        </ul>
+        <p><strong>Grand Total:</strong> Rs <%= order.totalPrice %></p>
+      <% } else { %>
+        <!-- Single Product -->
+        <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
+        <p><strong>Price:</strong> Rs <%= order.items[0].product.salePrice %></p>
+        <p><strong>Quantity:</strong> <%= order.items[0].quantity %> Kg</p>
+        <p><strong>Total:</strong> Rs <%= order.items[0].total %></p>
+      <% } %>
+    </div>
+    
+    <!-- Shipping Address -->
+    <div class="mb-4">
+      <h4>Shipping Address</h4>
+      <div class="card p-3 mb-4">
+        <% if (user.defaultAddress) { %>
+          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+          <% if (defaultAddress) { %>
+            <p>
+              <strong><%= defaultAddress.fullName %></strong><br>
+              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+            </p>
+            <button class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+          <% } else { %>
+            <p>No default address set. Please <a href="/userprofile">add an address</a>.</p>
+          <% } %>
+        <% } else { %>
+          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Payment Information (Placeholder) -->
+    <div class="mb-4">
+      <h4>Payment Information</h4>
+      <div class="form-group">
+        <label for="paymentMethod">Payment Method:</label>
+        <select id="paymentMethod" name="paymentMethod" class="form-control" required>
+          <option value="">Select a payment method</option>
+          <option value="cod">Cash on Delivery</option>
+          <option value="card">Credit/Debit Card</option>
+          <!-- Add more payment methods as needed -->
+        </select>
+      </div>
+      <!-- Additional payment fields can be added here -->
+    </div>
+    
+    <!-- Place Order Button -->
+    <button type="submit" class="btn btn-success">Place Order</button>
+  </form>
+</div>
+
+<%- include("../partials/user/footer") %>

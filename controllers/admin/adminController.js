@@ -1,6 +1,7 @@
 const User=require("../../models/userSchema")
 const mongoose=require("mongoose");
 const bcrypt=require("bcrypt");
+const { isAdmin } = require("../../middleware/auth");
 
 
 const pageError=async (req,res)=>{
@@ -28,7 +29,7 @@ const login=async (req,res)=>{
                 return res.render("admin-login",{message:"Incorrect password"})
     
             }
-            req.session.admin={id:findAdmin._id,name:findAdmin.name}
+            req.session.admin={id:findAdmin._id,name:findAdmin.name,isAdmin:true}
             res.redirect("/admin" )
         
     } catch (error) {

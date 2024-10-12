@@ -36,7 +36,7 @@ const addCategory=async (req,res)=>{
             return res.status(400).json({ error: "Name and description are required" });
         }
 
-        const existingCategory=await Category.findOne({name})
+        const existingCategory=await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }})
         if(existingCategory){
             return res.status(400).json({error:"Category already exists"})
         }
@@ -66,7 +66,7 @@ const addCategoryOffer = async (req, res) => {
             return res.status(400).json({ status: false, message: "Invalid category ID" });
         }
 
-        const category = await Category.findById(categoryId); // Find category by its _id
+        const category = await Category.findById(categoryId); 
         if (!category) {
             return res.status(404).json({ status: false, message: "Category not found" });
         }
@@ -78,10 +78,10 @@ const addCategoryOffer = async (req, res) => {
             return res.json({ status: false, message: "Products in this category already have offers" });
         }
 
-        // Update the category offer
+       
         await Category.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });
 
-        // Reset product offers and prices
+        
         for (const product of products) {
             product.productOffer = 0;
             product.salePrice = product.regularPrice;
@@ -160,7 +160,10 @@ const editCategory=async (req,res)=>{
     try {
         const id=req.params.id;
         const {categoryName,description}=req.body;
-        const existingCategory=await Category.findOne({name:categoryName});
+        const existingCategory = await Category.findOne({
+            _id: { $ne: id },  // Exclude the current category from duplicate check
+            name: { $regex: new RegExp(`^${categoryName}$`, 'i') }  // Case-insensitive regex match
+        })
         if(existingCategory){
             return res.status(400).json({error:"Category exists,please choose another name"})
         }

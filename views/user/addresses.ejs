@@ -1,0 +1,34 @@
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Select Shipping Address</h1>
+    <% if (addresses && addresses.length > 0) { %>
+       
+        <form id="address-form" method="POST">
+            <% addresses.forEach(address => { %>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="addressId" id="<%= address._id %>" value="<%= address._id %>" required>
+                    <label class="form-check-label" for="<%= address._id %>">
+                        <%= address.fullName %>, <%= address.address %>, <%= address.city %>, <%= address.country %> - <%= address.postalCode %>
+                    </label>
+                </div>
+            <% }) %>
+            <button type="submit" class="btn btn-primary mt-3">Set Default Address</button>
+        </form>
+
+    <% } else { %>
+        <p>No addresses found. Please <a href="/profile">add an address</a>.</p>
+    <% } %>
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+
+<script>
+    document.getElementById("address-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        const selectedAddressId = document.querySelector('input[name="addressId"]:checked').value; // Get the selected address ID
+        const actionUrl = `/profile/set-default-address/${selectedAddressId}`; // Construct the action URL
+        this.action = actionUrl; // Set the action attribute of the form
+        this.submit(); // Submit the form
+    });
+</script>

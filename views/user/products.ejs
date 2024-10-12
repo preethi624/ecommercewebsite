@@ -1,0 +1,49 @@
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Products</h1>
+
+    <!-- Search and Filter Form -->
+    <form id="search-form" method="GET" action="/products">
+        <input type="text" name="search" placeholder="Search products..." />
+        <select name="sort">
+            <option value="popularity">Popularity</option>
+            <option value="priceLowToHigh">Price: Low to High</option>
+            <option value="priceHighToLow">Price: High to Low</option>
+            <option value="averageRatings">Average Ratings</option>
+            <option value="featured">Featured</option>
+            <option value="newArrivals">New Arrivals</option>
+            <option value="aToZ">A - Z</option>
+            <option value="zToA">Z - A</option>
+        </select>
+        <label>
+            <input type="checkbox" name="showOutOfStock" value="true" <% if (showOutOfStock) { %> checked <% } %> />
+            Show Out of Stock Products
+        </label>
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="row mt-4">
+        <% products.forEach(product => { %>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 200px; height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title"><%= product.productName %></h5>
+                        <p class="card-text">Price: $<%= product.salePrice %></p>
+                        <p class="card-text">Stock: <%= product.quantity > 0 ? product.quantity : 'Out of stock' %></p>
+                        <% if (product.quantity > 0) { %>
+                            <form method="POST" action="/cart/add/<%=product._id%>">
+                                <input type="hidden" name="productId" value="<%= product._id %>">
+                                <input type="number" name="quantity" min="1" max="5" value="1" required>
+                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                            </form>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+</div>
+
+<%- include("../../views/partials/user/footer") %>

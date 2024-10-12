@@ -119,7 +119,7 @@
                 <input type="password" id="password" name="password" placeholder="Enter your password" >
                 <div id="error4" class="error-message"></div>
                 <% if(locals.message&&message.length>0){%>
-                    <div class="alert alert-danger text-center">
+                    <div id="serverError" class="alert alert-danger text-center">
                         <%=message%>
 
                     </div>
@@ -155,6 +155,13 @@
         const error3=document.getElementById("error3")
         const error4=document.getElementById("error4")
         const signform=document.getElementById("signform")
+        const serverError = document.getElementById("serverError");
+        function clearServerError() {
+            if (serverError) {
+                serverError.style.display = 'none';
+            }
+        }
+    
         function nameValidateChecking(){
             const nameval=nameid.value;
             const namepattern=/^[A-Za-z\s]+$/;
@@ -182,13 +189,20 @@
             }
         }
         function phoneValidateChecking(){
-            const phoneval=phoneid.value;
+
+            const phoneval=phoneid.value.trim();
+            const phoneDigits = phoneval.replace(/\D/g, '');
+
+
             if(phoneval.trim()===""){
                 error2.style.display="block";
                 error2.innerHTML="enter valid phone number"
             }else if(phoneval.length<10||phoneval.length>10){
                 error2.style.display="block";
                 error2.innerHTML="Enter 10 digit"
+                }else if(phoneDigits === "0000000000"){
+                    error2.style.display = "block";
+                    error2.innerHTML = "Phone number cannot be all zeros";
                 }else{
                     error2.style.display="none"
                     error2.innerHTML="";
@@ -222,6 +236,10 @@
                     e.preventDefault(); // Prevent form submission if there are any validation errors
                 }
             })
+            emailid.addEventListener('input', clearServerError);
+            phoneid.addEventListener('input', clearServerError);
+            nameid.addEventListener('input', clearServerError);
+            passid.addEventListener('input', clearServerError); 
 
         })
         

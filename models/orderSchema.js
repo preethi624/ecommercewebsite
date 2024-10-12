@@ -35,7 +35,7 @@ const orderSchema = new Schema({
     },
     finalAmount:{
         type:Number,
-        required:true
+        required:false
     },
     address:{
         type:Schema.Types.ObjectId,
@@ -43,7 +43,8 @@ const orderSchema = new Schema({
         required:true
     },
     invoiceDate:{
-        type:Date
+        type:Date,
+        default:Date.now
     },
     status:{
         type:String,

@@ -1,5 +1,16 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const addressSchema = new Schema({
+    fullName: { type: String},
+    address: { type: String},
+    city: { type: String},
+    postalCode: { type: String },
+    country: { type: String }
+  })
+  const cartItemSchema = new Schema({
+    product: { type: Schema.Types.ObjectId, ref: "Product", required: true }, // Ensure product is referenced correctly
+    quantity: { type: Number, required: true, default: 1 } // Default quantity set to 1
+});
 
 const userSchema = new Schema({
     // Name is required
@@ -56,10 +67,7 @@ const userSchema = new Schema({
     },
     
     // Optional: Cart and wishlist references
-    cart: [{
-        type: Schema.Types.ObjectId,
-        ref: "Cart",
-    }],
+    cart:[cartItemSchema], 
     
     wallet: {
         type: Number,
@@ -113,7 +121,12 @@ const userSchema = new Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    addresses: [addressSchema] ,
+    defaultAddress: {
+        type: Schema.Types.ObjectId,
+        ref: "Address" // You can reference a separate Address model or keep it as an ObjectId
+    }
 });
 
 // Validation to ensure that either email or phone is required

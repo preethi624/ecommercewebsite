@@ -1,0 +1,128 @@
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Your Cart</h1>
+  <div class="mb-4">
+    <h4>Shipping Address</h4>
+    
+    <% if (user.defaultAddress) { %>
+      <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+      <% if (defaultAddress) { %>
+        <p>
+          <%= defaultAddress.fullName %>, <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+        </p>
+      <% } else { %>
+        <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+      <% } %>
+      <button id="change-address-btn" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+    <% } else { %>
+      <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+    <% } %>
+  </div>
+  
+  <% if (cart.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cart.forEach(item => { %>
+          <tr>
+            <td> <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" width="100" height="100"></td>
+            <td><%= item.product.productName %></td>
+            <td>$<%= item.product.salePrice %></td>
+            <td>
+              <button class="btn btn-outline-secondary update-quantity" data-action="decrease">-</button>
+              <span class="quantity-value"><%= item.quantity %></span>
+              <button class="btn btn-outline-secondary update-quantity" data-action="increase">+</button>
+            </td>
+            <td class="product-total" data-product-price="<%= item.product.salePrice %>">$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
+
+            <td>
+              <form action="/cart/remove/<%= item.product._id %>" method="POST" onsubmit="return confirmRemove()">
+                <button type="submit" class="btn btn-danger btn-sm" >Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div class="text-end">
+      <div class="text-end" id="cart-total">Total: $<%= cartTotal.toFixed(2) %></div>
+
+      <a href="/order/checkout/" class="btn btn-primary">Proceed to Checkout</a>
+    </div>
+  <% } else { %>
+    <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
+  <% } %>
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+
+<script>
+  function confirmRemove() {
+    return confirm("Are you sure you want to remove this item from your cart?");
+  }
+  document.addEventListener('DOMContentLoaded', function () {
+    const updateQuantityButtons = document.querySelectorAll('.update-quantity');
+  
+    updateQuantityButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const action = this.getAttribute('data-action');
+        const row = this.closest('tr');
+        const productId = row.getAttribute('data-product-id');
+        let quantityElement = row.querySelector('.quantity-value');
+        let quantity = parseInt(quantityElement.textContent);
+  
+        // Adjust quantity based on action
+        if (action === 'increase') {
+          quantity += 1;
+        } else if (action === 'decrease') {
+          quantity = Math.max(1, quantity - 1); // Prevent quantity less than 1
+        }
+  
+        // Update the quantity in the UI
+        quantityElement.textContent = quantity;
+        const productPrice = parseFloat(row.querySelector('.product-total').getAttribute('data-product-price'));
+      const updatedTotal = (productPrice * quantity).toFixed(2); // Calculate updated total
+
+      // Update the product total in the UI
+      row.querySelector('.product-total').textContent = `$${updatedTotal}`;
+      let cartTotal = 0;
+            document.querySelectorAll('.product-total').forEach(totalElement => {
+                cartTotal += parseFloat(totalElement.textContent.replace('$', ''));
+            });
+
+            // Update the cart total in the UI
+            document.getElementById('cart-total').textContent = `Total: $${cartTotal.toFixed(2)}`;
+
+  
+        // Send AJAX request to update the quantity on the server
+        fetch(`/cart/update/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Update the product total and cart total in the UI
+            row.querySelector('.product-total').textContent = `$${data.updatedTotal.toFixed(2)}`; // Update product total
+            document.getElementById('cart-total').textContent = `Total:$${data.cartTotal.toFixed(2)}`; // Update cart total
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      });
+    });
+  });
+  
+</script>

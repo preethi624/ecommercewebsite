@@ -179,7 +179,14 @@
                     <tr>
                         <td><%=data[i].productName%></td>
                         <td><%=data[i].category.name%></td>
-                        <td><%=data[i].salePrice%></td>
+                        <td>
+                            <% if (data[i].productOffer && data[i].regularPrice > 0) { %>
+                              <%= (data[i].regularPrice - (data[i].regularPrice * data[i].productOffer / 100)).toFixed(2) %>
+                            <% } else { %>
+                              <%= data[i].regularPrice %>
+                            <% } %>
+                          </td>
+                          
                         <td>
                             <%if( locals.data[i].productOffer){%>
                                 <%=data[i].productOffer%>

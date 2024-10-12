@@ -194,7 +194,7 @@
 
                             <div class="col-lg-4">
                                 <div class="form-section mb-4">
-                                    <label for="quantity" class="form-label">Stock in Kg</label>
+                                    <label for="quantity" class="form-label">Quantity</label>
                                     <input type="text" name="quantity" value="<%=product.quantity%>" id="quantity" class="form-control border" placeholder="Enter quantity">
                                     <div id="quantity-error" class="error-message"></div>
                                 </div>
@@ -234,7 +234,7 @@
                                                 <td>
                                                     <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
                                                     <img class="rounded" style="width: 50px; height: 60px;"
-                                                        src="/uploads/product-images/<%=product.productImage[i]%>"
+                                                        src="/uploads/re-image/<%=product.productImage[i]%>"
                                                         alt="">
                                                     <i onclick="deleteSingleImage('<%= product.productImage[i] %>','<%= product._id %>')
 " style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
@@ -531,4 +531,4 @@ function viewImage1(event) {
 </html>
 
 
-                        
+               

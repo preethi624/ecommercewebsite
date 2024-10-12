@@ -1,0 +1,173 @@
+
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+  <!-- User Info Section -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h1 class="mb-3">User Profile</h1>
+      <p><strong>Name:</strong> <%= user.username %></p>
+      <p><strong>Email:</strong> <%= user.email %></p>
+    </div>
+  </div>
+
+  <!-- Addresses Section -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h2>Addresses</h2>
+      <% if(user.addresses && user.addresses.length > 0) { %>
+        <% user.addresses.forEach(address => { %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <p><%= address.fullName %>, <%= address.address %>, <%= address.city %>, <%= address.country %> - <%= address.postalCode %></p>
+               <!-- Default Address Badge -->
+               <% if (user.defaultAddress && address._id.toString() === user.defaultAddress.toString()) { %>
+                <span class="badge bg-success">Default Address</span>
+              <% } else { %>
+                <form action="/profile/set-default-address/<%= address._id %>" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-outline-success">Set as Default</button>
+                </form>
+              <% } %>
+              
+              <form action="/profile/edit-address/<%= address._id %>" method="POST" class="row g-3">
+                <div class="col-md-3">
+                  <input type="text" class="form-control" name="fullName" value="<%= address.fullName %>" placeholder="Full Name">
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control" name="address" value="<%= address.address %>" placeholder="Address">
+                </div>
+                <div class="col-md-2">
+                  <input type="text" class="form-control" name="city" value="<%= address.city %>" placeholder="City">
+                </div>
+                <div class="col-md-2">
+                  <input type="text" class="form-control" name="postalCode" value="<%= address.postalCode %>" placeholder="Postal Code">
+                </div>
+                <div class="col-md-2">
+                  <input type="text" class="form-control" name="country" value="<%= address.country%>" placeholder="country">
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-primary w-100">Edit</button>
+                </div>
+              </form>
+
+              <form action="/profile/delete-address/<%= address._id %>" method="POST" class="mt-2"  onsubmit="return confirmDelete('address')">
+                <button type="submit" class="btn btn-danger">Delete</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No addresses found.</p>
+      <% } %>
+      
+      <!-- Add Address Form -->
+      <h4 class="mt-4">Add New Address</h4>
+      <form id="address-form" action="/profile/add-address" method="POST" class="row g-3">
+          <div class="col-md-4">
+              <input type="text" name="fullName[]" class="form-control" placeholder="Full Name" required>
+          </div>
+          <div class="col-md-4">
+              <input type="text" name="address[]" class="form-control" placeholder="Address" required>
+          </div>
+          <div class="col-md-3">
+              <input type="text" name="city[]" class="form-control" placeholder="City" required>
+          </div>
+          <div class="col-md-2">
+              <input type="text" name="postalCode[]" class="form-control" placeholder="Postal Code" required>
+          </div>
+          <div class="col-md-3">
+              <input type="text" name="country[]" class="form-control" placeholder="Country" required>
+          </div>
+          <div class="col-md-12">
+              <button type="submit" class="btn btn-success">Add Address</button>
+              <button type="button" id="add-address-btn" class="btn btn-primary">Add Another Address</button>
+          </div>
+      </form>
+      
+      <!-- Container for dynamically added addresses -->
+      <div id="additional-addresses"></div>
+      
+    </div>
+  </div>
+
+  <!-- Order History Section -->
+  <div class="row mb-5">
+    <div class="col-md-12">
+      <h2>Order History</h2>
+      <% if(user.orderHistory && user.orderHistory.length > 0) { %>
+        <% user.orderHistory.forEach(order => { %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <p><strong>Order ID:</strong> <%= order._id %></p>
+              <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
+
+
+              <p><strong>Total Amount:</strong> $<%= order.totalPrice %></p>
+              <p><strong>Status:</strong> $<%= order.status %></p>
+              <form action="/userprofile/cancel-order/<%= order._id %>" method="POST">
+                <button type="submit" class="btn btn-warning">Cancel Order</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No order history available.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Forgot Password Section -->
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Forgot Password</h2>
+      <form action="/profile/forgot-password" method="POST" class="mb-4">
+        <div class="input-group">
+          <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+          <button type="submit" class="btn btn-secondary">Send Reset Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function confirmDelete(item) {
+    return confirm(`Are you sure you want to delete this ${item}?`);
+  }
+
+  document.getElementById('add-address-btn').addEventListener('click', function() {
+      const additionalAddresses = document.getElementById('additional-addresses');
+      const newAddressForm = `
+          <div class="row g-3 mt-3">
+              <div class="col-md-4">
+                  <input type="text" name="fullName[]" class="form-control" placeholder="Full Name" required>
+              </div>
+              <div class="col-md-4">
+                  <input type="text" name="address[]" class="form-control" placeholder="Address" required>
+              </div>
+              <div class="col-md-3">
+                  <input type="text" name="city[]" class="form-control" placeholder="City" required>
+              </div>
+              <div class="col-md-2">
+                  <input type="text" name="postalCode[]" class="form-control" placeholder="Postal Code" required>
+              </div>
+              <div class="col-md-3">
+                  <input type="text" name="country[]" class="form-control" placeholder="Country" required>
+              </div>
+              <div class="col-md-12">
+                  <button type="button" class="btn btn-danger remove-address">Remove Address</button>
+              </div>
+          </div>
+      `;
+      additionalAddresses.insertAdjacentHTML('beforeend', newAddressForm);
+  });
+
+  // Event delegation to handle removal of dynamically added address forms
+  document.getElementById('additional-addresses').addEventListener('click', function(event) {
+      if (event.target.classList.contains('remove-address')) {
+          event.target.closest('.row').remove();
+      }
+  });
+</script>
+
+<%- include("../../views/partials/user/footer") %>

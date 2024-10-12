@@ -2,6 +2,8 @@
 
     <!-- Navigation -->
     <%-include("../../views/partials/user/header")%>
+    <a href="/products" class="nav-link">View All Products</a>
+
     
 
     <!-- Hero Section -->
@@ -29,7 +31,7 @@
                     <div class="col-lg-3 col-md-4 col-12 col-sm-6">
                         <div class="product-cart-wrap mb-30">
                             <div class="product-img-action-wrap">
-                                <div class="product-img product-img-zoom">
+                                <div class="product-img product-img-zoom" style="margin-top: 100px;">
 
                                     <a href="/productDetails?id=<%=products[i]._id%>">
                                         <img class="default-img" src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
@@ -40,13 +42,22 @@
                                     <i class="fas fa-heart"></i>
                                 </a>
                             </div>
+                            <form action="/cart/add/<%=products[i]._id%>" method="POST">
+                                <div class="product-content-wrap">
+                                    <h6><%=products[i].productName%></h6>
+                                    <h5>Price:Rs <%=products[i].salePrice%></h5>
+                                    <h4>Stock:<%=products[i].quantity%></h4>
+                                    <label for="quantity">Quantity:</label>
+                            <input type="number" name="quantity" id="quantity" min="1" max="<%= Math.min(products[i].stock, products[i].maxQuantity) %>" required  value="1">
+
+                                    <button type="submit">AddToCart</button>
+                                </div> 
+
+                            </form>
+                            <a href="/order/summary/<%= products[i]._id %>" class="btn btn-primary">Order Now</a>
       
       
-                            <div class="product-content-wrap">
-                                <h6><%=products[i].productName%></h6>
-                                <h5>Price:Rs <%=products[i].salePrice%></h5>
-                                <a href="">Add to cart</a>
-                            </div>
+                            
                         </div>
                     </div>
                     <%}%>
