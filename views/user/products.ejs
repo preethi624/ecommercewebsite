@@ -1,42 +1,67 @@
 <%- include("../../views/partials/user/header") %>
 
 <div class="container mt-5">
-    <h1 class="mb-4">Products</h1>
+    <h1 class="mb-4 text-center display-4">Our Products</h1>
 
     <!-- Search and Filter Form -->
-    <form id="search-form" method="GET" action="/products">
-        <input type="text" name="search" placeholder="Search products..." />
-        <select name="sort">
-            <option value="popularity">Popularity</option>
-            <option value="priceLowToHigh">Price: Low to High</option>
-            <option value="priceHighToLow">Price: High to Low</option>
-            <option value="averageRatings">Average Ratings</option>
-            <option value="featured">Featured</option>
-            <option value="newArrivals">New Arrivals</option>
-            <option value="aToZ">A - Z</option>
-            <option value="zToA">Z - A</option>
-        </select>
-        <label>
-            <input type="checkbox" name="showOutOfStock" value="true" <% if (showOutOfStock) { %> checked <% } %> />
-            Show Out of Stock Products
-        </label>
-        <button type="submit">Search</button>
+    <form id="search-form" method="GET" action="/products" class="row g-3 justify-content-center mb-4">
+        <div class="col-md-4">
+            <input type="text" class="form-control" name="search" placeholder="Search products..." />
+        </div>
+        <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                <option value="Juices">Juices</option>
+                <option value="Freshfruits">Freshfruits</option>
+                <option value="Fruits">Fruits</option>
+                <option value="freshVegetables">Fresh Vegetables</option>
+                <option value="Groceriess">Groceries</option>
+                <option value="organic juice">Organic Juice</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="popularity">Sort by Popularity</option>
+                <option value="priceLowToHigh">Price: Low to High</option>
+                <option value="priceHighToLow">Price: High to Low</option>
+                <option value="averageRatings">Average Ratings</option>
+                <option value="newArrivals">New Arrivals</option>
+                <option value="aToZ">A - Z</option>
+                <option value="zToA">Z - A</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label class="form-check">
+                <input type="checkbox" class="form-check-input" name="showOutOfStock" value="true" <% if (showOutOfStock) { %> checked <% } %> />
+                Show Out of Stock
+            </label>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
     </form>
 
-    <div class="row mt-4">
+    <!-- Products Grid -->
+    <div class="row">
         <% products.forEach(product => { %>
             <div class="col-md-4">
-                <div class="card">
-                    <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 200px; height: 200px; object-fit: cover;">
-                    <div class="card-body">
+                <div class="card mb-4 shadow-sm">
+                    <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 200px; height: 200px; object-fit: cover; margin-left:100px">
+                    <div class="card-body text-center">
                         <h5 class="card-title"><%= product.productName %></h5>
-                        <p class="card-text">Price: $<%= product.salePrice %></p>
-                        <p class="card-text">Stock: <%= product.quantity > 0 ? product.quantity : 'Out of stock' %></p>
+                        <p class="card-text text-muted">Price: $<%= product.salePrice %></p>
+                        <p class="card-text">
+                            Stock: <span class="<%= product.quantity > 0 ? 'text-success' : 'text-danger' %>">
+                                <%= product.quantity > 0 ? product.quantity : 'Out of stock' %>
+                            </span>
+                        </p>
                         <% if (product.quantity > 0) { %>
-                            <form method="POST" action="/cart/add/<%=product._id%>">
+                            <form method="POST" action="/cart/add/<%= product._id %>">
                                 <input type="hidden" name="productId" value="<%= product._id %>">
-                                <input type="number" name="quantity" min="1" max="5" value="1" required>
-                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                <input type="number" name="quantity" class="form-control mb-2" min="1" max="5" value="1" required>
+                                <button type="submit" class="btn btn-outline-success">Add to Cart</button>
                             </form>
                         <% } %>
                     </div>

@@ -1,241 +1,1089 @@
-const getCheckout=async(req,res)=>{
-  try {
-    const userId = req.session.user.id;
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .content-main {
+            margin-left: 250px; 
+            padding: 20px;
+            margin-top: 50px; 
+        }
+        .navbar {
+            background-color: green;
+            padding: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar img {
+            height: 40px;
+        }
+
+        .logout-btn {
+            background-color: white;
+            color: green;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            margin-top: 50px;
+            width: 250px;
+            background-color: green;
+            height: 100vh;
+            position: fixed;
+            overflow: auto;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
     
+        .thumbnails-container {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    
+        .thumbnail img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+    
+        .image-cropper {
+            max-width: 300px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    
+        .image-cropper img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+    
+        .image-upload-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    
+        .image-upload-card {
+            width: 200px;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    
+        .image-upload-card img {
+            max-width: 100%;
+            max-height: 150px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+    
+        .btn-save {
+            margin-top: 10px;
+        }
+    
+        .form-section {
+            margin-bottom: 30px;
+        }
+    </style>
+    
+</head>
+
+
+<body>
+    <%-include("../../views/partials/user/header")%>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="#">Dashboard</a>
+        <a href="admin/users">Customers</a>
+        <a href="#">Category</a>
+        <a href="#">Brands</a>
+        <a href="#">Add Product</a>
+        <a href="#">Products</a>
+        <a href="#">Coupon</a>
+        <a href="#">Banner</a>
+        <a href="#">Orders</a>
+    </div>  
+
+
+<section class="content-main">
    
-    const user = await User.findById(userId).populate('addresses');
-    const productId=req.params.productId
-    console.log("product id",productId)
+    <div class="row">
+        <div class="col-lg-9">
+            <div class="content-header">
+                <h2 class="content-title">Edit Product</h2>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="POST" action="/admin/editProduct/<%=product._id%>" enctype="multipart/form-data" onsubmit="return validateForm()" name="images">
+                        
+                        <!-- Product Name -->
+                        <div class="form-section mb-4">
+                            <label for="product_name" class="form-label">Product Name</label>
+                            <input type="text" name="productName" id="product_name" value="<%=product.productName%>" class="form-control border" placeholder="Enter product name">
+                            <div id="productName-error" class="error-message"></div>
+                        </div>
+
+                        
+
+                        <!-- Description -->
+                        <div class="form-section mb-4">
+                            <label for="descriptionid" class="form-label">Full Description</label>
+                            <input name="description" value="<%=product.description%>"   id="descriptionid" class="form-control border" rows="4" placeholder="Type here">
+                            <div id="description-error" class="error-message"></div>
+                        </div>
+
+                        <!-- Price and Quantity -->
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div class="form-section mb-4">
+                                    <label for="regularPrice" class="form-label">Regular Price</label>
+                                    <input type="text" name="regularPrice" value="<%=product.regularPrice%>" id="regularPrice" class="form-control border" placeholder="$">
+                                    <div id="regularPrice-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="form-section mb-4">
+                                    <label for="salePrice" class="form-label">Sale Price</label>
+                                    <input type="text" name="salePrice" value="<%=product.salePrice%>" id="salePrice" class="form-control border" placeholder="Rs">
+                                    <div id="salePrice-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="form-section mb-4">
+                                    <label for="quantity" class="form-label">Quantity</label>
+                                    <input type="text" name="quantity" value="<%=product.quantity%>" id="quantity" class="form-control border" placeholder="Enter quantity">
+                                    <div id="quantity-error" class="error-message"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Color -->
+                        <div class="form-section mb-4">
+                            <label for="color" class="form-label">Color</label>
+                            <input type="text" name="color" value="<%=product.color%>" id="color" class="form-control border" placeholder="Enter color">
+                            <div id="color-error" class="error-message"></div>
+                        </div>
+
+                        <!-- Category Selection -->
+                        <div class="form-section mb-4">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select border" name="category" id="category">
+                                <% for (let i = 0; i < cat.length; i++) { %>
+                                    <option value="<%= cat[i]._id %>" 
+                                        <%= product.category && product.category._id.toString() === cat[i]._id.toString() ? 'selected' : '' %>>
+                                        <%= cat[i].name %>
+                                    </option>
+                                <% } %>
+                            </select>
+                            
+                            
+                            <div id="category-error" class="error-message"></div>
+                        </div>
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <h4>Choose images</h4>
+                            </div>
+                            <%for(let i=0;i<product.productImage.length;i++){%>
+                               
+                                    <div class="col-md-12">
+                                        <div class="mb-4">
+                                         
+                                         <div class="col-12">
+                                             <td>
+                                                 <input type="hidden" value="<%=product.productImage[i]%>" id="imageDatas">
+                                                 <img class="rounded" style="width: 50px; height: 60px;"
+                                                     src="/uploads/product-images/<%=product.productImage[i]%>"
+                                                     alt="">
+                                                 <i onclick="deleteSingleImage('<%= product.productImage[i] %>','<%= product._id %>')
+                          " style="position: absolute; margin-left: .5rem; cursor: pointer;" class="fa-thin fa-x"></i>
+                                             </td>
+                                         </div>
+                          
+                                           
+                                        </div>
+                                    </div>
+                                    <%}%>
+                           
+                               
+                            <div class="card-body">
+                                <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                    <img src="" alt="" id="imgView1">
+                                    <input class="form-control" type="file" name="images" id="input1"
+                                        accept="image/png, image/jpeg, image/jpg"
+                                        onchange="viewImage1(event), viewImage(event, 1)" multiple>
+                                        <div id="images-error" class="error-message"></div>
+                                </div>
+                                <div class="image-cropper d-flex align-items-center"
+                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                <img src="" id="croppedImg1" alt="">
+                                <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="replaceImages" value="true" id="replaceImages">
+                                <label class="form-check-label" for="replaceImages">Replace Images</label>
+                            </div>
+                        
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView2">
+                                                                <input class="form-control" type="file" name="images" id="input2"
+                                                                    accept="image/png, image/jpeg, image/jpg"
+                                                                    onchange="viewImage2(event),viewImage(event, 2)" multiple>
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg2" alt="">
+                                                                <button type="button" id="saveButton2" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="replaceImages" value="true" id="replaceImages">
+                                                                <label class="form-check-label" for="replaceImages">Replace Images</label>
+                                                            </div>
+                                                         
+                                                        </div>
+                                                       
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView3">
+                                                                <input class="form-control" type="file" name="images" id="input3"
+                                                                    accept="image/png, image/jpeg, image/jpg"
+                                                                    onchange="viewImage3(event),viewImage(event, 3)" multiple>
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg3" alt="">
+                                                                <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="replaceImages" value="true" id="replaceImages">
+                                                                <label class="form-check-label" for="replaceImages">Replace Images</label>
+                                                            </div>
+                                                        
+                                                        </div>
+                                                       
+                                                        <div class="row">
+                                                            <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                                                <img src="" alt="" id="imgView4">
+                                                                <input class="form-control" type="file" name="images" id="input4"
+                                                                    accept="image/png, image/jpeg, image/jpg"
+                                                                    onchange="viewImage4(event),viewImage(event, 4)" multiple>
+                                                            </div>
+                                                            <div class="image-cropper d-flex align-items-center"
+                                                                style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                                                <img src="" id="croppedImg4" alt="">
+                                                                <button type="button" id="saveButton4" class="btn-sm btn-primary">Save</button>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="replaceImages" value="true" id="replaceImages">
+                                                                <label class="form-check-label" for="replaceImages">Replace Images</label>
+                                                            </div>
+                                                        
+                                                        </div>
+                            </div>
+                          </div>
+                          
+                          
+                          
+                          
+
+
+
+
+                           <div>
+                            <input type="hidden" name="existingImages" value="<%= product.productImage %>">
+
+
+                               <button class="btn btn-md rounded font-sm hover-up   btn-sm btn-primary " id="updatebtn"
+                                   type="submit"   >Update</button>
+                           </div>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
+       </div>
+   </section>
+
+   <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
+<script>
    
-    if (user.cart.length === 0) {
-      return res.redirect('/cart'); 
+
+    function validateForm() {
+        let isValid = true;
+
+        // Reset all error messages
+        document.querySelectorAll('.error-message').forEach(error => error.innerText = '');
+
+        // Validate Product Name
+        const productName = document.getElementById("product_name").value.trim()
+        const namePattern = /^[A-Za-z]+(?:\s[A-Za-z]+)*$/;
+
+        if (!productName) {
+            document.getElementById("productName-error").innerText = "Product Name is required.";
+            isValid = false;
+        } else if (!namePattern.test(productName)) {
+            document.getElementById("productName-error").innerText = "Product Name must only contain alphabets and spaces (no leading or trailing spaces).";
+            isValid = false;
+        } else {
+            document.getElementById("productName-error").innerText = ""; // Clear any previous error messages
+        }
+
+        // Validate Description
+        const description = document.getElementById("descriptionid").value.trim();
+        const descriptionPattern = /^(?=.*[A-Za-z])[\w\s!@#\$%\^\&*\)\(+=._-]+$/;
+        if (!description) {
+            document.getElementById("description-error").innerText = "Description is required.";
+            isValid = false;
+        }else if (!descriptionPattern.test(description)) {
+            document.getElementById("description-error").innerText = "Description must contain alphabetic characters and may include numbers or special characters. It cannot be blank or contain only spaces.";
+            isValid = false;
+        } else {
+            document.getElementById("description-error").innerText = ""; // Clear previous error message
+        }
+
+        // Validate Regular Price
+        const regularPrice = document.getElementById("regularPrice").value.trim();
+        if (!regularPrice || isNaN(regularPrice) || Number(regularPrice) <= 0||!/^\d+(\.\d+)?$/.test(regularPrice)) {
+            document.getElementById("regularPrice-error").innerText = "Enter a valid Regular Price.";
+            isValid = false;
+        }else {
+            document.getElementById("regularPrice-error").innerText = ""; // Clear previous error message
+        }
+
+        // Validate Sale Price
+        const salePrice = document.getElementById("salePrice").value.trim();
+        if (salePrice && (isNaN(salePrice) || Number(salePrice) < 0)) {
+            document.getElementById("salePrice-error").innerText = "Enter a valid Sale Price.";
+            isValid = false;
+        }
+
+        // Validate Quantity
+        const quantity = document.getElementById("quantity").value.trim();
+        if (!quantity || isNaN(quantity) || Number(quantity) < 1) {
+            document.getElementById("quantity-error").innerText = "Enter a valid Quantity.";
+            isValid = false;
+        }
+
+        // Validate Color
+        const color = document.getElementById("color").value.trim();
+        if (!color||!/^[A-Za-z\s]+$/.test(color) || color.length === 0) {
+            document.getElementById("color-error").innerText = "Color is required and must contain only alphabetic characters (no special characters or numbers)..";
+            isValid = false;
+        }
+
+        // Validate Category
+        const category = document.getElementById("category").value;
+        if (!category) {
+            document.getElementById("category-error").innerText = "Category is required.";
+            isValid = false;
+        }
+
+        // Validate Image Files
+        const imageInputs = [input1, input2, input3, input4];
+        let hasValidImages = true;
+        imageInputs.forEach((input, index) => {
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+                if (!allowedTypes.includes(file.type)) {
+                    document.getElementById(`images-error`).innerText = "Only PNG, JPEG, and JPG formats are allowed.";
+                    hasValidImages = false;
+                }
+            }
+        });
+
+        if (!hasValidImages) {
+            isValid = false;
+        }
+
+        return isValid;
     }
 
-    const cartItem = user.cart.find(item => item.product.toString() === productId);
+          
+           
     
-    if (!cartItem) {
-      return res.status(404).send('Product not found in the cart.');
-    }
-    
-    const product = await Product.findById(cartItem.product);
-    const quantity = cartItem.quantity;
-    const total = product.salePrice * quantity;
+    function viewImage1(event) {
+               document.getElementById('imgView1').src = URL.createObjectURL(event.target.files[0])
+           }
     
     
-    const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString());
+           function viewImage2(event) {
+               document.getElementById('imgView2').src = URL.createObjectURL(event.target.files[0])
+           }
     
-    res.render('checkout', {
-      order: {
-        product,
-        quantity,
-        total,
-        address: defaultAddress,
-        
-      },
-      user
+    
+           function viewImage3(event) {
+               document.getElementById('imgView3').src = URL.createObjectURL(event.target.files[0])
+           }
+    
+    
+           function viewImage4(event) {
+               document.getElementById('imgView4').src = URL.createObjectURL(event.target.files[0])
+           }
+    
+    
+    
+    
+           function viewImage(event, index) {
+               let input = event.target;
+               let reader = new FileReader();
+               reader.onload = function () {
+                   let dataURL = reader.result;
+                   let image = document.getElementById('imgView' + index);
+                   image.src = dataURL;
+                   let cropper = new Cropper(image, {
+                       aspectRatio: 1,
+                       viewMode: 1,
+                       guides: true,
+                       background: false,
+                       autoCropArea: 1,
+                       zoomable: true
+                   });
+                   let cropperContainer = document.querySelector('#croppedImg' + index).parentNode;
+                   cropperContainer.style.display = 'block';
+                   let saveButton = document.querySelector('#saveButton' + index);
+                   saveButton.addEventListener('click', async function () {
+                       let croppedCanvas = cropper.getCroppedCanvas();
+                       let croppedImage = document.getElementById("croppedImg" + index);
+                       croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
+                       let timestamp = new Date().getTime();
+                       let fileName = `cropped-img-${timestamp}-${index}.png`;
+                       await croppedCanvas.toBlob(blob => {
+                           let input = document.getElementById('input' + index);
+                           let imgFile = new File([blob], fileName, blob)
+                           const fileList = new DataTransfer();
+                           fileList.items.add(imgFile);
+                           input.files = fileList.files
+                       });
+                       cropperContainer.style.display = 'none';
+                   });
+               };
+               reader.readAsDataURL(input.files[0]);
+           }
+    
+    
+           const selectedImages = [];
+       document.getElementById("imageInput").addEventListener("change", handleFileSelect);
+    
+    
+           function handleFileSelect(event) {
+               const addedImagesContainer = document.getElementById("addedImagesContainer");
+               addedImagesContainer.innerHTML = "";
+               const files = event.target.files;
+               for (let i = 0; i < files.length; i++) {
+                   const file = files[i];
+                   selectedImages.push(file);
+                   const thumbnail = document.createElement("div");
+                   thumbnail.classList.add("thumbnail");
+                   const img = document.createElement("img");
+                   img.src = URL.createObjectURL(file);
+                   img.alt = "thumbnail";
+                   img.style.width = "50px";
+                   img.style.height = "auto";
+                   const removeIcon = document.createElement("span");
+                   removeIcon.classList.add("remove-icon");
+                   removeIcon.innerHTML = "&times;";
+                   removeIcon.addEventListener("click", function () {
+                       const index = selectedImages.indexOf(file);
+                       if (index !== -1) {
+                           selectedImages.splice(index, 1);
+                       }
+                       thumbnail.remove();
+                   });
+    
+                   const deleteIcon = document.createElement("button");
+           deleteIcon.classList.add("delete-icon");
+           deleteIcon.innerText = "Delete Image";
+           deleteIcon.addEventListener("click", function () {
+               const imageId = 'image_id_here'; // Replace with actual image ID if available
+               const productId = 'product_id_here'; // Replace with actual product ID if available
+               deleteSingleImage(imageId, productId);
+           });
+                   thumbnail.appendChild(img);
+                   thumbnail.appendChild(removeIcon);
+                   thumbnail.appendChild(deleteIcon);
+                   addedImagesContainer.appendChild(thumbnail);
+               }
+           };
+           function deleteSingleImage(imageId,productId){
+            
+           
+            
+            console.log("deleteSingleImage function triggered");
+            $.ajax({
+                url:"/admin/deleteImage",
+                method:'post',
+                data:{imageNameToServer:imageId,productIdToServer:productId},
+                success:((response)=>{
+                    if(response.status===true){
+                        window.location.reload()
+                    }
+                })
+            })
+           }
+           
+       </script>
+  
+   
+</body>
+</html>
 
-    
-    });
-    
-  } catch (error) {
 
-   console.error('Error fetching checkout page:', error);
-    res.status(500).send('An error occurred while preparing the checkout.'); 
-  }
-}
-const postCheckout=async(req,res)=>{
+               
+
+
+const editProduct = async (req, res) => {
   try {
-    const userId = req.session.user.id;
-    const { paymentMethod ,productId} = req.body;
-    
-    const user = await User.findById(userId).populate('addresses').populate('cart.product');
-    
-    if (!user || user.cart.length === 0) {
-      return res.redirect('/cart'); // Or show an appropriate message
-    }
-    
-    const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString());
-    
-    if (!defaultAddress) {
-      return res.redirect('/userProfile'); // Or prompt to add an address
+      const productId = req.params.id;
 
-    }
-    const cartItem = user.cart.find(item => item.product._id.toString() === productId);
+      // Extract the form data
+      const { productName, description, regularPrice, salePrice, quantity, color, category: categoryId, existingImages: existingImagesString, replaceImages } = req.body;
+      const newImages = req.files; // This will be an array of uploaded files
 
-    if (!cartItem) {
-      return res.status(400).send('Product not found in cart.');
-    }
-    
-    // Create order items
-    const orderItems = {
-      product: cartItem.product._id,
-      quantity: cartItem.quantity,
-      price: cartItem.product.salePrice,
+      // Find the category by name to get the ObjectId
+      const category = await Category.findById( categoryId );
       
-    }
-    const totalPrice = orderItems.price * orderItems.quantity;
-    const finalAmount = totalPrice;
-   
-   
-    const newOrder = new Order({
-      user: userId,
-      orderedItems: [orderItems],
-      totalPrice,
-      finalAmount,  
-      address: defaultAddress._id,  
-      status: 'Pending', 
-      invoiceDate: new Date(),
-    });
-    
-    await newOrder.save();
-    
-    
-      const product = await Product.findById(cartItem.product._id);
-      if (product.quantity < cartItem.quantity) {
-        return res.status(400).send(`Not enough stock for ${product.productName}.`);
+      if (!category) {
+          return res.status(400).send('Category not found');
       }
-      product.quantity -= cartItem.quantity;
-      await product.save();
-    
-      user.cart = user.cart.filter(item => item.product._id.toString() !== productId);
 
-    await user.save();
-    
-      
-      
-      res.redirect(`/order/confirmation/${newOrder._id}`);
-  
-    
-    
-    
- 
-    
+      // Convert existingImages from string to array if it's not already an array
+      const existingImages = Array.isArray(existingImagesString)
+          ? existingImagesString
+          : [existingImagesString]; // Handles single existing image
+
+      // Construct the updated product data
+      const updatedProductData = {
+          productName,
+          description,
+          regularPrice,
+          salePrice,
+          quantity,
+          color,
+          category: category._id, // Use the ObjectId for the category
+      };
+
+      // Image handling logic
+      if (replaceImages && replaceImages === 'true') {
+          // If `replaceImages` is true, use only the new images
+          updatedProductData.productImage = newImages.length > 0
+              ? newImages.map(file => file.filename) // New images if uploaded
+              : []; // Empty if no new images are uploaded
+      } else {
+          // If not replacing, keep the existing images and add new ones if any
+          updatedProductData.productImage = existingImages ? [...existingImages] : []; // Use existing images if available
+          if (newImages && newImages.length > 0) {
+              const newImagePaths = newImages.map(file => file.filename); // Get filenames of new uploads
+              updatedProductData.productImage.push(...newImagePaths); // Append new images to existing ones
+          }
+      }
+
+      // Update the product in the database
+      await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+
+      // Redirect or respond with a success message
+      res.redirect('/admin/product'); // Redirect to the products list or any other page
+
   } catch (error) {
-    console.error('Error during checkout:', error);
-    res.status(500).send('An error occurred while placing the order.');  
-    
+      console.error('Error updating product:', error);
+      res.status(500).send('Internal Server Error');
   }
+};
 
-}
-const confirmation=async(req,res)=>{
-  try {
-    const orderId = req.params.newOrderId;
 
-    
-    const order = await Order.findById(orderId)
-      .populate('orderedItems.product') 
 
-    if (!order) {
-      return res.status(404).send("Order not found");
+
+
+
+
+
+
+const salesReport = async (req, res) => {
+    try {
+        const { startDate, endDate, reportType,format } = req.query;
+        let adjustedStartDate = startDate ? new Date(startDate) : null;
+        let adjustedEndDate = endDate ? new Date(endDate) : new Date();
+
+        // Adjust dates based on selected filter if no explicit startDate and endDate are provided
+        if (!adjustedStartDate && reportType) {
+            const now = new Date();
+            switch (reportType) {
+                case 'weekly':
+                    adjustedStartDate = new Date(now);
+                    adjustedStartDate.setDate(now.getDate() - 7);
+                    break;
+                case 'monthly':
+                    adjustedStartDate = new Date(now);
+                    adjustedStartDate.setMonth(now.getMonth() - 1);
+                    break;
+                case 'yearly':
+                    adjustedStartDate = new Date(now);
+                    adjustedStartDate.setFullYear(now.getFullYear() - 1);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Ensure dates are defined
+        /*if (!adjustedStartDate || !adjustedEndDate) {
+            return res.status(400).json({ message: 'Start and end dates are required' });
+        }*/
+
+        const orders = await Order.find({
+            invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
+            status: "Delivered"
+        }).populate({
+            path: 'orderedItems.product',
+            populate: {
+                path: 'category',
+                model: 'Category'
+            }
+        });
+
+        let totalSalesCount = 0;
+        let overallOrderAmount = 0;
+        let couponDeduction = 0;
+        let netSales = 0;
+        let totalOffersApplied = 0;
+
+        orders.forEach(order => {
+            totalSalesCount += 1;
+           
+            couponDeduction += order.discount || 0;
+            netSales += order.finalAmount || 0;
+
+            order.orderedItems.forEach(item => {
+                overallOrderAmount += item.product.regularPrice*item.quantity || 0;
+                const categoryOffer = item.product.category?.categoryOffer || 0;
+                const productOffer = item.product.productOffer || 0;
+                const appliedOffer = categoryOffer || productOffer;
+
+                const offerAmount = (item.price * item.quantity) * (appliedOffer / 100);
+                totalOffersApplied += offerAmount;
+            });
+           // const offerAmount=overallOrderAmount-order.totalPrice
+            
+
+             // totalOffersApplied = offerAmount;
+            
+        });
+
+        if (format === 'pdf') {
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
+
+            doc.pipe(res);
+            doc.fontSize(20).text('Sales Report', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(14).text(`Start Date: ${adjustedStartDate.toISOString().split('T')[0]}`);
+            doc.text(`End Date: ${adjustedEndDate.toISOString().split('T')[0]}`);
+            doc.moveDown();
+
+            doc.fontSize(12).text(`Total Sales Count: ${totalSalesCount}`);
+            doc.text(`Overall Order Amount: $${overallOrderAmount.toFixed(2)}`);
+            doc.text(`Coupon Deduction: $${couponDeduction.toFixed(2)}`);
+            doc.text(`Net Sales: $${netSales.toFixed(2)}`);
+            doc.text(`Total Offers Applied: $${totalOffersApplied.toFixed(2)}`);
+            doc.end();
+
+        } else if (format === 'excel') {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Sales Report');
+
+            worksheet.columns = [
+                { header: 'Metric', key: 'metric', width: 20 },
+                { header: 'Value', key: 'value', width: 30 }
+            ];
+
+            worksheet.addRows([
+                { metric: 'Total Sales Count', value: totalSalesCount },
+                { metric: 'Overall Order Amount', value: `$${overallOrderAmount.toFixed(2)}` },
+                { metric: 'Coupon Deduction', value: `$${couponDeduction.toFixed(2)}` },
+                { metric: 'Net Sales', value: `$${netSales.toFixed(2)}` },
+                { metric: 'Total Offers Applied', value: `$${totalOffersApplied.toFixed(2)}` }
+            ]);
+
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename="sales_report.xlsx"');
+
+            await workbook.xlsx.write(res);
+            res.end();
+
+        } else {
+            res.render("sales.ejs", {
+                totalSalesCount,
+                overallOrderAmount,
+                couponDeduction,
+                netSales,
+                startDate: adjustedStartDate,
+                endDate: adjustedEndDate,
+                totalOffersApplied,
+                reportType,
+                orders
+            });
+        }
+
+    } catch (error) {
+        console.error("Error generating sales report:", error);
+        res.status(500).json({ message: "Error generating report" });
     }
+};
 
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Body Styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: #eef1f4; 
+            color: #333; 
+            line-height: 1.6; 
+        }
+
+        /* Container */
+        .container {
+            max-width: 1000px; /* Increased width */
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            color: #0056b3; /* Subtle blue */
+        }
+
+        /* Form Styling */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        select, input[type="date"], button {
+            width: 100%; 
+            max-width: 250px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            margin: 5px 0 15px 0; /* Margin adjustment for better spacing */
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input[type="date"]:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+
+        button {
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            padding: 12px; /* Ensure button is consistent with inputs */
+        }
+
+        button:hover {
+            background-color: #004494;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            transition: background-color 0.3s;
+        }
+
+        th {
+            background-color: #0056b3; /* Subtle blue */
+            color: #fff;
+            font-weight: 500;
+        }
+
+        td {
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        tr:hover td {
+            background-color: #e0e0e0; /* Soft hover effect */
+        }
+
+        /* Summary Section Styling */
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Download Button Styling */
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 15px; /* Space between buttons */
+        }
+
+        .download-buttons a {
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .download-buttons .pdf-btn {
+            background-color: #e74c3c; /* Red */
+        }
+
+        .download-buttons .pdf-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .download-buttons .excel-btn {
+            background-color: #27ae60; /* Green */
+        }
+
+        .download-buttons .excel-btn:hover {
+            background-color: #1e8449;
+        }
+
+        @media (max-width: 600px) {
+            .form-group {
+                align-items: stretch; /* Align inputs to stretch */
+            }
+
+            select, input[type="date"], button {
+                width: 100%; /* Make inputs full-width */
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include("../../views/partials/admin/header") %>  
+
+    <div class="container">
+        <h1>Sales Report</h1>
+        
+        <form action="/admin/sales-report" method="GET">
+            <div class="form-group">
+                <label for="reportType">Select Report Type:</label>
+                <select name="reportType" id="reportType" onchange="toggleDateFields(this.value)">
+                    <option value="custom" <% if (reportType === 'custom') { %>selected<% } %>>Custom Date</option>
+                    <option value="weekly" <% if (reportType === 'weekly') { %>selected<% } %>>Weekly</option>
+                    <option value="monthly" <% if (reportType === 'monthly') { %>selected<% } %>>Monthly</option>
+                    <option value="yearly" <% if (reportType === 'yearly') { %>selected<% } %>>Yearly</option>
+                </select>
+            </div>
+            <input type="hidden" name="reportType" id="hiddenReportType" value="<%= reportType %>">
+         
+            <div id="dateFields" class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate" required>
+        
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate" required>  
+            </div>
+            <button type="submit">Generate Sales Report</button>
+        </form>
+        
+        <div class="detail">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Regular Total Price</th>
+                        <th>Discount</th>
+                        <th>Coupons Deduction</th>
+                        <th>Sold Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                        <tr>
+                            <td><%= order._id %></td>
+                            <td>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <div><%= item.product.productName %></div>
+                                <% }) %>
+                            </td>
+                            <td>
+                                <% order.orderedItems.forEach(item => { %>
+                                    <div><%= item.quantity %></div>
+                                <% }) %>
+                            </td>
+                            <td>
+                                <% 
+                                let totalRegularPrice = 0;
+                                order.orderedItems.forEach(item => {
+                                    totalRegularPrice += item.product.regularPrice * item.quantity;
+                                });
+                                %>
+                                Rs <%= totalRegularPrice.toFixed(2) %>
+                            </td>
+                            <td>
+                                <% 
+                                let totalOffer = totalRegularPrice - order.totalPrice; 
+                                %>
+                                <div><%= totalOffer.toFixed(2) %></div> 
+                            </td>
+                            <td><%= order.discount %></td>
+                            <td><%= order.finalAmount %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Total Sales Count</th>
+                        <th>Overall Order Amount</th>
+                        <th>Coupon Deduction</th>
+                        <th>Net Sales</th>
+                        <th>Total Offer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><%= totalSalesCount %></td>
+                        <td>Rs <%= overallOrderAmount.toFixed(2) %></td>
+                        <td>Rs <%= couponDeduction.toFixed(2) %></td>
+                        <td>Rs <%= netSales.toFixed(2) %></td>
+                        <td>Rs <%= totalOffersApplied %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Download Buttons -->
+        <div class="download-buttons">
+            <a href="/admin/sales-report?startDate=<%= startDate %>&endDate=<%= endDate %>&format=pdf" class="pdf-btn">Download PDF</a>
+            <a href="/admin/sales-report?startDate=<%= startDate %>&endDate=<%= endDate %>&format=excel" class="excel-btn">Download Excel</a>
+        </div>
+    </div>
+
+    
+       
+</body>
+</html>
+
+
+
+
+
+
+
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+  
+  <form action="/order/checkout/" method="POST" id="checkoutForm">
+
+ <!-- Coupon Code Section -->
+    <div class="mb-4">
+      <h4>Apply Coupon</h4>
+      <div class="input-group">
+        <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
+        <div class="input-group-append">
+          <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply</button>
+        </div>
+      </div>
+      <div id="couponMessage" class="mt-2" style="display: none;"></div>
+      <p class="mt-3">Or <a href="/getCoupons" class="btn btn-link">view and apply more coupons</a></p>
+    </div>
+    </div
    
-    res.render("confirmation", {
-      order: order,  
-      orderedItems: order.orderedItems,
-      totalPrice: order.totalPrice,
-      finalAmount: order.finalAmount,
-      status: order.status,
-      address: order.address,
-      invoiceDate: order.invoiceDate
-    });
-    
-  } catch (error) {
-
-    console.error("Error retrieving order confirmation:", error);
-    res.status(500).send("Internal Server Error");
-  }
-}
-module.exports={
-    addToCart,
-    getCart,
-    removeCart,
-    updateCart,
-    getOrderSummary,
-    getCheckout,
-    postCheckout,
-    confirmation,
-}
-
-
-
-
-//checckout
-<%- include("../partials/user/header") %>
-
-<div class="container mt-5">
-  <h1 class="mb-4">Checkout</h1>
-  
-  <form action="/order/checkout" method="POST">
-    <input type="hidden" name="productId" value="<%= order.product._id %>">
-    <!-- Order Summary -->
-    <div class="mb-4">
-      <h4>Order Summary</h4>
-      <p><strong>Product:</strong> <%= order.product.productName %></p>
-      <p><strong>Price:</strong> Rs <%= order.product.salePrice %></p>
-      <p><strong>Quantity:</strong> <%= order.product.quantity %> Kg</p>
-      <p><strong>Total:</strong> Rs <%= order.product.total %></p>
-    </div>
-    
-    <!-- Shipping Address -->
-    <div class="mb-4">
-      <h4>Shipping Address</h4>
-      <div class="card p-3 mb-4">
-        <% if (user.defaultAddress) { %>
-          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
-          <% if (defaultAddress) { %>
-            <p>
-              <strong><%= defaultAddress.fullName %></strong><br>
-              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
-            </p>
-            <button class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
-          <% } else { %>
-            <p>No default address set. Please <a href="/userprofile">add an address</a>.</p>
-          <% } %>
-        <% } else { %>
-          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
-        <% } %>
-      </div>
-    </div>
-    
-    <!-- Payment Information (Placeholder) -->
-    <div class="mb-4">
-      <h4>Payment Information</h4>
-      <div class="form-group">
-        <label for="paymentMethod">Payment Method:</label>
-        <select id="paymentMethod" name="paymentMethod" class="form-control" required>
-          <option value="">Select a payment method</option>
-          <option value="cod">Cash on Delivery</option>
-          <option value="card">Credit/Debit Card</option>
-          <!-- Add more payment methods as needed -->
-        </select>
-      </div>
-      <!-- Additional payment fields can be added here -->
-    </div>
-    
-    <!-- Place Order Button -->
-    <button type="submit" class="btn btn-success">Place Order</button>
-  </form>
-</div>
-
-<%- include("../partials/user/footer") %>
-
-
-
-
-
-
-<%- include("../partials/user/header") %>
-
-<div class="container mt-5">
-  <h1 class="mb-4">Checkout</h1>
-  
-  <form action="/order/checkout" method="POST">
-    <% if (order.items.length===1) { %> 
-      <!-- Single Product -->
-      <input type="hidden" name="productId" value="<%= order.items[0].product._id %>">
-    <% } %>
     
     <!-- Order Summary -->
     <div class="mb-4">
@@ -244,23 +1092,35 @@ module.exports={
       <% if ( order.items.length > 1) { %>
         <!-- Multiple Products from Cart -->
         <ul>
-          <% order.items.forEach(item => { %>
+        
+          <% order.items.forEach((item,index) => { %>
             <li>
               <p><strong>Product:</strong> <%= item.product.productName %></p>
               <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
-              <p><strong>Quantity:</strong> <%= item.quantity %> Kg</p>
-              <p><strong>Total:</strong> Rs <%= item.total %></p>
+              <p id="quantity"><strong>quantity:</strong>  <%= item.quantity %></p>
+              <input type="hidden" id="quantity" name="quantity" value="<%= item.quantity %>">
+              
+              <p><strong>Total:</strong> Rs <%=item.product.salePrice*item.quantity %></p>
+              
+              
               <hr>
+             
             </li>
+            
           <% }); %>
         </ul>
-        <p><strong>Grand Total:</strong> Rs <%= order.totalPrice %></p>
+        <p id="displaygrandtotal"><strong>Grand Total:</strong> Rs <%= order.total %></p>
+        <input type="hidden" name="grandtotal" id="hiddengrandtotal" value="<%= order.total %>">
+        <input type="hidden" id="discountAmount" name="discountAmount" value="">
       <% } else { %>
         <!-- Single Product -->
-        <p><strong>Product:</strong> <%= order.product.productName %></p>
-        <p><strong>Price:</strong> Rs <%= order.product.salePrice %></p>
-        <p><strong>Quantity:</strong> <%= order.quantity %> Kg</p>
-        <p><strong>Total:</strong> Rs <%= order.total %></p>
+        <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
+        <p><strong>Price:</strong> Rs <%= order.items[0].product.salePrice %></p>
+        <p id="quantity"><strong>Quantity:</strong> <%= order.items[0].quantity %> Kg</p>
+        <input type="hidden" id="quantity" name="quantity" value="<%= order.items[0].quantity%>">
+        <p id="displaygrandtotal"><strong>Total:</strong> Rs <%= order.total %></p>
+        <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+        <input type="hidden" id="discountAmount" name="discountAmount" value="">
       <% } %>
     </div>
     
@@ -289,20 +1149,315 @@ module.exports={
     <div class="mb-4">
       <h4>Payment Information</h4>
       <div class="form-group">
-        <label for="paymentMethod">Payment Method:</label>
+        <label for="paymentMethod">Online Payment Method:</label>
         <select id="paymentMethod" name="paymentMethod" class="form-control" required>
-          <option value="">Select a payment method</option>
-          <option value="cod">Cash on Delivery</option>
+          
+          <option value="cod">Cash On Delivery</option>
           <option value="card">Credit/Debit Card</option>
+          <option value="razorpay">Pay with Razorpay</option>
+          
+
           <!-- Add more payment methods as needed -->
         </select>
       </div>
       <!-- Additional payment fields can be added here -->
     </div>
     
-    <!-- Place Order Button -->
-    <button type="submit" class="btn btn-success">Place Order</button>
+   
+    <button type="submit" class="btn btn-success" id="placeorder">Place Order</button>
+    
+
   </form>
+
+  
+  
 </div>
 
 <%- include("../partials/user/footer") %>
+<script>
+
+  
+  document.getElementById('applyCouponBtn').addEventListener('click',function(){
+    const couponCode=document.getElementById('couponCode').value;
+    const totalAmountElement = document.getElementById('hiddengrandtotal');
+    if (!totalAmountElement || isNaN(totalAmountElement.value)) {
+        alert("hiddengrandtotal element is missing or invalid.");
+        return;
+    }
+   
+    const totalAmount=parseFloat(document.getElementById('hiddengrandtotal').value)
+    alert(totalAmount)
+    
+    
+    fetch('/apply-coupon',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({code:couponCode,totalAmount:totalAmount})
+    })
+    .then(response=>response.json())
+    .then(data=>{
+      const couponMessage=document.getElementById('couponMessage')
+      couponMessage.style.display='block';
+      couponMessage.className=data.success?'alert alert-success':'alert alert-danger';
+      couponMessage.textContent=data.message
+      if(data.success){
+        const currentTotal = parseFloat(document.getElementById('hiddengrandtotal').value);
+        const discountAmount = parseFloat(data.discountAmount);
+        alert("discountamount"+discountAmount)
+        const newTotalPrice = currentTotal - discountAmount;
+        document.getElementById('displaygrandtotal').textContent = `Grand Total: Rs ${newTotalPrice.toFixed(2)}`;
+        document.getElementById('hiddengrandtotal').value = newTotalPrice.toFixed(2); // Update the hidden input
+        document.getElementById('discountAmount').value = discountAmount; 
+      }
+
+    })
+    .catch(error=>{
+      console.error('Error',error)
+    })
+  })
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if (format === 'pdf') {
+    const doc = new PDFDocument();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
+    doc.pipe(res);
+
+    doc.fontSize(20).text('Sales Report', { align: 'center' });
+    doc.moveDown();
+
+    // Summary Table
+    doc.fontSize(14).text('Summary', { underline: true });
+    doc.moveDown();
+    doc.fontSize(12);
+    doc.text(`Total Sales Count: ${totalSalesCount}`);
+    doc.text(`Overall Order Amount: Rs ${overallOrderAmount.toFixed(2)}`);
+    doc.text(`Coupon Deduction: Rs ${couponDeduction.toFixed(2)}`);
+    doc.text(`Net Sales: Rs ${netSales.toFixed(2)}`);
+    doc.text(`Total Offers Applied: Rs ${totalOffersApplied.toFixed(2)}`);
+    doc.moveDown();
+
+    // Order Details Table Header
+    doc.fontSize(14).text('Order Details', { underline: true });
+    doc.moveDown();
+    doc.fontSize(12).text('Order ID | Product | Quantity | Regular Total Price | Discount | Sold Price');
+    doc.moveDown();
+
+    // Order Details Table Data
+    orders.forEach(order => {
+        order.orderedItems.forEach(item => {
+            doc.text(`${order._id} | ${item.product.productName} | ${item.quantity} | Rs ${(item.product.regularPrice * item.quantity).toFixed(2)} | Rs ${order.discount} | Rs ${order.finalAmount}`);
+        });
+        doc.moveDown();
+    });
+
+    doc.end();
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+   
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+            }
+    
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: #f4f4f4;
+            }
+    
+            .container {
+                display: flex;
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                max-width: 900px;
+                width: 100%;
+            }
+    
+            .form-container {
+                padding: 40px;
+                width: 50%;
+            }
+    
+            .form-container h2 {
+                color: #333;
+                margin-bottom: 20px;
+            }
+    
+            .form-container label {
+                display: block;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+    
+            .form-container input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+    
+            .form-container button {
+                width: 100%;
+                padding: 12px;
+                background-color: #28a745; 
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+    
+            .form-container button:hover {
+                background-color: #218838;
+            }
+    
+            .form-container .google-login {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #db4437;
+                color: white;
+                padding: 12px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                margin-top: 10px;
+            }
+    
+            .form-container .google-login img {
+                width: 20px;
+                margin-right: 10px;
+            }
+    
+            .image-container {
+                width: 50%;
+                background-image: url('https://www.example.com/login-background.jpg'); 
+                background-size: cover;
+                background-position: center;
+            }
+    
+            
+            @media (max-width: 768px) {
+                .container {
+                    flex-direction: column;
+                }
+    
+                .form-container, .image-container {
+                    width: 100%;
+                }
+    
+                .image-container {
+                    height: 300px;
+                }
+            }
+            .forgot-password-link{
+                font-size: 0.875rem;
+                color:#007bff;
+                text-decoration: none;
+            }
+            .forgot-password-link:hover{
+                color: #0056b3;
+                text-decoration: underline;
+            }
+        </style>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> 
+        
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-container">
+            <h2>Login</h2>
+            <form method="POST" action="/login" id="loginForm" autocomplete="off">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" >
+                <div id="emailError" class="text-danger"></div>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password"  minlength="6" >
+                <div id="passwordError" class="text-danger"></div>
+                <div class="form-group d-flex justify-content-end">
+                    <a href="/forgot-password" class="forgot-password-link ms-auto">Forgot password</a>
+                </div>
+                
+
+                
+                <button type="submit">Login</button>
+                <%if(message){%>
+                    <p style="color: red;"><%=message%></p>
+                    <%}%>
+                
+                <p>Or login with</p>
+                <div class="social-btns">
+                    <a href="/auth/google" class="btn btn-outline-danger  google-login">
+                      <img src="images/googlesignup.png" alt="Google Logo" style="width: 24px; height: 24px">
+                    </a>
+                </div>
+                <div class="form-group" style="margin-top: 50px;">
+                    <label for="role">Demo login</label>
+                    <select style="background-color: green; color:white" id="role" name="role" class="form-control" required>
+                        <option value="user">Demo User</option>
+                        <option value="admin">Demo Admin</option>
+                    </select>
+                </div>
+
+         <button type="button" id="demoLoginButton" class="btn btn-success" style="margin-top: 10px;">Demo Login</button>
+
+            </form>
+
+            <div style="margin-top: 100px; margin-left:100px;">
+                <p>Not registerd?<a href="/signup">Signup</a></p>
+
+            </div>
+           
+        </div>
+       
+        <div class="image-container"></div>
+    </div>

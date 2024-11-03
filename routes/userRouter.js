@@ -47,7 +47,23 @@ router.get("/order/summary/:productId",productController.getOrderSummary)
 router.get("/order/checkout/:productId?",productController.getCheckout)
 router.post("/order/checkout/",productController.postCheckout)
 router.get("/order/confirmation/:newOrderId",productController.confirmation)
-router.post("/userprofile/cancel-order/:orderId",productController.cancelOrder)
+router.get("/order/order-cancel/:orderId",productController.orderCancel)
+router.post("/userprofile/cancel-order",productController.cancelOrder)
+router.get("/order/orderDetails/:orderId",productController.orderDetails)
+router.post("/order/codConfirmation",productController.codConfirmation)
+router.get("/order-confirmation",productController.orderConfirmation)
+router.get("/getCoupons",productController.getCoupon)
+router.post('/apply-coupon',productController.applyCoupon)
+router.post("/wishlist/add",productController.addToWishlist)
+router.post('/wishlist/remove/:id',productController.removeWishlist)
+router.get('/wishlist',productController.getWishlist)
+router.get("/wallet",profileController.getWallet)
+router.post('/wallet/add',profileController.addWallet)
+router.get("/userprofile/return/:id",productController.returnOrder)
+router.post("/orders/confirm-return",productController.confirmReturn)
+router.get("/orders",productController.getOrders)
+
+
 
 
 

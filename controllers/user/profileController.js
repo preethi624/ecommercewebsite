@@ -1,6 +1,8 @@
 const User=require('../../models/userSchema')
 const Order=require("../../models/orderSchema")
 const Product=require("../../models/productSchema")
+const Category=require("../../models/categorySchema")
+const Transaction=require("../../models/transactionSchema")
 const nodemailer=require("nodemailer")
 const bcrypt=require("bcrypt")
 const env=require("dotenv").config()
@@ -175,21 +177,51 @@ const getUserProfile=async(req,res)=>{
        /* if(user.isDemo){
             return res.render('user-profile.ejs', { user });
         }*/
-        
+      
         const userId=user.id;
+        
         console.log(userId)
+
+        
+
+      
+            
+        
+        const userData = await User.findById(userId).populate({
+            path: 'orderHistory',
+            populate: {
+                path: 'orderedItems.product',
+                model: 'Product'
+            }
+        }).populate('addresses')
         
         
-        const userData = await User.findById(userId).populate('orderHistory').populate('addresses')
+        
         if(!userData){
             return res.redirect("/login")
         }
-
+       
        if (!userData.addresses) {
             userData.addresses = [];
         }
+        const orderHistory = await Order.find({ user: userId })
+            
+            .populate({
+                path: 'orderedItems.product',
+                model: 'Product'
+            })
+            console.log("order history",orderHistory)
+
+        // Fetch total order count for pagination controls
+        const totalOrders = await Order.countDocuments({ user: userId });
         
-        res.render('user-profile.ejs', { user:userData, orderHistory: user.orderHistory || [] });
+        res.render('user-profile.ejs', { 
+            user: userData, 
+            orderHistory: orderHistory,
+           
+           
+        });
+        
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
@@ -314,11 +346,18 @@ const addresses=async(req,res)=>{
 }
 const getProducts=async(req,res)=>{
     try {
-        const { search, sort, showOutOfStock } = req.query;
+        const { search, sort, showOutOfStock ,category} = req.query;
         const query = {};
 
         if (search) {
             query.productName = { $regex: search, $options: 'i' }; // Case-insensitive search
+        }
+        if (category) {
+            
+            const categoryObj = await Category.findOne({ name: category });
+            if (categoryObj) {
+                query.category = categoryObj._id; 
+            }
         }
         if (!showOutOfStock) {
             query.quantity = { $gt: 0 }; // Only show products with stock > 0
@@ -358,8 +397,41 @@ const getProducts=async(req,res)=>{
         res.status(500).send("Error fetching products");
         
     }
-}
+}  
+const getWallet=async(req,res)=>{
+    const user=req.session.user
+    const userId=user.id
+    const transactions = await Transaction.find({ userId }).sort({ date: -1 });
+    const updatedUser=await User.findById(userId)
+    if (!updatedUser) {
+        return res.status(404).send('User not found');
+    }
+    const walletBalance=updatedUser.wallet
+    res.render("wallet",{walletBalance:walletBalance,transactions:transactions,user:user})
+}  
+const addWallet=async(req,res)=>{
+    try {
+        const user=req.session.user;
+        const userId=user.id
+        const amount=req.body.amount
+        if (!amount || amount <= 0) {
+            return res.status(400).send('Invalid amount');
+          }
+          const updatedUser=await User.findByIdAndUpdate(userId,{$inc:{wallet:amount}},{new:true})
+          if (!updatedUser) {
+            return res.status(404).send('User not found');
+          }
 
+      res.redirect('/wallet');
+      
+
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('An error occurred while updating the wallet balance');
+        
+    }
+}                                                     
 
 
 module.exports={
@@ -377,4 +449,6 @@ module.exports={
     defaultAddress,
     addresses,
     getProducts,
+    getWallet,
+    addWallet,
 }

@@ -1,0 +1,123 @@
+<%- include("../../views/partials/user/header") %>
+<!-- views/orderDetails.ejs -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa3YSk1YJ7zqdP1Qdm0T0YzQPIboqE41tjf9ADrFmCffpvuA3PTEGkC9xv2" crossorigin="anonymous">
+
+<h2 style="text-align: center; color: #333; font-family: 'Arial Black', sans-serif; margin-top: 20px;">Order Details</h2>
+
+<div style="max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px;">
+  
+
+  <h3 style="color: #555; margin-bottom: 20px; font-family: 'Verdana', sans-serif;">Items:</h3>
+
+  <% if (order && order.orderedItems.length > 0) { %>
+    <% order.orderedItems.forEach(item => { %>
+      <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
+        <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 120px; height: 120px; border-radius: 10px; border: 1px solid #ccc; margin-right: 20px;">
+        <div>
+          <p style="font-size: 18px; color: #333; margin-bottom: 5px;"><strong>Product:</strong> <%= item.product.productName %></p>
+          <p style="font-size: 16px; color: #777;"><strong>Description:</strong> <%= item.product.description %></p>
+          <p style="font-size: 16px; color: #777;"><strong>Quantity:</strong> <%= item.quantity %></p>
+        </div>
+      </div>
+    <% }) %>
+    <div style="border-top: 1px solid #eee; padding-top: 20px;">
+      <p style="font-size: 18px; color: #333;"><strong>Order ID:</strong> <%= order._id %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Total Amount:</strong> Rs<%= order.totalPrice %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= order.status %></p>
+      <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
+    </div>
+  <% } else { %>
+    <p style="color: #ff0000; font-size: 18px; text-align: center;">No items found for this order.</p>
+  <% } %>
+
+<div id="right">
+  <h3>Price Details</h3>
+    <p><strong>Price:</strong> Rs <%= order.totalPrice %></p>
+    <p><strong>Delivery Charge:</strong>Free</p>
+    <p><strong>GST:</strong>0%</p>
+
+    <p><strong>Discount:Rs </strong><%=order.discount%></p>
+    <p><strong>Final Amount:Rs </strong><%=order.finalAmount%></p>
+    
+    
+  </div>
+  <h3 style="color: #555; margin-top: 30px; font-family: 'Verdana', sans-serif;">Shipping Address for this Order</h3>
+  <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background-color: #fafafa; margin-bottom: 20px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
+    <p style="font-size: 18px; color: #333;"><strong>Full Name:</strong> <%= orderAddress.fullName %></p>
+    <p style="font-size: 18px; color: #333;"><strong>Address:</strong> <%= orderAddress.address %></p>
+    <p style="font-size: 18px; color: #333;"><strong>City:</strong> <%= orderAddress.city %></p>
+    <p style="font-size: 18px; color: #333;"><strong>Postal Code:</strong> <%= orderAddress.postalCode %></p>
+    <p style="font-size: 18px; color: #333;"><strong>Country:</strong> <%= orderAddress.country %></p>
+    <style>
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 8px;
+        text-align: center;
+      }
+      #right{
+        position: absolute;
+        top: 550px; /* Adjust as needed */
+        right: 450px; /* Adjust as needed */
+        width: 200px; /* Adjust based on desired width */
+        padding: 10px;
+        background-color: #f8f9fa; /* Optional: background for better visibility */
+        border: 1px solid #ddd; /* Optional: border for definition */
+        border-radius: 5px;
+      }
+    </style>
+    
+  </div>
+ 
+
+  <a href="/userprofile/order-history" style="display: inline-block; text-align: center; width: 100%; padding: 12px 0; background-color: #007bff; color: #fff; font-size: 18px; text-decoration: none; border-radius: 5px; transition: background-color 0.3s ease;">
+    Back to Order History
+  </a>
+</div>
+
+<style>
+  body {
+    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  h2, h3 {
+    font-family: 'Verdana', sans-serif;
+  }
+
+  div.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #fff;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  p {
+    color: #333;
+    font-size: 18px;
+  }
+
+  img {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  a:hover {
+    background-color: #0056b3;
+  }
+
+  /* Add hover effects for product items */
+  div.card-body div:hover {
+    background-color: #f8f8f8;
+    transition: background-color 0.3s ease;
+  }
+</style>
+<%- include("../../views/partials/user/footer") %>

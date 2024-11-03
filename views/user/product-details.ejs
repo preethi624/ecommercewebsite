@@ -124,7 +124,25 @@
             <div class="details">
                 <h2><%= product.productName %></h2>
                 <p style="color: gray; font-size: smaller; margin-top: 0">0 ratings & 0 reviews</p>
-                <h4>Price: Rs <%= product.salePrice %></h4>
+                <h4>Regular Price: Rs <%= product.regularPrice %></h4>
+
+                <%if(product.category.categoryOffer){%>
+
+                    <h5>Offer added:<%=product.category.categoryOffer%></h5>
+                    <%}else if(product.productOffer){%>
+                        <h5>Offer added:<%=product.productOffer%></h5>
+
+                        <%}else{%>
+                            <h5>Offer added:0%</h5>
+
+                            <%}%>
+                <% if( product.regularPrice&&product.productOffer>0){%>
+                    <h5>Sale Price:<%= (product.regularPrice - (product.regularPrice * product.productOffer / 100)).toFixed(2) %></h5>
+                    <% } else { %>
+                        <h5>Sale Price:<%= product.regularPrice %></h5>
+                      <% } %>
+              
+
                
 
                 <% if (product.quantity > 0) { %>
@@ -160,6 +178,7 @@
     </div>
     
 </section>
+<%- include("../../views/partials/user/footer") %>
 
 <script>
     // Function to change the main product image when a thumbnail is clicked

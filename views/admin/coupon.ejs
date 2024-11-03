@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Management</title>
+    <link rel="stylesheet" href="/path/to/bootstrap.css"> <!-- Include Bootstrap -->
+    <style>
+        /* Layout and Styling */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+            background-color: #f8f9fa; /* Light background for better contrast */
+        }
+        .navbar {
+            background-color: green;
+            padding: 10px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar img {
+            height: 40px;
+        }
+        .logout-btn {
+            background-color: white;
+            color: green;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .sidebar {
+            margin-top: 50px; /* Below the fixed navbar */
+            width: 250px;
+            background-color: green;
+            height: 100vh;
+            position: fixed;
+            overflow: auto;
+            padding-top: 20px;
+            top: 0; /* Align to top */
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .main-content {
+            margin-left: 250px; /* Leave space for sidebar */
+            padding: 20px;
+            margin-top: 70px; /* Leave space for the fixed navbar */
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add some shadow to the content */
+            border-radius: 8px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            border-radius: 5px;
+            padding: 10px;
+        }
+        button.btn-primary {
+            background-color: green;
+            border-color: green;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button.btn-primary:hover {
+            background-color: darkgreen;
+        }
+        table {
+            margin-top: 30px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #343a40;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .sidebar a {
+                float: left;
+                padding: 10px;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Include Header -->
+    <%- include("../../views/partials/admin/header") %> 
+
+    <!-- Coupon Management Content -->
+    <div class="main-content container">
+        <h1>Coupon Management</h1>
+
+        <!-- Coupon Creation Form -->
+        <h2>Create a New Coupon</h2>
+        <form action="/admin/create-coupon" method="POST" onsubmit="return validateForm()">
+            <div class="form-group">
+                <label for="code">Coupon Code</label>
+                <input type="text" name="code" id="code" class="form-control" >
+                <small id="codeError" class="text-danger" style="display:none;"></small>
+                
+            </div>
+            <div class="form-group">
+                <label for="discountType">Discount Type</label>
+                <select name="discountType" id="discountType" class="form-control" >
+                    <option value="percentage">Percentage</option>
+                    <option value="flat">Flat</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="discountValue">Discount Value</label>
+                <input type="number" name="discountValue" id="discountValue" class="form-control" >
+                <small id="discountValueError" class="text-danger" style="display:none;"></small>
+            </div>
+            <div class="form-group">
+                <label for="minPurchaseAmount">Minimum Purchase Amount (Optional)</label>
+                <input type="number" name="minPurchaseAmount" id="minPurchaseAmount" class="form-control">
+                <small id="minPurchaseAmountError" class="text-danger" style="display:none;"></small>
+            </div>
+            <div class="form-group">
+                <label for="maxDiscount">Maximum Discount (Optional)</label>
+                <input type="number" name="maxDiscount" id="maxDiscount" class="form-control">
+                <small id="maxDiscountError" class="text-danger" style="display:none;"></small>
+            </div>
+            <div class="form-group">
+                <label for="expiryDate">Expiry Date</label>
+                <input type="date" name="expiryDate" id="expiryDate" class="form-control" >
+            </div>
+            <div class="form-group">
+                <label for="usageLimit">Usage Limit</label>
+                <input type="number" name="usageLimit" id="usageLimit" class="form-control">
+                <small id="usageLimitError" class="text-danger" style="display:none;"></small>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Coupon</button>
+        </form>
+
+        <hr>
+
+        <!-- Display Existing Coupons -->
+        <h2>Existing Coupons</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Discount Type</th>
+                    <th>Discount Value</th>
+                    <th>Min Purchase</th>
+                    <th>Max Discount</th>
+                    <th>Expiry Date</th>
+                    <th>Usage Limit</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% coupons.forEach(coupon => { %>
+                    <tr>
+                      <td><%= coupon.code %></td>
+                      <td><%= coupon.discountType %></td>
+                      <td><%= coupon.discountValue %></td>
+                      <td><%= coupon.minPurchaseAmount %></td>
+                      <td><%= coupon.maxDiscount %></td>
+                      <td><%= new Date(coupon.expiryDate).toLocaleDateString() %></td>
+                      <td><%= coupon.usageLimit %></td>
+                      <td>
+                        <!-- Delete Coupon Form -->
+                        <form action="/admin/delete-coupon/<%= coupon._id %>" method="POST" style="display:inline;">
+                          <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function validateForm() {
+            let isValid = true; // Track overall form validity
+
+            // Clear previous error messages
+            document.getElementById('codeError').style.display = 'none';
+            document.getElementById('discountValueError').style.display = 'none';
+            document.getElementById('minPurchaseAmountError').style.display = 'none';
+            document.getElementById('maxDiscountError').style.display = 'none';
+            document.getElementById('usageLimitError').style.display = 'none';
+
+            // Validate Coupon Code
+            const code = document.getElementById('code').value.trim();
+            if (code === "") {
+                document.getElementById('codeError').textContent = "Coupon code cannot be blank or contain only spaces.";
+                document.getElementById('codeError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate Discount Value
+            const discountValue = document.getElementById('discountValue').value.trim();
+            if (discountValue === "") {
+                document.getElementById('discountValueError').textContent = "Discount value cannot be blank or contain only spaces.";
+                document.getElementById('discountValueError').style.display = 'block';
+                isValid = false;
+            }
+
+            // Validate Minimum Purchase Amount
+            
+
+            // Validate Maximum Discount
+            
+
+            // Validate Usage Limit
+            const usageLimit = document.getElementById('usageLimit').value.trim();
+            if (usageLimit === "") {
+                document.getElementById('usageLimitError').textContent = "Usage limit cannot be blank or contain only spaces.";
+                document.getElementById('usageLimitError').style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid; // Only submit if valid
+        }
+    </script>
+
+    <!-- Include Bootstrap JS -->
+    <script src="/path/to/bootstrap.js"></script>
+</body>
+</html>

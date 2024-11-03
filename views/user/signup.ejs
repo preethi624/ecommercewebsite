@@ -118,6 +118,10 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Enter your password" >
                 <div id="error4" class="error-message"></div>
+                <label for="referralCode">Referral Code (Optional)</label>
+                <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code if you have one">
+                <div id="error5" class="error-message"></div>
+    
                 <% if(locals.message&&message.length>0){%>
                     <div id="serverError" class="alert alert-danger text-center">
                         <%=message%>
@@ -146,6 +150,21 @@
     </div>
     
     <script>
+        const referralCodeId = document.getElementById("referralCode");
+const error5 = document.getElementById("error5");
+
+function referralCodeValidateChecking() {
+    const referralCodeVal = referralCodeId.value.trim();
+    const referralPattern = /^[A-Za-z0-9]{4,10}$/; // Example pattern for a referral code
+
+    if (referralCodeVal && !referralPattern.test(referralCodeVal)) {
+        error5.style.display = "block";
+        error5.innerHTML = "Referral code format is invalid";
+    } else {
+        error5.style.display = "none";
+        error5.innerHTML = "";
+    }
+}
         const emailid=document.getElementById("email")
         const phoneid=document.getElementById("phone")
         const nameid=document.getElementById("username")

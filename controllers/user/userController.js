@@ -20,40 +20,35 @@ const loadHomepage = async (req, res) => {
         
         let productData = await Product.find({
             isBlocked: false,
+            isDeleted:false,
             category: { $in: categories.map(category => category._id) }
-        });
+        }).populate('category');
 
-      
+        // Sort products by creation date and limit to the latest 8
         productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productData = productData.slice(0, 8);
 
         res.setHeader('Cache-Control', 'no-store');
 
         if (user) {
-            if (user.isDemo) {
-                
-                return res.render("home", { user: user, products: productData });
+            const userData = await User.findById(user.id).populate('wishlist');
+
+            // Check if userData exists
+            if (!userData) {
+                return res.render("home", { products: productData, category: categories });
             }
-            const userData = await User.findById(user.id);
-            
-            if(userData.isBlocked){
-                return res.render("home.ejs",{ products: productData })
+
+            // Check if the user is blocked
+            if (userData.isBlocked) {
+                return res.render("home", { products: productData, category: categories });
             }
-            
-            
-            
-           
-            if (user.id) {
-                const userData = await User.findOne({ _id: user.id });
-                
-                if (userData) {
-                    return res.render("home", { user: userData, products: productData });
-                }
-            }
+
+            // Render homepage for non-blocked users with wishlist
+            return res.render("home", { user: userData, products: productData, wishlist: userData.wishlist });
         }
 
-       
-        return res.render("home", { products: productData });
+        // Render homepage for unauthenticated users
+        return res.render("home", { products: productData, category: categories });
 
     } catch (error) {
         console.error(error);
@@ -100,28 +95,42 @@ async function sendVerificationEmail(email, otp) {
         return false;
     }
 }
-
 const signup = async (req, res) => {
     try {
-        const { username, phone, email, password } = req.body;
-        if (req.session.user) {
-            req.session.destroy((err) => {
-                if (err) {
-                    console.error("Error clearing old session", err);
-                }
-            });
-        }
+        const { username, phone, email, password, referralCode } = req.body;
+
+        // Check if user exists
         const findUser = await User.findOne({ email });
         if (findUser) {
             return res.render("signup", { message: "User with this email already exists." });
         }
+
+        // Referral logic
+        let referredByUser = null;
+        if (referralCode) {
+            referredByUser = await User.findOne({ referralCode });
+            if (referredByUser) {
+                // Credit 10 points to referrer
+                referredByUser.referralCredits = (referredByUser.points || 0) + 10;
+                await referredByUser.save();
+            }
+        }
+
+        // Create a new referral code
+        const newReferralCode = username + Math.floor(Math.random() * 1000);
+
+        // Generate OTP
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
-            return res.json("email.error");
+            return res.render("signup", { message: "Error sending verification email." });
         }
+
+        // Initialize session data
         req.session.userOtp = otp;
-        req.session.userData = { username, phone, email, password };
+        req.session.userData = { username, phone, email, password, newReferralCode, referredByUser };
+
+        // Render the OTP verification page
         res.render("verify-otp");
         console.log("OTP SENT", otp);
     } catch (error) {
@@ -129,6 +138,7 @@ const signup = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 };
+
 
 const securePassword = async (password) => {
     try {
@@ -151,9 +161,17 @@ const verifyOtp = async (req, res) => {
                 username:user.username,
                 email:user.email,
                 phone:user.phone,
-                password:passwordHash
+                password:passwordHash,
+                referralCode:user.newReferralCode,
+                referredBy:user.referredByUser
             })
             await saveUserData.save()
+            if (user.referredByUser) {
+                await User.updateOne(
+                    { _id: user.referredByUser._id },
+                    { $inc: { referralCredits: 1 } } // Example field to track rewards
+                );
+            }
             req.session.regenerate((err) => {
                 if (err) {
                     console.error("Error regenerating session", err);
@@ -273,7 +291,7 @@ const products=async (req,res)=>{
 const productDetails=async(req,res)=>{
     try {
         const productId=req.query.id;
-        const product=await Product.findById(productId);
+        const product=await Product.findById(productId).populate('category');
         if(!product){
             return res.status(404).send("product not found")
         }

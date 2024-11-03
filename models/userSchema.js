@@ -9,7 +9,8 @@ const addressSchema = new Schema({
   })
   const cartItemSchema = new Schema({
     product: { type: Schema.Types.ObjectId, ref: "Product", required: true }, // Ensure product is referenced correctly
-    quantity: { type: Number, required: true, default: 1 } // Default quantity set to 1
+    quantity: { type: Number, required: true, default: 1 } ,
+   
 });
 
 const userSchema = new Schema({
@@ -76,7 +77,7 @@ const userSchema = new Schema({
     
     wishlist: [{
         type: Schema.Types.ObjectId,
-        ref: "Wishlist"
+        ref: "Product"
     }],
     
     // Order history references
@@ -92,12 +93,25 @@ const userSchema = new Schema({
     },
     
     // Optional referral-related fields
-   /* referalCode: {
+    referralCode: {
         type: String,
         default: null
     },
+    referredBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Reference to another user who referred this user
+        default: null
+      },
+      referralCredits: {
+        type: Number,
+        default: 0 // Initial referral credits for new users
+      },
+      hasPurchased: {
+        type: Boolean,
+        default: false // Used to check if the user has made their first purchase
+      },
     
-    redeemed: {
+    /*redeemed: {
         type: Boolean,
         default: false
     },
@@ -140,3 +154,4 @@ userSchema.path('phone').validate(function (value) {
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
+ 

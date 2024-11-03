@@ -140,6 +140,8 @@
                     <td class="text-start"><%= category.name %></td>
                     <td class="text-start"><%= category.description %></td>
                     <td>
+                      <% console.log(category.categoryOffer); %>
+                     
                        <%if(category.categoryOffer){%>
 
                         <%=category.categoryOffer%>%
@@ -216,167 +218,164 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
-    document.getElementById("addCategoryForm").addEventListener("submit", async (event) => {
-      event.preventDefault(); 
+    const form = document.getElementById('addCategoryForm');
 
-      const formData = new FormData(event.target);
-      const data = Object.fromEntries(formData);
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-      try {
-        const response = await fetch(event.target.action, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
+        let isValid = true; // Flag to track overall form validity
 
-        const result = await response.json();
-
-        if (response.ok) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Category Added!',
-            text: result.message,
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            window.location.reload(); // Reload the page to show the updated category list
-          });
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: result.error || 'Something went wrong!',
-            confirmButtonText: 'OK'
-          });
+        // Validate Name
+        const productName = document.getElementById("product_name").value.trim();
+        const nameError = document.getElementById("name-error");
+        nameError.innerText = ""; // Clear previous error message
+        if (!productName) {
+            nameError.innerText = "Product Name is required.";
+            isValid = false;
+        } else if (!/^[A-Za-z]+(?: [A-Za-z]+)*$/.test(productName)) {
+            nameError.innerText = "Product Name must contain only alphabetic characters.";
+            isValid = false;
         }
-      } catch (error) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Network Error!',
-          text: 'Please try again later.',
-          confirmButtonText: 'OK'
-        });
-      }
-    });
-    async function addOffer(categoryId){
-        const{value:amount}=await Swal.fire({
-            title:"Offer in percentage",
-            input:"number",
-            inputLabel:"percentage",
-            inputPlaceholder:"%"
-        });
-        if(amount){
-            try{
-                const response=await fetch("/admin/addCategoryOffer",{
-                  method:"POST",
-                  headers:{
-                    'content-type':"application/json",
-                  },
-                  body:JSON.stringify({
-                    percentage:amount,
-                    categoryId:categoryId
-                  }),
+
+        // Validate Description
+        const description = document.getElementById("descriptionId").value.trim();
+        const descriptionError = document.getElementById("description-error");
+        descriptionError.innerText = ""; // Clear previous error message
+        if (!description) {
+            descriptionError.innerText = "Description is required.";
+            isValid = false;
+        } else if (!/^[A-Za-z ]+$/.test(description)) {
+            descriptionError.innerText = "Description must contain only alphabetic characters.";
+            isValid = false;
+        }
+
+        // Stop form submission if validation fails
+        if (!isValid) {
+            return;
+        }
+
+        // Proceed with async submission if validation passes
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch(event.target.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Category Added!',
+                    text: result.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.reload(); // Reload the page to show the updated category list
                 });
-                const data=await response.json();
-                if(response.ok&&data.status===true){
-                  Swal.fire(
-                    "Offer added",
-                    "The offer has been added",
-                    "success"
-                  ).then(()=>{
-                    location .reload();
-                  })
-                }else{
-                  Swal.fire(
-                    "Failed",
-                    data.message||"Adding offer failed",
-                    'error', 
-                  )
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: result.error || 'Something went wrong!',
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Network Error!',
+                text: 'Please try again later.',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+    // Additional functions for handling offer addition, removal, and soft delete
+    async function addOffer(categoryId) {
+        const { value: amount } = await Swal.fire({
+            title: "Offer in percentage",
+            input: "number",
+            inputLabel: "percentage",
+            inputPlaceholder: "%"
+        });
+        if (amount) {
+            try {
+                const response = await fetch("/admin/addCategoryOffer", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': "application/json",
+                    },
+                    body: JSON.stringify({
+                        percentage: amount,
+                        categoryId: categoryId
+                    }),
+                });
+                const data = await response.json();
+                if (response.ok && data.status === true) {
+                    Swal.fire("Offer added", "The offer has been added", "success").then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire("Failed", data.message || "Adding offer failed", 'error');
                 }
-
-            }catch(error){
-              Swal.fire(
-                "Error",
-                "An error occured while adding offer",
-                "error"
-              )
-              console.log("Error",error)
-
+            } catch (error) {
+                Swal.fire("Error", "An error occurred while adding offer", "error");
+                console.log("Error", error);
             }
         }
-
-
     }
-    async function removeOffer(categoryId){
-      try{
-        const response=await fetch("/admin/removeCategoryOffer",{
-          method:"POST",
-        headers:{
-          "content-type":"application/json",
-        },
-        body:JSON.stringify({
-          categoryId:categoryId,
-        })
 
-        })
-        const data=await response.json();
-        if(response.ok&&data.status===true){
-          Swal.fire(
-            "Offer removed",
-            "The offer has been removed",
-            "success"
-          ).then(()=>{
-            location.reload();
-          });
-        }else{
-          Swal.fire(
-            "Failed",
-            data.message||"Removing failed",
-            "error",
-
-          );
+    async function removeOffer(categoryId) {
+        try {
+            const response = await fetch("/admin/removeCategoryOffer", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    categoryId: categoryId,
+                })
+            });
+            const data = await response.json();
+            if (response.ok && data.status === true) {
+                Swal.fire("Offer removed", "The offer has been removed", "success").then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire("Failed", data.message || "Removing failed", "error");
+            }
+        } catch (error) {
+            Swal.fire("Error", "An error occurred while removing the offer", "error");
+            console.error("Error removing offer", error);
         }
-        
-
-      }catch(error){
-        Swal.fire(
-          "Error",
-          "An error occured while removing the offer",
-          "error"
-        )
-        console.error("Error removing offer",error)
-
-      }
     }
 
-    async function softDelete(categoryId){
-      try{
-        const response=await fetch("/admin/softDeleteCategory",{
-          method:"POST",
-          headers:{
-            "Content-Type":"application/json"
-
-          },
-          body:JSON.stringify({id:categoryId}),
-        });
-        const data=await response.json();
-        if(response.ok && data.status){
-          Swal.fire("Deleted","The category was soft deleted","success").then(()=>{
-            location.reload();
-          })
-        }else{
-          Swal.fire("failed",data.message||"soft delete failed","error");
+    async function softDelete(categoryId) {
+        try {
+            const response = await fetch("/admin/softDeleteCategory", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ id: categoryId }),
+            });
+            const data = await response.json();
+            if (response.ok && data.status) {
+                Swal.fire("Deleted", "The category was soft deleted", "success").then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire("Failed", data.message || "Soft delete failed", "error");
+            }
+        } catch (error) {
+            Swal.fire("Error", "An error occurred while deleting the category", "error");
         }
-
-      }catch(error){
-        Swal.fire("Error","An error occured while deleting the category",error)
-
-      }
     }
-    
-  </script>
-</body>
-
-</html>
+</script>

@@ -141,7 +141,7 @@
         <a href="/admin/product">Products</a>
         <a href="#">Coupon</a>
         <a href="#">Banner</a>
-        <a href="#">Orders</a>
+        <a href="/orders">Orders</a>
     </div>  
 
 
@@ -184,13 +184,6 @@
                                 </div>
                             </div>
 
-                            <div class="col-lg-4">
-                                <div class="form-section mb-4">
-                                    <label for="salePrice" class="form-label">Sale Price</label>
-                                    <input type="text" name="salePrice" id="salePrice" class="form-control border" placeholder="Rs">
-                                    <div id="salePrice-error" class="error-message"></div>
-                                </div>
-                            </div>
 
                             <div class="col-lg-4">
                                 <div class="form-section mb-4">
@@ -380,7 +373,7 @@
         const description = document.getElementById('descriptionid').value;
        
         const price = document.getElementsByName('regularPrice')[0].value;
-        const saleprice = document.getElementsByName('salePrice')[0].value;
+      
         const color = document.getElementsByName('color')[0].value;
         const category = document.getElementsByName('category')[0].value;
         const images = document.getElementById('input1')
@@ -422,10 +415,7 @@ isValid = false;
 
 
 
-        if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-            displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-            isValid = false;
-        }
+       
         /*if (parseFloat(price) <= parseFloat(saleprice)) {
 displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
 isValid = false;
@@ -471,3 +461,13 @@ isValid = false;
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+

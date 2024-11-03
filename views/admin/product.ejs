@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -128,11 +129,11 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <a href="#">Dashboard</a>
-        <a href="/admin/users">Customers</a>
+        <a href="admin/users">Customers</a>
         <a href="/admin/category">Category</a>
         <a href="#">Brands</a>
-        <a href="/admin/addProducts">Add Product</a>
-        <a href="/admin/product">Products</a>
+        <a href="/admin/product">Add Product</a>
+        <a href="#">Products</a>
         <a href="#">Coupon</a>
         <a href="#">Banner</a>
         <a href="#">Orders</a>
@@ -161,10 +162,11 @@
                         <th scope="col"><b>Product name</b></th>
                         
                         <th scope="col"><b>Category</b></th>
-                        <th scope="col"><b>Sale Price</b></th>
-                        <th scope="col"><b>Offer Price</b></th>
+                        <th scope="col"><b>Regular Price</b></th>
+                        <th scope="col"><b>Offer in %</b></th>
                         <th scope="col"><b>Offer</b></th>
-                        <th scope="col"><b>Stock in Kg</b></th>
+                        <th scope="col"><b>Sale Price</b></th>
+                        <th scope="col"><b>Quantity</b></th>
                         <th scope="col"><b>Action</b></th>
                         <th scope="col"><b>Edit</b></th>
                         <th scope="col"><b>Image</b></th>
@@ -179,14 +181,7 @@
                     <tr>
                         <td><%=data[i].productName%></td>
                         <td><%=data[i].category.name%></td>
-                        <td>
-                            <% if (data[i].productOffer && data[i].regularPrice > 0) { %>
-                              <%= (data[i].regularPrice - (data[i].regularPrice * data[i].productOffer / 100)).toFixed(2) %>
-                            <% } else { %>
-                              <%= data[i].regularPrice %>
-                            <% } %>
-                          </td>
-                          
+                        <td><%=data[i].regularPrice%></td>
                         <td>
                             <%if( locals.data[i].productOffer){%>
                                 <%=data[i].productOffer%>
@@ -200,7 +195,9 @@
                         </td>
                       
                         <td>
-                            <%if (locals.data[i].productOffer===0){%>
+                          
+
+                            <% if (locals.data[i].productOffer===0){%>
                             <button class="btn btn-info" style="width: 100px;" onclick="addOffer('<%=data[i]._id%>')">
                                 <a href="#" class="text-white">Add Offer</a>
                             </button>
@@ -210,6 +207,17 @@
                                 <a href="#" class="text-white">Remove</a>
                             </button>
                             <%}%>
+                        </td>
+                        <td>
+                            <%if(locals.data[i].category.categoryOffer){%>
+                                <%=data[i].regularPrice-((data[i].regularPrice*data[i].category.categoryOffer)/100)%>
+
+                            <%}else if(locals.data[i].productOffer){%>
+                                <%=data[i].regularPrice-((data[i].regularPrice*data[i].productOffer)/100)%>
+
+                            <%}else{%>
+                                <%=data[i].regularPrice%>
+                                <%}%>
                         </td>
                         <td><%=data[i].quantity%></td>
                         <td>
@@ -299,7 +307,8 @@
             method:'post',
             data:{
                 percentage:amount,
-                productId:productId
+                productId:productId,
+               
             },
             success:(response)=>{
                 if(response.status===true){

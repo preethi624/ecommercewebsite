@@ -1,0 +1,355 @@
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+
+  <form action="/order/checkout/" method="POST" id="checkoutForm">
+
+    <!-- Coupon Code Section -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Apply Coupon</h4>
+      <div class="input-group">
+        <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
+        <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply</button>
+      </div>
+      <div id="couponMessage" class="mt-2"></div>
+      <p class="mt-3">Or <a href="/getCoupons" class="btn btn-link">view and apply more coupons</a></p>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Order Summary</h4>
+
+      <% if (order.items.length > 1) { %>
+        <ul class="list-unstyled">
+          <% order.items.forEach((item, index) => { %>
+            <li class="border-bottom py-2">
+              <p><strong>Product:</strong> <%= item.product.productName %></p>
+              <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
+              <p><strong>Quantity:</strong> <%= item.quantity %></p>
+              <input type="hidden" name="quantity" value="<%= item.quantity %>">
+              <p><strong>Total:</strong> Rs <%= item.product.salePrice * item.quantity %></p>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
+        <p><strong>Price:</strong> Rs <%= order.items[0].product.salePrice %></p>
+        <p><strong>Quantity:</strong> <%= order.items[0].quantity %></p>
+        <input type="hidden" name="quantity" value="<%= order.items[0].quantity %>">
+      <% } %>
+      <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:</strong> Rs <%= order.total %></p>
+      <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+      <input type="hidden" id="discountAmount" name="discountAmount" value="">
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Shipping Address</h4>
+      <% if (user.defaultAddress) { %>
+        <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+        <% if (defaultAddress) { %>
+          <p>
+            <strong><%= defaultAddress.fullName %></strong><br>
+            <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+          </p>
+          <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+        <% } else { %>
+          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+        <% } %>
+      <% } else { %>
+        <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+      <% } %>
+    </div>
+
+    
+
+    <button type="submit" class="btn btn-success w-90" id="placeOrderBtn" style="margin-bottom: 10px;">Place Order</button>
+  </form>
+</div>
+
+<%- include("../partials/user/footer") %>
+
+<script>
+  document.getElementById('applyCouponBtn').addEventListener('click', function() {
+    const couponCode = document.getElementById('couponCode').value;
+    const grandTotalElement = document.getElementById('hiddengrandtotal');
+    const couponMessage = document.getElementById('couponMessage');
+
+    if (!grandTotalElement || isNaN(grandTotalElement.value)) {
+      alert("Total amount is invalid.");
+      return;
+    }
+
+    fetch('/apply-coupon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code: couponCode, totalAmount: parseFloat(grandTotalElement.value) })
+    })
+    .then(response => response.json())
+    .then(data => {
+      couponMessage.style.display = 'block';
+      couponMessage.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+      couponMessage.textContent = data.message;
+
+      if (data.success) {
+        const discountAmount = parseFloat(data.discountAmount);
+        const newTotalPrice = parseFloat(grandTotalElement.value) - discountAmount;
+        document.getElementById('displaygrandtotal').textContent = `Grand Total: Rs ${newTotalPrice.toFixed(2)}`;
+        grandTotalElement.value = newTotalPrice.toFixed(2);
+        document.getElementById('discountAmount').value = discountAmount;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      couponMessage.style.display = 'block';
+      couponMessage.className = 'alert alert-danger';
+      couponMessage.textContent = 'Error applying coupon. Please try again.';
+    });
+  });
+</script>
+
+
+
+
+<%- include("../partials/user/header") %>
+
+<div class="container mt-5">
+  <h1 class="mb-4">Checkout</h1>
+
+  <form action="/order/checkout/" method="POST" id="checkoutForm">
+
+    <!-- Coupon Code Section -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Apply Coupon</h4>
+      <div class="input-group">
+        <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
+        <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply</button>
+      </div>
+      <div id="couponMessage" class="mt-2"></div>
+      <p class="mt-3">Or <a href="/getCoupons" class="btn btn-link">view and apply more coupons</a></p>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Order Summary</h4>
+
+      <% if (order.items.length > 1) { %>
+        <ul class="list-unstyled">
+          <% order.items.forEach((item, index) => { %>
+            <li class="border-bottom py-2">
+              <p><strong>Product:</strong> <%= item.product.productName %></p>
+              <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
+              <p><strong>Quantity:</strong> <%= item.quantity %></p>
+              <input type="hidden" name="quantity" value="<%= item.quantity %>">
+              <p><strong>Total:</strong> Rs <%= item.product.salePrice * item.quantity %></p>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
+        <p><strong>Price:</strong> Rs <%= order.items[0].product.salePrice %></p>
+        <p><strong>Quantity:</strong> <%= order.items[0].quantity %></p>
+        <input type="hidden" name="quantity" value="<%= order.items[0].quantity %>">
+      <% } %>
+      <p id="displayDiscountAmount" class="font-weight-bold text-success"></p>
+      <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:</strong> Rs <%= order.total %></p>
+      <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+      <input type="hidden" id="discountAmount" name="discountAmount" value="">
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="card p-4 mb-4 shadow-sm">
+      <h4>Shipping Address</h4>
+      <% if (user.defaultAddress) { %>
+        <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+        <% if (defaultAddress) { %>
+          <p>
+            <strong><%= defaultAddress.fullName %></strong><br>
+            <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+          </p>
+          <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+        <% } else { %>
+          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+        <% } %>
+      <% } else { %>
+        <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
+      <% } %>
+    </div>
+
+    
+
+    <button type="submit" class="btn btn-success w-90" id="placeOrderBtn" style="margin-bottom: 10px;">Place Order</button>
+  </form>
+</div>
+
+<%- include("../partials/user/footer") %>
+
+<script>
+  document.getElementById('applyCouponBtn').addEventListener('click', function() {
+    const couponCode = document.getElementById('couponCode').value;
+    const grandTotalElement = document.getElementById('hiddengrandtotal');
+    const couponMessage = document.getElementById('couponMessage');
+    const displayDiscountAmount = document.getElementById('displayDiscountAmount');
+
+    if (!grandTotalElement || isNaN(grandTotalElement.value)) {
+      alert("Total amount is invalid.");
+      return;
+    }
+
+    fetch('/apply-coupon', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ code: couponCode, totalAmount: parseFloat(grandTotalElement.value) })
+    })
+    .then(response => response.json())
+    .then(data => {
+      couponMessage.style.display = 'block';
+      couponMessage.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+      couponMessage.textContent = data.message;
+
+      if (data.success) {
+        const discountAmount = parseFloat(data.discountAmount);
+        const newTotalPrice = parseFloat(grandTotalElement.value) - discountAmount;
+        displayDiscountAmount.textContent = `Discount Applied: Rs ${discountAmount.toFixed(2)}`;
+        document.getElementById('displaygrandtotal').textContent = `Grand Total: Rs ${newTotalPrice.toFixed(2)}`;
+        grandTotalElement.value = newTotalPrice.toFixed(2);
+        document.getElementById('discountAmount').value = discountAmount;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      couponMessage.style.display = 'block';
+      couponMessage.className = 'alert alert-danger';
+      couponMessage.textContent = 'Error applying coupon. Please try again.';
+    });
+  });
+</script>
+
+<div id="right-container">
+    <h3>Price Details</h3>
+    <p><strong>Price:</strong> Rs <%= order.total %></p>
+    <p><strong>Delivery Charge:</strong>Free</p>
+    <p><strong>GST:</strong>0%</p>
+
+  <p id="displayDiscountAmount" class="font-weight-bold text-success"></p>
+  <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:</strong> Rs <%= order.total %></p>
+  <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+  <input type="hidden" id="discountAmount" name="discountAmount" value="">
+  </div>
+  
+</div>
+
+
+<div id="right-container">
+    <h3>Price Details</h3>
+    <p><strong>Price:</strong> Rs <%= order.total %></p>
+    <p><strong>Delivery Charge:</strong>Free</p>
+    <p><strong>GST:</strong>0%</p>
+
+  <p id="displayDiscountAmount" class="font-weight-bold text-success"></p>
+  <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:</strong> Rs <%= order.total %></p>
+  <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+  <input type="hidden" id="discountAmount" name="discountAmount" value="">
+  </div>
+  
+</div>
+
+
+<table> 
+  <thead>
+    <th>Total Amount</th>
+    <th>Discount</th>
+   
+    <th>Final Amount</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%=order.totalPrice%></td>
+      <td><%=order.discount%></td>
+      <td><%=order.finalAmount%></td>
+    </tr>
+    
+  </tbody>
+</table>
+
+
+
+<!-- Order History Section -->
+<div class="row mb-5">
+  <div class="col-md-12">
+    <h2>Order History</h2>
+    
+  
+    <% if(user.orderHistory && user.orderHistory.length> 0) { %>
+      <% orderHistory.forEach(order=> { %>
+        <div class="card mb-3">
+          <div class="card-body">
+            <% order.orderedItems.forEach(item=> { %>
+    
+              <strong>Product:</strong>
+              <%= item.product.productName %> <br>
+                <strong>Description:</strong>
+                <%= item.product.description %> <br>
+                  <strong>Quantity:</strong>
+                  <%= item.quantity %> <br>
+    
+                    <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
+                      alt="<%= item.product.productName %>" width="100" height="100">
+                    <% }) %>
+    
+                      <p><strong>Order ID:</strong>
+                        <%= order._id %>
+                      </p>
+    
+                      <p><strong>Date:</strong>
+                        <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %>
+                      </p>
+    
+    
+                      <p><strong>Total Amount:</strong>
+                        <%= order.totalPrice %>
+                      </p>
+                      <p><strong>Status:</strong>
+                        <%= order.status %>
+                      </p>
+    
+                      <form action="/order/order-cancel/<%= order._id %>" method="GET">
+                        <% if (!['Shipped', 'Delivered' , 'Cancelled','Return Request' ].includes(order.status)) { %>
+                          <button type="submit" class="btn btn-warning">Cancel Order</button>
+                          <% } else { %>
+                            <p>Order cannot be cancelled.</p> <!-- Optional message -->
+                            <% } %>
+                      </form>
+                      
+                      <form action="/userprofile/return/<%= order._id %>" method="GET">
+                        
+                        
+                        <% if (['Shipped', 'Delivered' ].includes(order.status) ){ %>
+                          <button type="submit" class="btn btn-warning">Return</button>
+                          <% } %>
+                      </form>
+                      
+                      <a href="/order/orderDetails/<%= order._id %>">View Details</a>
+    
+    
+    
+    
+    
+    
+          </div>
+        </div>
+    
+        <% }) %>
+          <% } else { %>
+            <p>No order history available.</p>
+            <% } %>
+              </div>
+              </div>
+              
+
+

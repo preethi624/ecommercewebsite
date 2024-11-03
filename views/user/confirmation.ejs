@@ -3,40 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmation</title>
-  <link rel="stylesheet" href="/path/to/your/css/styles.css"> <!-- Add your CSS here -->
+  <title>Billing Information</title>
+  
+  <!-- Modernized CSS Styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background-color: #007bff;
+      padding: 1.5em;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    header nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    header nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5em 1.5em;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    header nav ul li a:hover {
+      background-color: #0056b3;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #007bff;
+    }
+
+    .billing-details, .billing-address, .billed-items {
+      margin-bottom: 30px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 20px;
+    }
+
+    h2, h3, h4 {
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .card {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    ul.billed-items {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul.billed-items li {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #ffffff;
+      transition: box-shadow 0.3s;
+    }
+
+    ul.billed-items li:hover {
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    ul.billed-items li img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      margin-right: 20px;
+      border-radius: 5px;
+    }
+
+    ul.billed-items li strong {
+      font-weight: 600;
+      margin-right: 5px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .billing-summary {
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background-color: #f7f7f7;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+    }
+
+    footer a {
+      text-decoration: none;
+      color: #007bff;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-  <h1>Order Confirmation</h1>
   
-  <div>
-    <h2>Order ID: <%= order.orderId %></h2>
-    <p>Status: <%= order.status %></p>
-    <p>Invoice Date: <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
-    
-    <h3>Shipping Address:</h3>
-    <p>
-      <%= order.address.street %>, <%= order.address.city %>, 
-      <%= order.address.state %>, <%= order.address.zipcode %>
-    </p>
+  <!-- Include the header -->
+  <%- include("../partials/user/header") %>
 
-    <h3>Ordered Items:</h3>
-    <ul>
-      <% order.orderedItems.forEach(item => { %>
+  <main>
+    <h1>Billing Information</h1>
+    
+    <div class="billing-details">
+      <h2>Billing ID: <%= order.orderId %></h2>
+      <p>Payment Status: <%= order.status %></p>
+      <p>Billing Date: <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
+    </div>
+
+    <div class="billing-address mb-4">
+      <h4>Billing Address</h4>
+      <div class="card p-3 mb-4">
+        <% if (user.defaultAddress) { %>
+          <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+          <% if (defaultAddress) { %>
+            <p>
+              <strong><%= defaultAddress.fullName %></strong><br>
+              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+            </p>
+          <% } else { %>
+            <p>No default billing address set. Please <a href="/userProfile">add a billing address</a>.</p>
+          <% } %>
+        <% } else { %>
+          <p>No billing address set. Please <a href="/userProfile">add a billing address</a>.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <h3>Billed Items:</h3>
+    <ul class="billed-items">
+      <% order.orderedItems.forEach((item, index) => { %>
         <li>
-          <strong><%= item.product.name %></strong> - 
-          Quantity: <%= item.quantity %> - 
-          Price: $<%= item.price %>
+          <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+          <div>
+            <strong>Product:</strong> <%= item.product.productName %> - 
+            <strong>Quantity:</strong> <%= item.quantity %> - 
+            <strong>Price:</strong> Rs <%= item.price %>
+          </div>
         </li>
       <% }); %>
     </ul>
 
-    <h3>Summary:</h3>
-    <p>Total Price: $<%= order.totalPrice %></p>
-    <p>Discount: $<%= order.discount %></p>
-    <p>Final Amount: $<%= order.finalAmount %></p>
-  </div>
+    <div class="billing-summary">
+      <h3>Billing Summary:</h3>
+      <p>Total Amount: Rs <%= order.totalPrice %></p>
+      <p>Total deduction (Including referral offer and coupon discount): Rs <%= order.discount %></p>
+      <p>Final Amount to Pay: Rs <%= order.finalAmount %></p>
+    </div>
+   
+    <button id="rzp-button1">Pay Now</button>
+  </main>
+
+  <form method="POST" action="/order/codConfirmation" class="cod-btn">
+    <button type="submit">Cash on delivery</button>
+  </form>
+
+  <footer>
+    <a href="/">Return to Home</a>
+  </footer>
   
-  <a href="/">Return to Home</a>
 </body>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+  var options = {
+    "key": "rzp_test_4MBYamMKeUifHI",
+    "amount": "<%=amount%>",
+    "currency": "<%=currency%>",
+    "order_id": "<%=razorpayOrderId%>",
+    "handler": function(response) {
+     
+      window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}`;
+    },
+    "theme": {
+      "color": "#3399cc"
+    }
+  }
+
+  var rzp1 = new Razorpay(options);
+  document.getElementById('rzp-button1').onclick = function(e) {
+    rzp1.open();
+    e.preventDefault();
+  }
+</script>
 </html>

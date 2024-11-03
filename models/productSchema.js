@@ -25,7 +25,7 @@ const productSchema = new Schema({
     },
     salePrice:{
         type:Number,
-        required:true
+       default:null
     },
     productOffer:{
         type:Number,
@@ -55,7 +55,12 @@ const productSchema = new Schema({
         default:"Available"
     },
     isDeleted:{type:Boolean,default:false},
-    
 },{timestamps:true});
+productSchema.pre('save', function(next) {
+    if (this.salePrice == null) {
+        this.salePrice = this.regularPrice;
+    }
+    next();
+});
 const Product=mongoose.model("Product",productSchema)
 module.exports=Product;

@@ -1,0 +1,188 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wallet</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding-top: 60px; /* Offset for fixed header */
+    }
+    
+    /* Header Styling */
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      height: 60px;
+      
+      color: white;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    
+    .wallet-container {
+      background-color: #fff;
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      margin-top: auto;
+      margin-bottom: auto;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .balance-box {
+      background-color: #ffefcc;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    
+    .balance-box p {
+      font-size: 18px;
+      color: #333;
+    }
+    
+    .wallet-balance {
+      font-size: 36px;
+      font-weight: bold;
+      color: #ff9900;
+    }
+    
+    .shop-now-btn, .add-funds-btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(45deg, #ff9900, #ff5500);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+    
+    .shop-now-btn:hover, .add-funds-btn:hover {
+      background: linear-gradient(45deg, #ff5500, #ff9900);
+    }
+    footer{
+      position: fixed;
+     bottom: 0;
+     
+      width: 100%;
+      height: 60px;
+      
+      color: white;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    
+    /* Mobile Adjustments */
+    @media (max-width: 500px) {
+      .wallet-container {
+        padding: 15px;
+      }
+      
+      h1 {
+        font-size: 22px;
+      }
+      
+      .balance-box p {
+        font-size: 16px;
+      }
+      
+      .wallet-balance {
+        font-size: 32px;
+      }
+      
+      .shop-now-btn, .add-funds-btn {
+        font-size: 16px;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Full-width Header at the top of the page -->
+  <header>
+    <%- include("../../views/partials/user/header") %>
+  </header>
+  
+  <!-- Wallet content centered vertically -->
+  <div class="wallet-container">
+    <h1>Wallet Balance</h1>
+    
+    <div class="balance-box">
+      <p>Your current balance:</p>
+      <p class="wallet-balance">Rs <%= walletBalance %></p>
+    </div>
+    
+    <!-- Add Funds Form -->
+    <form action="/wallet/add" method="POST">
+      <label for="amount">Add Funds:</label>
+      <input type="number" name="amount" id="amount" min="1" placeholder="Enter amount" required>
+      <button type="submit" class="add-funds-btn">Add to Wallet</button>
+    </form>
+    
+    <!-- Shop Now Button -->
+    <a href="/shop" class="shop-now-btn">Shop Now</a>
+    <h2 class="mt-4">Transaction History</h2>
+    
+    <% if (transactions && transactions.length > 0) { %>
+      <div class="list-group">
+        <% transactions.forEach(transaction => { %>
+          <div class="list-group-item">
+            <p><strong>Type:</strong> <%= transaction.type %></p>
+            <p><strong>Amount:</strong> Rs<%= transaction.amount.toFixed(2) %></p>
+            <p><strong>Date:</strong> <%= new Date(transaction.date).toLocaleDateString() %></p>
+            <p><strong>Description:</strong> <%= transaction.description %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p>No transactions available.</p>
+    <% } %>
+  </div>
+ 
+  
+</body>
+
+
+</html>

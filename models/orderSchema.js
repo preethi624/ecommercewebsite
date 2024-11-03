@@ -8,12 +8,17 @@ const orderSchema = new Schema({
         default:()=>uuidv4(),
         unique:true
     },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',  // Link to User model
+        required: true
+    },
     orderedItems:[{
 
         product:{
             type:Schema.Types.ObjectId,
             ref:'Product',
-            required:true
+            required:false
         },
         quantity:{
             type:Number,
@@ -22,7 +27,12 @@ const orderSchema = new Schema({
         price:{
             type:Number,
             default:0
+        },
+        purchaseQuantity:{
+            type:[Number],
+            default:[]
         }
+        
 
     }],
     totalPrice:{
@@ -46,10 +56,19 @@ const orderSchema = new Schema({
         type:Date,
         default:Date.now
     },
+    deliveryDate:{
+        type:Date,
+        default:Date.now
+
+
+    },
     status:{
         type:String,
         required:true,
         enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
+    },
+    expectedDeliveryDate: {
+        type: Date
     },
     createdOn :{
         type:Date,
@@ -61,6 +80,7 @@ const orderSchema = new Schema({
         default:false
     }
 })
+
 
 const Order = mongoose.model("Order",orderSchema);
 module.exports = Order;

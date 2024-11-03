@@ -17,6 +17,16 @@ const productStorage = multer.diskStorage({
         cb(null, `${Date.now()}-${file.originalname}`); 
     }
 });
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']; // Added 'image/webp'
+    
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);  // Accept file
+    } else {
+        cb(new Error('Only JPEG, PNG, GIF, and WEBP files are allowed'), false);  // Reject file
+    }
+};
+
 
 
 const uploads = multer({ storage: productStorage }); 
@@ -55,6 +65,15 @@ router.post("/softDeleteProduct",adminAuth1,productController.softDeleteProduct)
 router.get('/softProducts',adminAuth1,productController.viewSoftDeletedProduct)
 router.post("/restoreProduct",adminAuth,productController.restore)
 router.get("/demoAdmin",adminAuth1,customerController.demo)
-router.get("/admin/orders",)
+router.get("/orders",adminAuth1,productController.getOrders)
+router.get("/order/:id/edit",adminAuth1,productController.editOrder)
+router.post("/order/:id/updateStatus",adminAuth1,productController.updateStatus)
+router.post("/order/:id/cancel",adminAuth1,productController.cancelOrder)
+router.post("/replaceImage",adminAuth1,uploads.single('newImage'),productController.replaceImage)
+router.get("/coupons",adminAuth1,productController.getCoupon)
+router.post("/create-coupon",adminAuth1,productController.createCoupon)
+router.post("/delete-coupon/:id",adminAuth1,productController.deleteCoupon)
+router.get('/sales-report',adminAuth1,productController.salesReport)
+
 
 module.exports=router

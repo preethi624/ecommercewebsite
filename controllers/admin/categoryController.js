@@ -30,7 +30,9 @@ const categoryInfo=async(req,res)=>{
     }
 }
 const addCategory=async (req,res)=>{
-    const {name,description}=req.body;
+    let  {name,description}=req.body;
+    name=name.toLowerCase()
+    
     try {
         if (!name || !description) {
             return res.status(400).json({ error: "Name and description are required" });
@@ -56,45 +58,38 @@ const addCategory=async (req,res)=>{
 }
 const addCategoryOffer = async (req, res) => {
     try {
-        console.log("Request body:", req.body); // Add this line in your addCategoryOffer function
-
         const percentage = parseInt(req.body.percentage);
-        const categoryId = req.body.categoryId;  
-        console.log("Received categoryId:", categoryId);
+        const categoryId = req.body.categoryId;
 
         if (!mongoose.isValidObjectId(categoryId)) {
             return res.status(400).json({ status: false, message: "Invalid category ID" });
         }
 
-        const category = await Category.findById(categoryId); 
+        const category = await Category.findById(categoryId);
         if (!category) {
             return res.status(404).json({ status: false, message: "Category not found" });
         }
 
         const products = await Product.find({ category: category._id });
-        const hasProductOffer = products.some((product) => product.productOffer > percentage);
 
-        if (hasProductOffer) {
-            return res.json({ status: false, message: "Products in this category already have offers" });
-        }
-
-       
+        // Update category offer
         await Category.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });
 
-        
+        // Reset product offers and prices
         for (const product of products) {
             product.productOffer = 0;
             product.salePrice = product.regularPrice;
             await product.save();
         }
 
-        res.json({ status: true });
+        res.json({ status: true, message: "Category offer added, product offers reset" });
 
     } catch (error) {
         console.error(error);
         res.status(500).json({ status: false, message: "Internal server error" });
     }
 };
+
 
 const removeCategoryOffer=async (req,res)=>{
     try {
