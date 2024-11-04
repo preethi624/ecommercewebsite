@@ -1,6 +1,133 @@
 
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-left: 250px;
+     
+      font-size: 1em;
+      background-color: #f9f9f9;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    td a {
+      color: #2196F3;
+      text-decoration: none;
+    }
+
+    td a:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      padding: 6px 12px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e53935;
+    }
+
+    form {
+      display: inline;
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      th, td {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%-include("../../views/partials/admin/header")%>  
+
+  <h1>Order List</h1>
+  <a href="/admin/">Return To Dashboard</a>
+  <table>
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Total Amount</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr>
+          <td><%= order.orderId %></td>
+          <td><%= new Date(order.createdOn).toDateString() %></td>
+          <td><%= order.status %></td>
+          <td>Rs <%= order.finalAmount %></td>
+          <td>
+            <a href="/admin/order/<%= order._id %>/edit">Change Status</a>
+            <form action="/admin/order/<%= order._id %>/cancel" method="POST" style="display:inline;">
+              <button type="submit">Cancel Order</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
@@ -1461,3 +1588,189 @@ if (format === 'pdf') {
        
         <div class="image-container"></div>
     </div>
+
+
+
+
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Return</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        
+        body {
+            .fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Ensures it stays above other content */
+    background-color: #fff; /* Same background as header to avoid transparency */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
+    padding: 10px 20px; /* Adjust padding as needed */
+}
+
+body {
+    padding-top: 60px; /* Adjust based on header height to avoid overlap */
+}
+
+            font-family: Arial, sans-serif;
+            background-color: #f1f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .return-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .billed-items {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px;
+        }
+        .billed-items li {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .billed-items img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        .product-details, .reason-section, .additional-info {
+            font-size: 15px;
+            color: #555;
+            text-align: left;
+        }
+        select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        select:focus, textarea:focus {
+            border-color: #5c9ded;
+            outline: none;
+        }
+        .confirm-checkbox {
+            margin: 15px 0;
+            text-align: left;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+        }
+        .confirm-checkbox input {
+            margin-right: 10px;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .confirm-btn, .cancel-btn {
+            padding: 12px 24px;
+            font-size: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 120px;
+        }
+        .confirm-btn {
+            background: linear-gradient(90deg, #ff6b6b, #ff4c4c);
+            color: #fff;
+        }
+        .confirm-btn:hover {
+            background: linear-gradient(90deg, #ff5a5a, #e54b4b);
+        }
+        .cancel-btn {
+            background-color: #ddd;
+            color: #333;
+            text-decoration: none;
+        }
+        .cancel-btn:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+
+ 
+<body>
+    
+    <div class="return-container">
+        <h2>Confirm Return</h2>
+        
+        <ul class="billed-items">
+            <% order.orderedItems.forEach((item, index) => { %>
+              <li>
+                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
+                <div>
+                  <strong>Product:</strong> <%= item.product.productName %><br>
+                  <strong>Quantity:</strong> <%= item.quantity %><br>
+                  <strong>Price:</strong> Rs <%= item.price %>
+                </div>
+              </li>
+            <% }); %>
+        </ul>
+
+        <div class="reason-section">
+            <label for="returnReason"><strong>Reason for Return:</strong></label>
+            <select id="returnReason" name="returnReason" required>
+                <option value="">Select a reason</option>
+                <option value="Damaged item">Damaged item</option>
+                <option value="Received wrong item">Received wrong item</option>
+                <option value="Quality not as expected">Quality not as expected</option>
+                <option value="Ordered by mistake">Ordered by mistake</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="additional-info">
+            <label for="additionalComments"><strong>Additional Comments:</strong></label>
+            <textarea id="additionalComments" name="additionalComments" rows="3" placeholder="Provide any additional information..."></textarea>
+        </div>
+
+        <div class="confirm-checkbox">
+            <input type="checkbox" name="confirmCondition" required> 
+            <span>I confirm the item is unused and in its original packaging.</span>
+        </div>
+
+        <div class="buttons">
+            <form action="/orders/confirm-return" method="POST" style="display: inline;">
+                <% order.orderedItems.forEach((item, index) => { %>
+                <input type="hidden" name="orderId" value="<%= orderId %>">
+                <input type="hidden" name="productId" value="<%= item.product %>">
+                <button type="submit" class="confirm-btn">Confirm Return</button>
+                <% }); %>
+            </form>
+            <a href="/orders/history" class="cancel-btn">Cancel</a>
+        </div>
+    </div>
+</body>
+</html>

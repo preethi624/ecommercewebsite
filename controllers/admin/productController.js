@@ -232,42 +232,93 @@ const getEditProduct=async(req,res)=>{
     }
 }
 
+
+
+
 const editProduct = async (req, res) => {
     try {
         const productId = req.params.id;
 
         // Extract form data
-        const { productName, description, regularPrice, salePrice, quantity, color, category: categoryId, imagesToRemove = [] } = req.body;
-        const newImages = req.files; // Uploaded files as an array
-
-        // Find the category by ID
-        const category = await Category.findById(categoryId);
-        if (!category) {
-            return res.status(400).send('Category not found');
-        }
-
-        // Fetch the product to edit
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).send('Product not found');
-        }
-
-        // Remove images selected for deletion
-        const updatedImages = product.productImage.filter(image => !imagesToRemove.includes(image));
-
-        // Add any new images uploaded
-        if (newImages && newImages.length > 0) {
-            const newImagePaths = newImages.map(file => file.filename);
-            updatedImages.push(...newImagePaths);
-        }
-
-        // Construct the updated product data
-        const updatedProductData = {
+        const {
             productName,
             description,
             regularPrice,
             salePrice,
             quantity,
+            color,
+            category: categoryId,
+            replaceImages, // Checkbox for replacing the first image
+            imagesToRemove = [],
+        } = req.body;
+        const newImages = req.files || []; // Uploaded files as an array
+
+        // Find the category by ID
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(400).json({ error: 'Category not found' });
+        }
+
+        // Fetch the product to edit
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        // Clone the current product images array
+        let updatedImages = [...product.productImage];
+
+        // Check if the replaceImages checkbox is checked
+        if (replaceImages === 'true' && newImages.length > 0) {
+            // Replace the first image with the first new image
+            const firstNewImage = newImages[0].filename;
+
+            // Delete the existing first image file from the server
+            const oldImagePath = path.join(__dirname, '../uploads/product-images', updatedImages[0]);
+            fs.unlink(oldImagePath, (err) => {
+                if (err) console.error(`Error deleting image ${updatedImages[0]}:`, err);
+            });
+
+            // Replace the first image in the array with the new one
+            updatedImages[0] = firstNewImage;
+
+            // Add any remaining new images to the end of the array
+            for (let i = 1; i < newImages.length; i++) {
+                updatedImages.push(newImages[i].filename);
+            }
+        } else {
+            // If replaceImages is not checked, simply add new images to the end
+            newImages.forEach((file) => {
+                updatedImages.push(file.filename);
+            });
+        }
+
+        // Remove any images selected for deletion
+        imagesToRemove.forEach((imageToRemove) => {
+            const imageIndex = updatedImages.indexOf(imageToRemove);
+            if (imageIndex > -1) {
+                // Delete the existing image file from the server
+                const filePath = path.join(__dirname, '../uploads/product-images', imageToRemove);
+                fs.unlink(filePath, (err) => {
+                    if (err) console.error(`Error deleting image ${imageToRemove}:`, err);
+                });
+                // Remove the image from the array
+                updatedImages.splice(imageIndex, 1);
+            }
+        });
+
+        // Convert numerical fields
+        const regularPriceNum = parseFloat(regularPrice);
+        const salePriceNum = parseFloat(salePrice);
+        const quantityNum = parseInt(quantity, 10);
+
+        // Construct the updated product data
+        const updatedProductData = {
+            productName,
+            description,
+            regularPrice: regularPriceNum,
+            salePrice: salePriceNum,
+            quantity: quantityNum,
             color,
             category: category._id,
             productImage: updatedImages, // Updated image list
@@ -276,14 +327,16 @@ const editProduct = async (req, res) => {
         // Update the product in the database
         await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
 
-        // Redirect or respond with a success message
-        res.redirect('/admin/product'); // Redirect to the products list or any other page
+        // Redirect or respond with success
+        res.redirect('/admin/product');
 
     } catch (error) {
         console.error('Error updating product:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+
 
 
 const deleteSingleImage=async(req,res)=>{

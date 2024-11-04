@@ -129,7 +129,7 @@ body {
 <body>
     
     <div class="return-container">
-        <h2>Confirm Return</h2>
+        <h2>Confirm Cancel</h2>
         
         <ul class="billed-items">
             <% order.orderedItems.forEach((item, index) => { %>
@@ -149,7 +149,7 @@ body {
 
         <div class="confirm-checkbox">
             <input type="checkbox" name="confirmCondition" required> 
-            <span>I confirm the item is unused and in its original packaging.</span>
+            <span>I confirm this order is cancelling.</span>
         </div>
 
         <div class="buttons">
@@ -157,8 +157,9 @@ body {
                 <% order.orderedItems.forEach((item, index) => { %>
                 <input type="hidden" name="orderId" value="<%= orderId %>">
                 <input type="hidden" name="productId" value="<%= item.product %>">
-                <button type="submit" class="confirm-btn">Confirm Cancel</button>
+                
                 <% }); %>
+                <button type="submit" class="confirm-btn">Confirm Cancel</button>
             </form>
             <a href="/orders/history" class="cancel-btn">Cancel</a>
         </div>

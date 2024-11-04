@@ -111,7 +111,7 @@ const signup = async (req, res) => {
             referredByUser = await User.findOne({ referralCode });
             if (referredByUser) {
                 // Credit 10 points to referrer
-                referredByUser.referralCredits = (referredByUser.points || 0) + 10;
+                referredByUser.referralCredits = referredByUser.referralCredits + 10;
                 await referredByUser.save();
             }
         }
@@ -169,7 +169,7 @@ const verifyOtp = async (req, res) => {
             if (user.referredByUser) {
                 await User.updateOne(
                     { _id: user.referredByUser._id },
-                    { $inc: { referralCredits: 1 } } // Example field to track rewards
+                    { $inc: { referralCredits: 10 } } // Example field to track rewards
                 );
             }
             req.session.regenerate((err) => {
@@ -178,7 +178,10 @@ const verifyOtp = async (req, res) => {
                     return res.status(500).json({ success: false, message: "Session error" });
                 }
             req.session.user=saveUserData._id;
-            res.json({success:true,redirectUrl:"/"})
+           
+                res.json({ success: true, redirectUrl: "/" });
+            
+          
             })
         }else{
             res.status(400).json({success:false,message:"Invalid OTP,please try again"})
@@ -244,6 +247,12 @@ const login=async(req,res)=>{
         if(!passwordMatch){
             return res.render("login",{message:"Incorrect password"})
 
+        }
+       
+        if(findUser.hasPurchased===false&&findUser.referredBy&&!findUser.redeemed){
+            findUser.referralCredits=findUser.referralCredits+10
+            findUser.redeemed=true;
+            await findUser.save();
         }
         req.session.user={id:findUser._id,name:findUser.name};
         res.redirect("/")

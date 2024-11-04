@@ -353,3 +353,66 @@
               
 
 
+
+
+
+
+
+
+
+              const editProduct = async (req, res) => {
+                try {
+                    const productId = req.params.id;
+            
+                    // Extract form data
+                    const { productName, description, regularPrice, salePrice, quantity, color, category: categoryId, imagesToRemove = [] } = req.body;
+                    const newImages = req.files; // Uploaded files as an array
+            
+                    // Find the category by ID
+                    const category = await Category.findById(categoryId);
+                    if (!category) {
+                        return res.status(400).send('Category not found');
+                    }
+            
+                    // Fetch the product to edit
+                    const product = await Product.findById(productId);
+                    if (!product) {
+                        return res.status(404).send('Product not found');
+                    }
+            
+                    // Remove images selected for deletion
+                    const updatedImages = product.productImage.filter(image => !imagesToRemove.includes(image));
+            
+                    // Add any new images uploaded
+                    if (newImages && newImages.length > 0) {
+                        const newImagePaths = newImages.map(file => file.filename);
+                        updatedImages.push(...newImagePaths);
+                    }
+            
+                    // Construct the updated product data
+                    const updatedProductData = {
+                        productName,
+                        description,
+                        regularPrice,
+                        salePrice,
+                        quantity,
+                        color,
+                        category: category._id,
+                        productImage: updatedImages, // Updated image list
+                    };
+            
+                    // Update the product in the database
+                    await Product.findByIdAndUpdate(productId, updatedProductData, { new: true });
+            
+                    // Redirect or respond with a success message
+                    res.redirect('/admin/product'); // Redirect to the products list or any other page
+            
+                } catch (error) {
+                    console.error('Error updating product:', error);
+                    res.status(500).send('Internal Server Error');
+                }
+            };
+            
+
+
+

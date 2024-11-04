@@ -47,8 +47,9 @@
             <td class="product-total" data-product-price="<%=item.product.salePrice*item.quantity %>">$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
 
             <td>
-              <form action="/cart/remove/<%= item.product._id %>" method="POST" onsubmit="return confirmRemove()">
-                <button type="submit" class="btn btn-danger btn-sm" >Remove</button>
+              <form action="/cart/remove/<%= item.product._id %>" method="POST" onclick="remove-cart">
+                <button type="button" class="btn btn-danger btn-sm"  >Remove</button>
+                <button type="button" class="btn btn-danger btn-sm"  onclick="confirmRemove(this)" >Remove</button>
               </form>
             </td>
           </tr>
@@ -66,11 +67,9 @@
 </div>
 
 <%- include("../../views/partials/user/footer") %>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function confirmRemove() {
-    return confirm("Are you sure you want to remove this item from your cart?");
-  }
+ 
   // Select all buttons with the class update-quantity
 
   
@@ -138,4 +137,23 @@
     const queryString=updateCart.map(item=>`productId=${item.productId}&quantity=${item.quantity}`).join('&')
     window.location.href=`/order/checkout?${queryString}`;
   })
+
+    function confirmRemove(button) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This item will be removed from your wishlist.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, remove it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Find the closest form element and submit it
+          button.closest("form").submit();
+        }
+      });
+    }
+  
+  
 </script> 

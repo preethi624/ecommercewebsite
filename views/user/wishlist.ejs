@@ -108,9 +108,9 @@
           <p>Price: Rs <%= product.salePrice %></p>
          
           <!-- Remove from wishlist button -->
-          <form action="/wishlist/remove/<%=product._id%>" method="POST">
+          <form action="/wishlist/remove/<%=product._id%>" method="POST" class="remove-wishlist-form">
             <input type="hidden" name="productId" value="<%= product._id %>">
-            <button type="submit">Remove from Wishlist</button>
+            <button type="button"onclick="confirmRemove(this)" >Remove from Wishlist</button>
           </form>
         </div>
       <% }) %>
@@ -122,5 +122,26 @@
 
 </body>
 
+
 </html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmRemove(button) {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This item will be removed from your wishlist.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Yes, remove it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Find the closest form element and submit it
+        button.closest("form").submit();
+      }
+    });
+  }
+</script>
+
 <%- include("../../views/partials/user/footer") %>

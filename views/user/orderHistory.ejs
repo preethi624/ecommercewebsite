@@ -57,7 +57,7 @@
           <hr>
           <p><strong>Order ID:</strong> <%= order._id %></p>
           <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-          <p><strong>Total Amount:</strong> $<%= order.totalPrice %></p>
+          <p><strong>Total Amount:</strong> Rs <%= order.totalPrice %></p>
           <p><strong>Status:</strong> <%= order.status %></p>
 
           <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(order.status)) { %>

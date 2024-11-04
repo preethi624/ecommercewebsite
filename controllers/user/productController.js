@@ -238,7 +238,6 @@ const getCheckout = async (req, res) => {
     res.status(500).send('An error occurred while preparing the checkout.');
   }
 };
-
 const postCheckout = async (req, res) => {
   try {
     const userId = req.session.user.id;
@@ -297,13 +296,16 @@ const postCheckout = async (req, res) => {
 
      console.log("grandtotal",grandtotal)
      console.log("dicountamount",discountAmount)
-     let discount=discountAmount;
+     let discount=Number(discountAmount);
      let referralDiscount=0;
      if (referralCredits > 0) {
 
        referralDiscount = Math.min(referralCredits, totalPrice - discount); 
-      discount += referralDiscount;
-      user.referralCredits -= referralDiscount; // Deduct the used referral credits
+       console.log("referel",referralDiscount)
+       console.log("discb",discount)
+      discount += Number(referralDiscount);
+      console.log("disca",discount)
+      // Deduct the used referral credits
     }
       
      
@@ -527,6 +529,8 @@ const codConfirmation=async(req,res)=>{
       await product.save();
     }
     user.cart = [];
+    user.hasPurchased=true;
+    user.referralCredits=0;
     await user.save();
    res.render("cod-confirmation.ejs")
   } catch (error) {
@@ -547,6 +551,8 @@ const orderConfirmation=async(req,res)=>{
       await product.save();
     }
     user.cart = [];
+    user.hasPurchased=true;
+    user.referralCredits=0;
     await user.save();
 
  const { payment_id, order_id } = req.query;
@@ -696,6 +702,7 @@ const returnOrder=async(req,res)=>{
 const confirmReturn=async(req,res)=>{
   try {
     const {orderId,productId}=req.body;
+    console.log("orderId",orderId)
     
     const order=await Order.findById(orderId)
     if (!order) {
@@ -703,8 +710,7 @@ const confirmReturn=async(req,res)=>{
     }
     order.status="Return Request"
     await order.save();
-    return res.redirect("/orders")
-    
+   res.redirect("/orders")
     
   } catch (error) {
 

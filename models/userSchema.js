@@ -111,12 +111,12 @@ const userSchema = new Schema({
         default: false // Used to check if the user has made their first purchase
       },
     
-    /*redeemed: {
+    redeemed: {
         type: Boolean,
         default: false
     },
     
-    redeemedUsers: [{
+    /*redeemedUsers: [{
         type: Schema.Types.ObjectId,
         ref: "User"
     }],*/

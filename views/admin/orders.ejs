@@ -1,115 +1,166 @@
+<%- include("../../views/partials/admin/header") %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order List</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    
+      flex-direction: column;
+      align-items: center;
+      
     }
 
     h1 {
-      text-align: center;
       color: #333;
+      font-size: 2em;
+      margin: 20px 0;
+      font-weight: 500;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 20px;
+      margin-left: 300px;
+    }
+
+    a.return-dashboard {
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: 500;
+      margin-bottom: 20px;
+      display: inline-block;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-left: 250px;
-     
       font-size: 1em;
-      background-color: #f9f9f9;
+      color: #333;
     }
 
     th, td {
-      padding: 12px;
+      padding: 15px 12px;
       text-align: left;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #e0e0e0;
     }
 
     th {
       background-color: #4CAF50;
-      color: white;
+      color: #fff;
+      font-weight: 500;
     }
 
     tr:hover {
       background-color: #f1f1f1;
+      transition: background-color 0.3s ease;
     }
 
     td a {
-      color: #2196F3;
+      color: #1e88e5;
       text-decoration: none;
+      font-weight: 500;
     }
 
     td a:hover {
       text-decoration: underline;
     }
 
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
     button {
-      padding: 6px 12px;
-      background-color: #f44336;
-      color: white;
+      padding: 8px 16px;
+      background-color: #e53935;
+      color: #fff;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 0.9em;
+      transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #e53935;
+      background-color: #d32f2f;
     }
 
     form {
       display: inline;
     }
 
-    @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+
+      h1 {
+        font-size: 1.8em;
       }
 
       th, td {
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        padding: 12px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        gap: 5px;
       }
     }
   </style>
 </head>
+
 <body>
-  <%-include("../../views/partials/admin/header")%>  
+  
+  <div class="container">
+   
 
-  <h1>Order List</h1>
-  <a href="/admin/">Return To Dashboard</a>
-  <table>
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Total Amount</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% orders.forEach(order => { %>
+    <h1>Order List</h1>
+    <a href="/admin/" class="return-dashboard">Return To Dashboard</a>
+    
+    <table>
+      <thead>
         <tr>
-          <td><%= order.orderId %></td>
-          <td><%= new Date(order.createdOn).toDateString() %></td>
-          <td><%= order.status %></td>
-          <td>Rs <%= order.finalAmount %></td>
-          <td>
-            <a href="/admin/order/<%= order._id %>/edit">Change Status</a>
-            <form action="/admin/order/<%= order._id %>/cancel" method="POST" style="display:inline;">
-              <button type="submit">Cancel Order</button>
-            </form>
-          </td>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Total Amount</th>
+          <th>Actions</th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-
+      </thead>
+      <tbody>
+        <% orders.forEach(order => { %>
+          <tr>
+            <td><%= order.orderId %></td>
+            <td><%= new Date(order.createdOn).toDateString() %></td>
+            <td><%= order.status %></td>
+            <td>Rs <%= order.finalAmount %></td>
+            <td>
+              <div class="action-buttons">
+                <a href="/admin/order/<%= order._id %>/edit">Change Status</a>
+                <form action="/admin/order/<%= order._id %>/cancel" method="POST" style="display:inline;">
+                  <button type="submit">Cancel Order</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>
