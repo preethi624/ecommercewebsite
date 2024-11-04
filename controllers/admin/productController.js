@@ -723,7 +723,7 @@ const salesReport = async (req, res) => {
             doc.moveDown();
         
             // Order Details Table Data
-            orders.forEach(order => {
+            allOrders.forEach(order => {
                 order.orderedItems.forEach(item => {
                     doc.text(`${order._id} | ${item.product.productName} | ${item.quantity} | Rs ${(item.product.regularPrice * item.quantity).toFixed(2)} | Rs ${order.discount} | Rs ${order.finalAmount}`);
                 });
@@ -763,7 +763,7 @@ const salesReport = async (req, res) => {
             ];
 
             // Adding Order Details Rows
-            orders.forEach(order => {
+            allOrders.forEach(order => {
                 order.orderedItems.forEach(item => {
                     
 

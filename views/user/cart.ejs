@@ -38,17 +38,17 @@
             <td> <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" width="100" height="100"></td>
             
             <td><%= item.product.productName %></td>
-            <td id="prize"><%=item.product.salePrice%></td>
+            <td id="prize">Rs <%=item.product.salePrice%></td>
             <td>
               <button class="btn btn-outline-secondary update-quantity" data-action="decrease">-</button>
               <span class="quantity-value"><%= item.quantity %></span>
               <button class="btn btn-outline-secondary update-quantity" data-action="increase">+</button>
             </td>
-            <td class="product-total" data-product-price="<%=item.product.salePrice*item.quantity %>">$<%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
+            <td class="product-total" data-product-price="<%=item.product.salePrice*item.quantity %>">Rs <%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
 
             <td>
               <form action="/cart/remove/<%= item.product._id %>" method="POST" onclick="remove-cart">
-                <button type="button" class="btn btn-danger btn-sm"  >Remove</button>
+                
                 <button type="button" class="btn btn-danger btn-sm"  onclick="confirmRemove(this)" >Remove</button>
               </form>
             </td>
@@ -57,7 +57,7 @@
       </tbody>
     </table>
     <div class="text-end">
-      <div class="text-end" id="cart-total">Total: $<%= cartTotal.toFixed(2) %></div>
+      <div class="text-end" id="cart-total">Total: Rs <%= cartTotal.toFixed(2) %></div>
 
       <a href="/order/checkout/" class="btn btn-primary" id="checkout-btn" >Proceed to Checkout</a>
     </div>
