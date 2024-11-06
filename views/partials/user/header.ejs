@@ -41,6 +41,10 @@
         .header{
             position: relative;
             z-index: 500;
+            
+        }
+        .custom-navbar {
+            padding: 25px 30px; /* Increase the top/bottom padding for height */
         }
     
      </style>
@@ -48,17 +52,72 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light">
-    <a class="navbar-brand" href="/"><img src="images/organic-store-white-logo.png" alt="Logo" height="40"> </a>
+<nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+    <a class="navbar-brand" href="/"><img src="/images/organic-store-white-logo.png" alt="Logo" height="60"> </a>
     <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+    
+    <li class="nav-item">
+        <a href="/" class="nav-link">
+            <i  style="margin-right: 5px;"></i>Home
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="/products" class="nav-link">
+            <i  style="margin-right: 5px;"></i>Shop
+        </a>
+    </li>
+
+ <li class="nav-item">
+        <a href="/" class="nav-link">
+            <i  style="margin-right: 5px;"></i>About Us
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="/" class="nav-link">
+            <i  style="margin-right: 5px;"></i>Contact
+        </a>
+    </li>
+    </ul>
+
+    
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item"><a href="#" class="nav-link">Everything</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Groceries</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Juice</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-            <li class="nav-item"><a href="#" class="nav-link">Contact</a></li>
-            <li class="nav-item"><a href="/cart" class="nav-link">Cart</a></li>
+            
+            
+         
+           
             <%if(locals.user){%>
+                
+
+                <li class="nav-item">
+                    <a href="/coupon" class="nav-link">
+                        <i  style="margin-right: 5px;"></i>Coupons
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/wallet" class="nav-link">
+                        <i  style="margin-right: 5px;"></i>Wallet
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/orders" class="nav-link">
+                        <i  style="margin-right: 5px;"></i>MyOrders
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="/wishlist" class="nav-link">
+                        <i class="fas fa-heart" style="margin-right: 5px;"></i>Wishlist
+                    </a>
+                </li>
+                
+            <li class="nav-item">
+                <a href="/cart" class="nav-link">
+                    <i class="fas fa-shopping-cart" style="margin-right: 5px;"></i>Cart
+                </a>
+            </li>
                 <div class="dropdown">
                     <a href="#" class="sign-in-link" style="color:white"><%=locals.user.username%></a>
                     <div class="dropdown-content">

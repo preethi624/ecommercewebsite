@@ -4,22 +4,95 @@
     <%-include("../../views/partials/user/header")%>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        .hero {
+            background-color: white; /* Set the background color to white */
+            padding: 20px; /* Optional: Add some padding for spacing */
+            text-align: center; /* Optional: Center-align text */
+        }
+        .hero img {
+            max-width: 100%; /* Ensure the image is responsive */
+            height: auto; 
+            margin-left: 100px;/* Maintain aspect ratio */
+        }
+        .hero-content {
+            position: relative; /* Position relative to allow absolute positioning if needed */
+            z-index: 1; 
+            margin-right: 50px;/* Ensure content appears above background elements */
+        }
+        .shop-btn {
+            background-color: #28a745; /* Green button */
+            color: white; /* Button text color */
+            border: none; /* Remove border */
+            padding: 10px 20px; /* Button padding */
+            font-size: 16px; /* Button font size */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+        .shop-btn:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+        .pagination .page-item .page-link {
+            color: #007bff; /* Default text color for links */
+        }
+        
+        .pagination .page-item.active .page-link {
+            background-color: #007bff; /* Background color for active page */
+            color: white; /* Text color for active page */
+            border-color: #007bff; /* Border color for active page */
+        }
+        
+        .pagination .page-item .page-link:hover {
+            color: #0056b3; /* Hover color */
+           
+        }
+        .pagination {
+            display: flex;
+            justify-content: center; /* Centers the pagination */
+            padding-top: 20px; /* Optional: Adds some space above the pagination */
+        }
+        .product-img-action-wrap {
+            position: relative; /* Makes the wrapper a reference point for absolute positioning */
+        }
+        .wishlist-btn-wrapper {
+            position: absolute;
+            top: 10px;
+            left: 30px;
+            background-color: white; /* White background */
+            padding: 5px; /* Adds padding around the heart icon */
+            border-radius: 4px; /* Optional: adds rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: small shadow for effect */
+        }
+          
 
 .wishlist-btn {
         cursor: pointer;
         font-size: 24px;
         color: #d1d1d1; /* Grey for inactive */
         transition: color 0.3s ease;
+       
       }
       
       .wishlist-btn.active i {
         color: #e74c3c; /* Red for active */
       }
-      
+
+      .product-img img {
+        width: 100%; /* Ensures the image fits within the container */
+        height: auto; /* Maintains aspect ratio */
+        max-width: 250px; /* Set a maximum width if you want */
+    }
+    .product-cart-wrap:hover .product-img img {
+        transform: scale(1.05); /* Scales up the image slightly */
+        transition: transform 0.3s ease; /* Smooth transition */
+    }
+    
+    /* Optional: Add a shadow to make it stand out */
+    .product-cart-wrap:hover {
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    }
     </style>
     
 
-    <a href="/products" class="nav-link">View All Products</a>
+    
 
     
 
@@ -35,11 +108,11 @@
     </section>
     <!--products-->
     <section class="product spad">
-        <div class="container">
+        <div class="container" >
             <div class="row">
                 <div class="col-lg-12">
                     <ul class="filter__controls">
-                        <h2 style="color: green;">NEW ARRIVALS</h2>
+                        <h2 style="color: green;">Our Products</h2>
                     </ul>
                 </div>
             </div>
@@ -53,32 +126,37 @@
                                     <a href="/productDetails?id=<%=products[i]._id%>">
                                         <img class="default-img" src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
                                        
+                                     
                                     </a>
-                                    
+
         
                               
                                 </div>
+                                <div class="wishlist-btn-wrapper">
+                                    <span class="wishlist-btn <%= products[i].isInWishlist ? 'active' : '' %>" onclick="toggleWishlist(this, '<%= products[i]._id %>')">
+                                        <i class="<%= products[i].isInWishlist ? 'fas fa-heart' : 'far fa-heart' %>"></i>
+                                    </span> 
+                                
+                                </div>
                                
                             </div>
-                            <span class="wishlist-btn " onclick="toggleWishlist(this, '<%= products[i]._id %>')">
-                                <i class="far fa-heart"></i>
-                            </span>
+                           
                             <form action="/cart/add/<%=products[i]._id%>" method="POST">
                                 <div class="product-content-wrap">
                                     <h6><%=products[i].productName%></h6>
                                    
                                     
-                                        <h5>Rs <%= products[i].salePrice.toFixed(2) %></h5>
+                                        <h5>&#8377;<%= products[i].salePrice.toFixed(2) %></h5>
                                         
                                             
                                       
                                   
 
-                                    <h4>Stock:<%=products[i].quantity%></h4>
+                                    
                                    
                             <input type="hidden" name="quantity" id="quantity" min="1" max="<%= Math.min(products[i].stock, products[i].maxQuantity) %>" required  value="1">
                            
-                                    <button type="submit">AddToCart</button>
+                                    <button type="submit" class="btn btn-success">AddToCart</button>
                                 </div> 
 
                             </form>
@@ -92,14 +170,17 @@
             </div>
         </div>
       </section>
+
       
-      
-      
-      
-      
-      
-      
-      
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="/?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>   
       
       
       
@@ -161,8 +242,8 @@
         async function toggleWishlist(element,productId){
             const isInWishlist=element.classList.contains('active')
             if(isInWishlist){
-                const response=await fetch('/wishlist/remove',{
-                    method:'DELETE',
+                const response=await fetch(`/wishlist/remove/${productId}`,{
+                    method:'POST',
                     headers:{ 'Content-Type': 'application/json' },
                     body:JSON.stringify({productId})
 
@@ -181,7 +262,7 @@
                 })
                 if(response.ok){
                     element.classList.add('active');
-                    element.innerHTML='<i class="fas fa-heart"></i>';
+                    element.innerHTML='<i class="fas fa-heart" style="color: red;" ></i>';
                 }
             }
         }

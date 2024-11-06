@@ -347,7 +347,11 @@ const addresses=async(req,res)=>{
 const getProducts=async(req,res)=>{
     try {
         const { search, sort, showOutOfStock ,category} = req.query;
-        const query = {};
+        const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+        const limit = parseInt(req.query.limit) || 3; 
+        let query = {
+            isDeleted: false, // Exclude deleted products
+          };
 
         if (search) {
             query.productName = { $regex: search, $options: 'i' }; // Case-insensitive search
@@ -362,10 +366,13 @@ const getProducts=async(req,res)=>{
         if (!showOutOfStock) {
             query.quantity = { $gt: 0 }; // Only show products with stock > 0
           }
-      
+          const totalProducts = await Product.countDocuments(query);
 
         // Fetch products from database with potential filtering
-        let products = await Product.find(query);  // Use the 'query' object here
+        let products = await Product.find(query) 
+        .skip((page-1)*limit)
+        .limit(limit);
+        const totalPages = Math.ceil(totalProducts / limit);
 
 
         // Sorting logic
@@ -390,7 +397,7 @@ const getProducts=async(req,res)=>{
                 break;
         }
 
-        res.render('products.ejs', { products, showOutOfStock });
+        res.render('products.ejs', { products, showOutOfStock ,currentPage:page,totalPages,search,category,sort,limit});
     
     } catch (error) {
         console.error("Error fetching products:", error);

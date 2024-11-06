@@ -78,7 +78,19 @@ const orderSchema = new Schema({
     couponApplied:{
         type:Boolean,
         default:false
+    },
+    paymentStatus:{
+        type:String,
+        required:true,
+        enum:['pending','paid']
+    },
+    deliveryStatus:{
+        type:String,
+        required:true,
+        enum:['confirmed','order not placed']
+
     }
+
 })
 
 

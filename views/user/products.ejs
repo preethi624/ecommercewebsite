@@ -1,74 +1,231 @@
 <%- include("../../views/partials/user/header") %>
+<style>
+    /* Custom Sidebar Styling */
+    .green-checkbox .form-check-input:checked {
+        background-color: green;
+        border-color: green;
+    }
+.sidebar {
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    padding: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 700px;
+    border-color: green;
+    margin-top: 0px;
+}
+
+.sidebar h4 {
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding-top: 100px;
+}
+
+/* Sidebar form inputs and button */
+.form-select, .form-control {
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-color: green;
+}
+
+/* Button Styling */
+.btn-primary {
+    border-radius: 8px;
+}
+
+/* Product Cards Styling */
+.card {
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Product Image Styling */
+.card-img-top {
+    border-radius: 8px;
+    height: auto;
+    object-fit: cover;
+    max-height: 300px; /* Optional: Limit maximum height for consistency */
+    object-fit: contain; /* Scale image to fit within container without cropping */
+    width: 100%; 
+}
+.card-body {
+    height: 150px; /* Fixed height to ensure consistency across cards */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2px;
+   
+}
+.pagination {
+    display: flex;
+    justify-content: flex-end;  /* Aligns pagination to the right */
+    margin-top: 20px;
+   
+}
+
+.btn-pagination {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-pagination:hover {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.btn-pagination.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+
+.btn-pagination:focus {
+    outline: none;
+}
+
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-bottom: 20px;
+    }
+
+    .form-check {
+        margin-top: 10px;
+    }
+}
+
+</style>
 
 <div class="container mt-5">
-    <h1 class="mb-4 text-center display-4">Our Products</h1>
+    <h1 class="mb-4 text-center display-4" style="color: green;">SHOP</h1>
 
-    <!-- Search and Filter Form -->
-    <form id="search-form" method="GET" action="/products" class="row g-3 justify-content-center mb-4">
-        <div class="col-md-4">
-            <input type="text" class="form-control" name="search" placeholder="Search products..." />
-        </div>
-        <div class="col-md-3">
-            <select name="category" class="form-select">
-                <option value="">All Categories</option>
-                <option value="Juices">Juices</option>
-                <option value="Freshfruits">Freshfruits</option>
-                <option value="Fruits">Fruits</option>
-                <option value="freshVegetables">Fresh Vegetables</option>
-                <option value="Groceriess">Groceries</option>
-                <option value="organic juice">Organic Juice</option>
-                <option value="Vegetables">Vegetables</option>
-                <option value="Others">Others</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select name="sort" class="form-select">
-                <option value="popularity">Sort by Popularity</option>
-                <option value="priceLowToHigh">Price: Low to High</option>
-                <option value="priceHighToLow">Price: High to Low</option>
-                <option value="averageRatings">Average Ratings</option>
-                <option value="newArrivals">New Arrivals</option>
-                <option value="aToZ">A - Z</option>
-                <option value="zToA">Z - A</option>
-            </select>
-        </div>
-        <div class="col-auto">
-            <label class="form-check">
-                <input type="checkbox" class="form-check-input" name="showOutOfStock" value="true" <% if (showOutOfStock) { %> checked <% } %> />
-                Show Out of Stock
-            </label>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
-
-    <!-- Products Grid -->
     <div class="row">
-        <% products.forEach(product => { %>
-            <div class="col-md-4">
-                <div class="card mb-4 shadow-sm">
-                    <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 200px; height: 200px; object-fit: cover; margin-left:100px">
-                    <div class="card-body text-center">
-                        <h5 class="card-title"><%= product.productName %></h5>
-                        <p class="card-text text-muted">Price: $<%= product.salePrice %></p>
-                        <p class="card-text">
-                            Stock: <span class="<%= product.quantity > 0 ? 'text-success' : 'text-danger' %>">
-                                <%= product.quantity > 0 ? product.quantity : 'Out of stock' %>
-                            </span>
-                        </p>
-                        <% if (product.quantity > 0) { %>
-                            <form method="POST" action="/cart/add/<%= product._id %>">
-                                <input type="hidden" name="productId" value="<%= product._id %>">
-                                <input type="number" name="quantity" class="form-control mb-2" min="1" max="5" value="1" required>
-                                <button type="submit" class="btn btn-outline-success">Add to Cart</button>
-                            </form>
-                        <% } %>
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar p-4 shadow-sm rounded">
+                <h4 class="text-center">Filter Products</h4>
+                <!-- Search and Filter Form -->
+                <form id="search-form" method="GET" action="/products">
+                    <div class="mb-3" style="height: 100px;">
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            name="search" 
+                            placeholder="Search products..." 
+                            value="<%= search %>" <!-- Set the current search value -->
+                        
                     </div>
-                </div>
+                    
+                    <div class="mb-3" style="height: 100px;">
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            <option value="Juices" <%= category === 'Juices' ? 'selected' : '' %>>Juices</option>
+                            <option value="Freshfruits" <%= category === 'Freshfruits' ? 'selected' : '' %>>Freshfruits</option>
+                            <option value="Fruits" <%= category === 'Fruits' ? 'selected' : '' %>>Fruit</option>
+                            <option value="freshVegetables" <%= category === 'freshVegetables' ? 'selected' : '' %>>Fresh Vegetables</option>
+                            <option value="Groceriess" <%= category === 'Groceriess' ? 'selected' : '' %>>Groceries</option>
+                            <option value="organic juice" <%= category === 'organic juice' ? 'selected' : '' %>>Organic Juice</option>
+                            <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
+                            <option value="Others" <%= category === 'Others' ? 'selected' : '' %>>Others</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3" style="height: 100px;">
+                        <select name="sort" class="form-select">
+                            <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Sort by Popularity</option>
+                            <option value="priceLowToHigh" <%= sort === 'priceLowToHigh' ? 'selected' : '' %>>Price: Low to High</option>
+                            <option value="priceHighToLow" <%= sort === 'priceHighToLow' ? 'selected' : '' %>>Price: High to Low</option>
+                            <option value="averageRatings" <%= sort === 'averageRatings' ? 'selected' : '' %>>Average Ratings</option>
+                            <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
+                            <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A - Z</option>
+                            <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z - A</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-check mb-3 green-checkbox" style="height: 100px;">
+                        <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            name="showOutOfStock" 
+                            value="true" 
+                            <%= showOutOfStock ? 'checked' : '' %> 
+                        />
+                        <label class="form-check-label">Show Out of Stock</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">Apply Filters</button>
+                </form>
+                
             </div>
-        <% }) %>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-md-9" style="margin-top: 200px;">
+            <div class="row">
+                <% products.forEach(product => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div class="card-body text-center">
+                                <h5 class="card-title"><%= product.productName %></h5>
+                                <p class="card-text text-muted">Price:&#8377;<%= product.salePrice %></p>
+                                <p class="card-text">
+                                    Stock: <span class="<%= product.quantity > 0 ? 'text-success' : 'text-danger' %>">
+                                        <%= product.quantity > 0 ? product.quantity : 'Out of stock' %>
+                                    </span>
+                                </p>
+                                <% if (product.quantity > 0) { %>
+                                    <form method="POST" action="/cart/add/<%= product._id %>">
+                                        <input type="hidden" name="productId" value="<%= product._id %>">
+                                        <input type="hidden" name="quantity" class="form-control mb-2" min="1" max="5" value="1" required>
+                                        <button type="submit" class="btn btn-outline-success">Add to Cart</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+           <div class="pagination">
+    <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination">Previous</a>
+    <% } %>
+    
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination <%= i === currentPage ? 'active' : '' %>">
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination">Next</a>
+    <% } %>
+</div>
+ 
+            
+        </div>
     </div>
+    
+    
 </div>
 
 <%- include("../../views/partials/user/footer") %>
+

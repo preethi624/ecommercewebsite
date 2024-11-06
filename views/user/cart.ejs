@@ -48,8 +48,11 @@
 
             <td>
               <form action="/cart/remove/<%= item.product._id %>" method="POST" onclick="remove-cart">
-                
-                <button type="button" class="btn btn-danger btn-sm"  onclick="confirmRemove(this)" >Remove</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmRemove(this)">
+                  <i class="fas fa-trash-alt"></i> Remove
+              </button>
+               
+               
               </form>
             </td>
           </tr>
@@ -59,7 +62,7 @@
     <div class="text-end">
       <div class="text-end" id="cart-total">Total: Rs <%= cartTotal.toFixed(2) %></div>
 
-      <a href="/order/checkout/" class="btn btn-primary" id="checkout-btn" >Proceed to Checkout</a>
+      <a href="/order/checkout/" class="btn btn-success" id="checkout-btn" >Proceed to Checkout</a>
     </div>
   <% } else { %>
     <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
@@ -112,11 +115,27 @@
         const productTotals = document.querySelectorAll('.product-total');
     
         productTotals.forEach(product => {
-          cartTotal += parseFloat(product.textContent.replace('$', ''));
+          cartTotal += parseFloat(product.textContent.replace('Rs', ''));
         });
     
         // Update the cart total in the DOM
-        document.getElementById('cart-total').textContent = `Total: $${cartTotal.toFixed(2)}`;
+        document.getElementById('cart-total').textContent = `Total: Rs ${cartTotal.toFixed(2)}`;
+      }
+      function updateQuantityInCart(productId, quantity) {
+        fetch('/cart/update-quantity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error('Failed to update cart quantity');
+          }
+        })
+        .catch(error => console.error('Error:', error));
       }
     });
     
@@ -141,7 +160,7 @@
     function confirmRemove(button) {
       Swal.fire({
         title: "Are you sure?",
-        text: "This item will be removed from your wishlist.",
+        text: "This item will be removed from your cart.",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#dc3545",

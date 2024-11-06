@@ -17,45 +17,59 @@ const loadHomepage = async (req, res) => {
     try {
         const user = req.session.user;  
         const categories = await Category.find({ isListed: true });
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 4; // Number of products per page
+
+        const totalProducts = await Product.countDocuments({
+            isBlocked: false,
+            isDeleted: false,
+            category: { $in: categories.map(category => category._id) }
+        });
         
+        const totalPages = Math.ceil(totalProducts / limit);
+
         let productData = await Product.find({
             isBlocked: false,
-            isDeleted:false,
+            isDeleted: false,
             category: { $in: categories.map(category => category._id) }
-        }).populate('category');
+        })
+        .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .populate('category');
 
-        // Sort products by creation date and limit to the latest 8
-        productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        productData = productData.slice(0, 8);
+        // Prepare wishlist status if the user is logged in
+        let wishlistIds = [];
+        if (user) {
+            const userData = await User.findById(user.id).populate('wishlist');
+            if (userData && !userData.isBlocked) {
+                wishlistIds = userData.wishlist.map(product => product._id.toString());
+            }
+        }
+
+        // Map products to include wishlist status
+        productData = productData.map(product => ({
+            ...product.toObject(),
+            isInWishlist: wishlistIds.includes(product._id.toString())
+        }));
 
         res.setHeader('Cache-Control', 'no-store');
 
-        if (user) {
-            const userData = await User.findById(user.id).populate('wishlist');
-
-            // Check if userData exists
-            if (!userData) {
-                return res.render("home", { products: productData, category: categories });
-            }
-
-            // Check if the user is blocked
-            if (userData.isBlocked) {
-                return res.render("home", { products: productData, category: categories });
-            }
-
-            // Render homepage for non-blocked users with wishlist
-            return res.render("home", { user: userData, products: productData, wishlist: userData.wishlist });
-        }
-
-        // Render homepage for unauthenticated users
-        return res.render("home", { products: productData, category: categories });
+        return res.render("home", {
+            user: user ? await User.findById(user.id).populate('wishlist') : null,
+            products: productData,
+            wishlistIds,
+            currentPage: page,
+            totalPages,
+            categories // Pass categories to render as well
+        });
 
     } catch (error) {
         console.error(error);
         res.status(500).send("Server error occurred while loading the homepage.");
     }
 };
-
 
 const loadSignup = async (req, res) => {
     try {

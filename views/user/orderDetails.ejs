@@ -15,17 +15,27 @@
         <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 120px; height: 120px; border-radius: 10px; border: 1px solid #ccc; margin-right: 20px;">
         <div>
           <p style="font-size: 18px; color: #333; margin-bottom: 5px;"><strong>Product:</strong> <%= item.product.productName %></p>
+          <p style="font-size: 16px; color: #777;"><strong>Price:</strong> <%= item.product.salePrice%></p>
           <p style="font-size: 16px; color: #777;"><strong>Description:</strong> <%= item.product.description %></p>
           <p style="font-size: 16px; color: #777;"><strong>Quantity:</strong> <%= item.quantity %></p>
         </div>
       </div>
     <% }) %>
     <div style="border-top: 1px solid #eee; padding-top: 20px;">
-      <p style="font-size: 18px; color: #333;"><strong>Order ID:</strong> <%= order._id %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Order ID:</strong> <%= order.orderId %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Order Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
       <p style="font-size: 18px; color: #333;"><strong>Total Amount:</strong> Rs<%= order.totalPrice %></p>
       <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= order.status %></p>
-      <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
+      <%if(order.paymentStatus==='pending'){%>
+        <button>Pay Now</button>
+
+        <%}else if(order.deliveryStatus==='order not placed'){%>
+          <button>Cash ondelivery</button>
+          <%}else{%>
+            <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
+
+            <%}%>
+      
     </div>
   <% } else { %>
     <p style="color: #ff0000; font-size: 18px; text-align: center;">No items found for this order.</p>
@@ -36,8 +46,13 @@
     <p><strong>Price:</strong> Rs <%= order.totalPrice %></p>
     <p><strong>Delivery Charge:</strong>Free</p>
     <p><strong>GST:</strong>0%</p>
+    <%if(order.discount>0){%>
 
-    <p><strong>Discount:Rs </strong><%=order.discount%></p>
+    <p><strong>Coupon Applied:Rs </strong><%=order.discount%></p>
+    <%}else{%>
+      <p><strong>Coupon Applied: </strong>N/A</p>
+      <%}%>
+
     <p><strong>Final Amount:Rs </strong><%=order.finalAmount%></p>
     
     
@@ -60,9 +75,9 @@
       }
       #right{
         position: absolute;
-        top: 550px; /* Adjust as needed */
+        top: 430px; /* Adjust as needed */
         right: 450px; /* Adjust as needed */
-        width: 200px; /* Adjust based on desired width */
+        width: 220px; /* Adjust based on desired width */
         padding: 10px;
         background-color: #f8f9fa; /* Optional: background for better visibility */
         border: 1px solid #ddd; /* Optional: border for definition */

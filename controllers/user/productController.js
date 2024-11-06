@@ -114,6 +114,7 @@ const removeCart=async(req,res)=>{
         
     }
 }
+
 const updateCart=async(req,res)=>{
   try {
     const productId=req.params.productId;
@@ -121,6 +122,11 @@ const updateCart=async(req,res)=>{
     let cartItem = req.session.cart.find(item => item.product._id.toString() === productId);
     if (cartItem) {
       cartItem.quantity = Math.max(1, parseInt(quantity)); 
+      await User.updateOne(
+        { _id: userId, 'cart.product': productId },
+        { $set: { 'cart.$.quantity': newQuantity } }
+      );
+
       const updatedTotal = (cartItem.product.regularPrice-((cartItem.product.regularPrice*cartItem.product.productOffer)/100)) * cartItem.quantity;
       const cartTotal = req.session.cart.reduce((total, item) => total + (item.product.salePrice * item.quantity), 0);
       res.json({ success: true, updatedTotal, cartTotal });
@@ -130,6 +136,10 @@ const updateCart=async(req,res)=>{
     
   }
 }
+
+
+
+
 const getOrderSummary=async(req,res)=>{
   try {
       const userId = req.session.user.id;
@@ -238,7 +248,20 @@ const getCheckout = async (req, res) => {
     res.status(500).send('An error occurred while preparing the checkout.');
   }
 };
+
 const postCheckout = async (req, res) => {
+  const generateOrderId=async()=>{
+    let orderId;
+    let isUnique=false;
+    while(!isUnique){
+      orderId=Math.floor(100000+Math.random()*900000);
+      const existingOrder=await Order.findOne({orderId})
+      if(!existingOrder){
+        isUnique=true;
+      }
+    }
+    return orderId
+  }
   try {
     const userId = req.session.user.id;
     let { paymenentMethod, productId, quantity, grandtotal ,discountAmount} = req.body;
@@ -311,10 +334,12 @@ const postCheckout = async (req, res) => {
      
     const finalAmount = totalPrice-discount;
     console.log("finalamount",finalAmount)
+    const orderId = await generateOrderId();
 
     // Create new order
     const newOrder = new Order({
       user: userId,
+      orderId,
       orderedItems: orderItems,
       totalPrice,
       discount,
@@ -322,7 +347,9 @@ const postCheckout = async (req, res) => {
       address: defaultAddress._id,
       status: 'Pending',
       invoiceDate: new Date(),
-      deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Expected delivery in 7 days
+      deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expected delivery in 7 days
+      deliveryStatus:'order not placed',
+      paymentStatus:'pending'
     });
 
     await newOrder.save();
@@ -356,6 +383,7 @@ const confirmation=async(req,res)=>{
     userId=user.id
     
     const orderId = req.params.newOrderId;
+    console.log("newOrdercheck",orderId)
     const userData = await User.findById(userId).populate('addresses'); 
 
     
@@ -377,6 +405,8 @@ const confirmation=async(req,res)=>{
     : null;
     console.log(userData)
     if(req.body['paymentMethod']=='cod'){
+      
+      await order.save();
       return res.render("cod-confirmation.ejs",order)
     }else{
      const options={
@@ -518,6 +548,7 @@ if (!userData.addresses) {
 }
 const codConfirmation=async(req,res)=>{
   try {
+    const orderId=req.params.id
     const userId=req.session.user.id
     let user=await User.findById(userId)
 
@@ -532,9 +563,16 @@ const codConfirmation=async(req,res)=>{
     user.hasPurchased=true;
     user.referralCredits=0;
     await user.save();
-   res.render("cod-confirmation.ejs")
+   
+    const order=await Order.findById(orderId)
+    order.paymentStatus='pending'
+    order.deliveryStatus='confirmed'
+    await order.save()
+
+   res.redirect('/orders')
   } catch (error) {
     console.log("error",error)
+    res.status(500).send("Internal server error");
     
   }
 }
@@ -555,14 +593,22 @@ const orderConfirmation=async(req,res)=>{
     user.referralCredits=0;
     await user.save();
 
- const { payment_id, order_id } = req.query;
-  res.render('order-confirmation', { payment_id, order_id });
+ const { payment_id, order_id,system_order_id  } = req.query;
+ console.log("search",order_id)
+ const order = await Order.findById(system_order_id);
+ order.paymentStatus='paid';
+ order.deliveryStatus='confirmed'
+ order.save()
+ 
+
+
+ res.redirect("/orders")
 
   }catch{
 
   }
- 
 }
+
 const applyCoupon=async(req,res)=>{
   try {
     const {code,totalAmount}=req.body

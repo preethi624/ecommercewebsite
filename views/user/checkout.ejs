@@ -1,4 +1,4 @@
-<%- include("../partials/user/header") %>
+
 <style>
   #right-container {
     position: absolute;
@@ -12,7 +12,13 @@
   }
 </style>
 
+  
+  <%- include("../../views/partials/user/header") %>
+
+
+
 <div class="container mt-5">
+  
   <h1 class="mb-4">Checkout</h1>
 
   <form action="/order/checkout/" method="POST" id="checkoutForm">
@@ -22,7 +28,7 @@
       <h4>Apply Coupon</h4>
       <div class="input-group">
         <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
-        <button type="button" id="applyCouponBtn" class="btn btn-primary">Apply</button>
+        <button type="button" id="applyCouponBtn" class="btn btn-success">Apply</button>
       </div>
       <div id="couponMessage" class="mt-2"></div>
       <p class="mt-3">Or <a href="/getCoupons" class="btn btn-link">view and apply more coupons</a></p>
@@ -77,7 +83,7 @@
             <strong><%= defaultAddress.fullName %></strong><br>
             <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
           </p>
-          <button type="button" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+          <button type="button" class="btn btn-outline-success" onclick="window.location.href='/user/addresses'">Change Address</button>
         <% } else { %>
           <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
         <% } %>
