@@ -102,7 +102,7 @@
     
           // Update the total price for the product
           const newProductTotal = (productPrice * quantity).toFixed(2);
-          productTotal.textContent = `$${newProductTotal}`;
+          productTotal.textContent = ` Rs ${newProductTotal}`;
     
           // Recalculate the cart total
           updateCartTotal();
@@ -115,7 +115,7 @@
         const productTotals = document.querySelectorAll('.product-total');
     
         productTotals.forEach(product => {
-          cartTotal += parseFloat(product.textContent.replace('Rs', ''));
+          cartTotal += parseFloat(product.textContent.replace('Rs', '').trim());
         });
     
         // Update the cart total in the DOM

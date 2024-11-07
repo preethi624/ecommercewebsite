@@ -8,6 +8,9 @@ const Order=require("../../models/orderSchema")
 const Coupon=require("../../models/couponSchema")
 const Wishlist=require("../../models/wishlistSchema")
 const Transaction=require("../../models/transactionSchema")
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 const Razorpay = require('razorpay');
 require('dotenv').config();
 var razorpayInstance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
@@ -530,6 +533,7 @@ if (!userData.addresses) {
     console.log(orderId)
   
     const order=await Order.findById(orderId).populate('orderedItems.product')
+    let totalPrice=order.finalAmount
     
     if (!order) {
       return res.status(404).send('Order not found');
@@ -538,7 +542,36 @@ if (!userData.addresses) {
     if (!orderAddress) {
       return res.status(404).send('Address not found for the order');
     }
-    res.render('orderDetails',{user:userData,order,defaultAddress: userData.defaultAddress,orderAddress})
+    const options={
+      amount:totalPrice*100,
+      currency:'INR',
+      receipt:orderId,
+      payment_capture:1
+     }
+     try{
+      const razorpayOrder=await razorpayInstance.orders.create(options);
+      console.log("details",razorpayOrder.amount, razorpayOrder.currency, razorpayOrder.id);
+      return res.render('orderDetails.ejs',{
+       razorpayOrderId: razorpayOrder.id,
+       amount: razorpayOrder.amount,
+       currency: razorpayOrder.currency,
+       orderId: orderId,
+       order:order,
+       user:userData,
+       defaultAddress: userData.defaultAddress,
+       orderAddress
+
+     });
+
+     }catch(error){
+     console.log(error)
+      return res.status(500).send('Payment setup failed.');
+
+     }
+    
+
+
+   
     
   } catch (error) {
     console.error('Error fetching order details:', error);
@@ -567,6 +600,7 @@ const codConfirmation=async(req,res)=>{
     const order=await Order.findById(orderId)
     order.paymentStatus='pending'
     order.deliveryStatus='confirmed'
+    order.updatedDate=new Date();
     await order.save()
 
    res.redirect('/orders')
@@ -598,6 +632,7 @@ const orderConfirmation=async(req,res)=>{
  const order = await Order.findById(system_order_id);
  order.paymentStatus='paid';
  order.deliveryStatus='confirmed'
+ order.updatedDate=new Date();
  order.save()
  
 
@@ -812,6 +847,69 @@ const orderHistory = await Order.find({ user: userId })
         
   }
 }
+const downloadInvoice=async(req,res)=>{
+  const {orderId}=req.params;
+  console.log("orderid1",orderId)
+  const user=req.session.user
+  const userId=user.id
+  const userData = await User.findById(userId).populate({
+    path: 'orderHistory',
+    populate: {
+        path: 'orderedItems.product',
+        model: 'Product'
+    }
+}).populate('addresses')
+  const order = await Order.findById(orderId).populate('orderedItems.product')
+  .populate('user')
+  
+  if (!order) {
+    return res.status(404).send('Order not found');
+  }
+  
+  const orderAddress=userData.addresses.find(address=>address._id.toString()===order.address.toString())
+  if (!orderAddress) {
+    return res.status(404).send('Address not found for the order');
+  }
+  console.log("order1",order)
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename=Invoice-${orderId}.pdf`);
+  const doc = new PDFDocument();
+  doc.pipe(res);
+  doc.fontSize(20).text('Order Invoice', { align: 'center' });
+  doc.moveDown();
+  doc.fontSize(12).text(`Order ID: ${order.orderId}`);
+  doc.text(`Order Date: ${order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available'}`);
+  doc.text(`Total Amount: ₹${order.totalPrice}`);
+  doc.text(`Status: ${order.status}`);
+  doc.text(`UpdatedDate: ${order.updatedDate}`);
+
+  doc.moveDown();
+  if (order.deliveryStatus === 'confirmed') {
+    doc.text('Order Confirmed', { fillColor: 'green' });
+  } else {
+    doc.text('Order Not Placed', { fillColor: 'red' });
+  }
+  if (order.paymentStatus === 'pending') {
+    doc.text('Payment Status: Pending');
+  } else {
+    doc.text('Payment Status: Paid');
+  }
+  doc.moveDown().fontSize(16).text('Ordered Items:', { underline: true });
+  order.orderedItems.forEach(item => {
+    doc.fontSize(12).text(`Product: ${item.product.productName}`);
+    doc.text(`Price: ₹${item.product.salePrice}`);
+    doc.text(`Description: ${item.product.description}`);
+    doc.text(`Quantity: ${item.quantity}`);
+    doc.moveDown();
+  });
+  doc.moveDown().fontSize(16).text('Shipping Address:', { underline: true });
+  doc.fontSize(12).text(`Full Name: ${orderAddress.fullName}`);
+  doc.text(`Address: ${orderAddress.address}`);
+  doc.text(`City: ${orderAddress.city}`);
+  doc.text(`Postal Code: ${orderAddress.postalCode}`);
+  doc.text(`Country: ${orderAddress.country}`);
+  doc.end();
+}
 
 module.exports={
     addToCart,
@@ -835,5 +933,6 @@ module.exports={
     confirmReturn,
     orderCancel,
     getOrders,
+    downloadInvoice
     
 }

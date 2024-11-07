@@ -63,6 +63,7 @@ router.get("/userprofile/return/:id",productController.returnOrder)
 router.post("/orders/confirm-return",productController.confirmReturn)
 router.get("/orders",productController.getOrders)
 router.post("/cart/update-quantity",productController.updateCart)
+router.get('/download-invoice/:orderId',productController.downloadInvoice)
 
 
 

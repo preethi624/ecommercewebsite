@@ -89,7 +89,12 @@ const orderSchema = new Schema({
         required:true,
         enum:['confirmed','order not placed']
 
+    },
+    updatedDate:{
+        type:Date,
+        default:Date.now
     }
+
 
 })
 

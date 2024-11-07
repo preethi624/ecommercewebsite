@@ -11,6 +11,8 @@
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       transition: transform 0.2s;
+      max-width: 80%;
+      margin: 0 auto;
     }
     .order-card:hover {
       transform: scale(1.02);
@@ -20,7 +22,10 @@
     }
     .btn-cancel, .btn-return {
       margin-top: 10px;
-      width: 100%;
+      width: 30%;
+    }
+    .btn-details{
+      width:30%
     }
     .no-orders {
       text-align: center;
@@ -29,8 +34,14 @@
       padding: 50px;
     }
     .container {
-      max-width: 80%; /* Set the width to 80% of the screen */
+      max-width: 70%; /* Set the width to 80% of the screen */
     }
+    .btn-top-right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    
     
     
   </style>
@@ -38,13 +49,16 @@
 <body>
     <%- include("../partials/user/header") %> 
 
-<div class="container mt-5">
+<div class="container container mt-5">
   <h2 class="mb-4 text-center">Track Your Orders</h2>
 
   <% if (user.orderHistory && user.orderHistory.length > 0) { %>
     <% orderHistory.forEach(order => { %>
       <div class="card mb-4 order-card">
-        <div class="card-body">
+        <div class="card-body position-relative">
+          <%if(order.paymentStatus!='paid'){%>
+          <button class="btn btn-outline-success btn-top-right">Pay Online</button>
+          <%}%>
           <% order.orderedItems.forEach(item => { %>
             <div class="row mb-3">
               <div class="col-md-3">
@@ -52,6 +66,7 @@
                      alt="<%= item.product.productName %>" width="100%" height="auto">
               </div>
               <div class="col-md-9">
+               
                 <strong>Product:</strong> <%= item.product.productName %><br>
                 <strong>Description:</strong> <%= item.product.description %><br>
                 <strong>Quantity:</strong> <%= item.quantity %><br>
@@ -64,9 +79,15 @@
           <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
           <p><strong>Total Amount:</strong> Rs <%= order.totalPrice %></p>
           <p><strong>Status:</strong> <%= order.status %></p>
-          <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
-          <p><strong>Delivery Status:</strong> <%= order.deliveryStatus %></p>
-          
+
+         <p><strong>Payment Status:</strong> <span class="<%= order.paymentStatus === 'paid' ? 'text-success' : 'text-danger' %>"><%= order.paymentStatus %></span></p>
+         <p><strong>Delivery Status:</strong> <span class="<%= order.deliveryStatus === 'Delivered' ? 'text-success' : order.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>"><%= order.deliveryStatus %></span></p>
+         <%if (order.paymentStatus==='pending'&&order.deliveryStatus==='confirmed'){%>
+         <p><strong>Payment Method used:</strong> Cash On Delivery</p>
+         <%}else{%>
+          <p><strong>Payment Method used:</strong> Online Payment</p>
+          <%}%>
+
           
 
 
@@ -84,7 +105,7 @@
             </form>
           <% } %>
 
-          <a href="/order/orderDetails/<%= order._id %>" class="btn btn-outline-primary mt-3">View Details</a>
+          <a href="/order/orderDetails/<%= order._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
         </div>
       </div>
     <% }) %>
@@ -129,3 +150,4 @@
 <%- include("../partials/user/footer") %>
 </body>
 </html>
+
