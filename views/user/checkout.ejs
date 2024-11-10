@@ -2,12 +2,12 @@
 <style>
   #right-container {
     position: absolute;
-    top: 0px; /* Adjust as needed */
-    right: 20px; /* Adjust as needed */
-    width: 200px; /* Adjust based on desired width */
-    padding: 10px;
-    background-color: #f8f9fa; /* Optional: background for better visibility */
-    border: 1px solid #ddd; /* Optional: border for definition */
+    top: 0px;
+    right: 20px; 
+    width: 200px; 
+    padding: 20px;
+    background-color: #f8f9fa; 
+    border: 1px solid #ddd; 
     border-radius: 5px;
   }
 </style>
@@ -43,16 +43,16 @@
           <% order.items.forEach((item, index) => { %>
             <li class="border-bottom py-2">
               <p><strong>Product:</strong> <%= item.product.productName %></p>
-              <p><strong>Price:</strong> Rs <%= item.product.salePrice %></p>
+              <p><strong>Price:</strong> &#8377; <%= item.product.salePrice %></p>
               <p><strong>Quantity:</strong> <%= item.quantity %></p>
               <input type="hidden" name="quantity" value="<%= item.quantity %>">
-              <p><strong>Total:</strong> Rs <%= item.product.salePrice * item.quantity %></p>
+              <p><strong>Total:</strong> &#8377; <%= item.product.salePrice * item.quantity %></p>
             </li>
           <% }); %>
         </ul>
       <% } else { %>
         <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
-        <p><strong>Price:</strong> Rs <%= order.items[0].product.salePrice %></p>
+        <p><strong>Price:</strong>&#8377; <%= order.items[0].product.salePrice %></p>
         <p><strong>Quantity:</strong> <%= order.items[0].quantity %></p>
         <input type="hidden" name="quantity" value="<%= order.items[0].quantity %>">
       <% } %>
@@ -60,13 +60,14 @@
      
         <div id="right-container">
     <h3>Price Details</h3>
-    <p><strong>Price:</strong> Rs <%= order.total %></p>
-    <p><strong>Delivery Charge:</strong>Free</p>
+    <p><strong>Price:</strong> &#8377;<%= order.total %></p>
+    <p><strong>GST(0%):&#8377</strong> 0</p>
+    <p><strong>Delivery Charge:&#8377;</strong>30</p>
   
 
   <p id="displayDiscountAmount" class="font-weight-bold text-success"></p>
-  <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:</strong> Rs <%= order.total %></p>
-  <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total %>">
+  <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:&#8377;</strong>  <%= order.total+30 %></p>
+  <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total+30%>">
   <input type="hidden" id="discountAmount" name="discountAmount" value="">
   </div>
   

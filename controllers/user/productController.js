@@ -533,7 +533,7 @@ if (!userData.addresses) {
     console.log(orderId)
   
     const order=await Order.findById(orderId).populate('orderedItems.product')
-    let totalPrice=order.finalAmount
+    let totalPrice=order.finalAmount+30
     
     if (!order) {
       return res.status(404).send('Order not found');

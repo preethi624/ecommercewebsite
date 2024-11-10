@@ -74,6 +74,8 @@ router.get("/coupons",adminAuth1,productController.getCoupon)
 router.post("/create-coupon",adminAuth1,productController.createCoupon)
 router.post("/delete-coupon/:id",adminAuth1,productController.deleteCoupon)
 router.get('/sales-report',adminAuth1,productController.salesReport)
+router.get("/api/sales-report",adminAuth1,adminController.getSalesReportData)
+
 
 
 module.exports=router

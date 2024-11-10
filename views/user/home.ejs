@@ -4,6 +4,11 @@
     <%-include("../../views/partials/user/header")%>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        .btn-disabled {
+            background-color: gray;
+            color: white;
+            cursor: not-allowed;
+        }
         .hero {
             background-color: white; /* Set the background color to white */
             padding: 20px; /* Optional: Add some padding for spacing */
@@ -154,9 +159,9 @@
 
                                     
                                    
-                            <input type="hidden" name="quantity" id="quantity" min="1" max="<%= Math.min(products[i].stock, products[i].maxQuantity) %>" required  value="1">
+                            <input type="hidden" name="quantity" id="quantity" min="1" max="<%= Math.min(products[i].quantity, products[i].maxQuantity) %>" required  value="1">
                            
-                                    <button type="submit" class="btn btn-success">AddToCart</button>
+                                    <button type="submit" class="btn btn-success" <% if (products[i].quantity <= 0) { %> disabled <% } %>><%= products[i].quantity > 0 ? 'Add to Cart' : 'Out of Stock' %></button>
                                 </div> 
 
                             </form>

@@ -37,7 +37,7 @@
           <div style="background-color: rgb(157, 122, 122); margin-bottom:15px">Order Not Placed (updatedDate:<%=order.updatedDate%>)</div>
           <%}%>
       <%if(order.paymentStatus==='pending'){%>
-        <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=order.finalAmount%></button>
+        <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=order.finalAmount+30%></button>
 
         <%}else if(order.deliveryStatus==='order not placed'){%>
           <button>Cash ondelivery</button>
@@ -54,8 +54,8 @@
 <div id="right">
   <h3>Price Details</h3>
     <p><strong>Price:</strong>&#8377; <%= order.totalPrice %></p>
-    <p><strong>Delivery Charge:</strong>Free</p>
-    <p><strong>GST:</strong>0%</p>
+    <p><strong>Delivery Charge:&#8377;</strong>30</p>
+    <p><strong>GST(0%):&#8377;</strong>0</p>
     <%if(order.discount>0){%>
 
     <p><strong>Coupon Applied: &#8377;</strong><%=order.discount%></p>
@@ -63,7 +63,7 @@
       <p><strong>Coupon Applied: </strong>N/A</p>
       <%}%>
 
-    <p><strong>Final Amount: &#8377;</strong><%=order.finalAmount%></p>
+    <p><strong>Final Amount: &#8377;</strong><%=order.finalAmount+30%></p>
     
     
   </div>
@@ -85,7 +85,7 @@
       }
       #right{
         position: absolute;
-        top: 740px; /* Adjust as needed */
+        top: 300px; /* Adjust as needed */
         right: 25%; /* Adjust as needed */
         width: 220px; /* Adjust based on desired width */
         padding: 10px;

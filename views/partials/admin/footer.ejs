@@ -1,3 +1,40 @@
+<style>
+    footer {
+        clear: both;
+        padding: 20px 0;
+        background-color:white;
+        color: black;
+        z-index: 1500;
+        bottom: 0;
+        width: 100%;
+        border-top: 2px solid rgb(243, 237, 237);
+    }
+
+    .footer-icons a {
+        margin-right: 10px;
+        font-size: 20px;
+        color: black;
+        text-decoration: none;
+    }
+
+    .footer-icons a:hover {
+        color: green; /* Adds a hover effect */
+    }
+
+    /* Responsive design */
+    @media (max-width: 767px) {
+        .col-md-4 {
+            text-align: center; /* Center text on small screens */
+            margin-bottom: 15px;
+        }
+
+        .footer-icons a {
+            display: inline-block;
+            margin: 0 5px;
+        }
+    }
+</style>
+
 <footer>
     <div class="container">
         <div class="row">
@@ -9,22 +46,20 @@
             </div>
             <div class="col-md-4">
                 <h5>Quick Links</h5>
-                <ul>
+                <ul style="list-style-type: none; padding: 0;">
                     <li><a href="#">Home</a></li>
                     <li><a href="#">Products</a></li>
                     <li><a href="#">About Us</a></li>
                     <li><a href="#">Contact</a></li>
                 </ul>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 footer-icons">
                 <h5>Follow Us</h5>
-                <a href="#" class="text-light"><i class="fab fa-facebook-f"></i> Facebook</a><br>
-                <a href="#" class="text-light"><i class="fab fa-twitter"></i> Twitter</a><br>
-                <a href="#" class="text-light"><i class="fab fa-instagram"></i> Instagram</a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
             </div>
         </div>
     </div>
 </footer>
-
-</body>
-</html>

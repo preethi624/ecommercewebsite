@@ -832,6 +832,7 @@ const newEdit=async(req,res)=>{
       
     }
   }
+  
 
 module.exports={
     getProductAddPage,
@@ -857,6 +858,8 @@ module.exports={
     deleteCoupon,
     salesReport,
     newEdit,
+    addProducts,
+   
     
     
 }

@@ -5,27 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
-        /* Basic styling for layout */
+        .sidebar a.active {
+            background-color: #f0f0f0;
+            color: green;
+            font-weight: bold;
+        }
+        
+        
+       .main{
+        
+        width: 100%;
+        z-index: 1000;
+        top: 0;
+       
+       }
+
         body, html {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
             height: 100%;
+           
         }
         .navbar {
-            background-color:green;
+            background-color:white;
             padding: 10px;
-            color: white;
+            color:black;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: fixed;
+           
             width: 100%;
             top: 0;
             z-index: 1000;
+            border-color: gray;
+            position: fixed;
+            border-bottom: 2px solid rgb(239, 233, 233);
+           
         }
         .navbar img {
             height: 40px;
+            color: green;
+            background-color: green;
         }
         .logout-btn {
             background-color: white;
@@ -37,17 +58,26 @@
             border-radius: 5px;
         }
         .sidebar {
-            margin-top: 1px;
+           
             width: 250px;
-            background-color:green;
-            height: 100vh;
-            position: fixed;
+            background-color:white;
+            height: auto;
+         
             overflow: auto;
             padding-top: 50px;
+            padding-left: 20px;
+            position: fixed;
+            height: 100%;
+            z-index: 1000;
+            border: 2px;
+            border-right: 2px solid rgb(239, 233, 233);
+            margin-top: 68px;
+            
+           
         }
         .sidebar a {
             display: block;
-            color: white;
+            color: black;
             padding: 15px;
             text-decoration: none;
         }
@@ -65,32 +95,35 @@
         }
     </style>
     <link href="css/customer.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
+
 <body>
+    <div class="main">
 
     <!-- Top Navbar -->
     <div class="navbar" >
         <a class="navbar-brand" href="/"><img src="/images/organic-store-white-logo.png" alt="Logo" height="40"> </a>
+       
         <a href="/logout"><button class="logout-btn">Logout</button>
         </a>
    
     </div>
-    <!-- Sidebar -->
     <div class="sidebar">
-        <a href="/admin">Dashboard</a>
-        <a href="/admin/users">Customers</a>
-        <a href="/admin/category">Category</a>
-        <a href="#">Brands</a>
-        <a href="/admin/addProducts">Add Product</a>
-        <a href="/admin/product">Products</a>
-        <a href="/admin/coupons">Coupon</a>
-        <a href="#">Banner</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/sales-report">Sales Report</a>
+        <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/admin/users" class="<%= path === '/admin/users' ? 'active' : '' %>"><i class="fas fa-users"></i> Customers</a>
+        <a href="/admin/category" class="<%= path === '/admin/category' ? 'active' : '' %>"><i class="fas fa-th-large"></i> Category</a>
+        <a href="/admin/addProducts" class="<%= path === '/admin/addProducts' ? 'active' : '' %>"><i class="fas fa-plus-circle"></i> Add Product</a>
+        <a href="/admin/product" class="<%= path === '/admin/product' ? 'active' : '' %>"><i class="fas fa-box-open"></i> Products</a>
+        <a href="/admin/coupons" class="<%= path === '/admin/coupons' ? 'active' : '' %>"><i class="fas fa-tags"></i> Coupon</a>
+        <a href="/admin/orders" class="<%= path === '/admin/orders' ? 'active' : '' %>"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="/admin/sales-report" class="<%= path === '/admin/sales-report' ? 'active' : '' %>"><i class="fas fa-chart-bar"></i> Sales Report</a>
     </div>
-
-    <!-- Main Content Area -->
     
+
+    
+    </div>
 
 </body>
 </html>

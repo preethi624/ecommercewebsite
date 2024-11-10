@@ -6,30 +6,33 @@
     <title>Sales Report</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        /* Reset and Body Styling */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+       
+        * { margin: 0;  box-sizing: border-box; }
         body { 
             font-family: 'Roboto', sans-serif; 
-            background-color: #eef1f4; 
+            
             color: #333; 
             line-height: 1.6; 
+          
+            
         }
 
         /* Container */
         .container {
             max-width: 1000px; /* Increased width */
-            margin: 50px auto;
-            padding: 30px;
+            margin-left: 28%;
+            padding: 100px;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+           
         }
 
         h1 {
             text-align: center;
             margin-bottom: 30px;
             font-size: 2.5em;
-            color:#052a52; /* Subtle blue */
+            color:black; /* Subtle blue */
         }
 
         /* Form Styling */
@@ -62,8 +65,8 @@
         }
 
         button {
-            background-color:#052a52;;
-            color: white;
+            background-color:rgb(188, 238, 188);
+            color:black;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s;
@@ -71,12 +74,13 @@
         }
 
         button:hover {
-            background-color:#052a52;;
+            background-color:green;
         }
 
         /* Table Styling */
         table {
             width: 100%;
+            border: 1px solid #ddd;
             border-collapse: collapse;
             margin-bottom: 30px;
             border-radius: 10px;
@@ -92,8 +96,8 @@
         }
 
         th {
-            background-color: #052a52; /* Subtle blue */
-            color: #fff;
+            background-color:#f2f2f2;; /* Subtle blue */
+            color:black;
             font-weight: 500;
         }
 
@@ -200,8 +204,8 @@
     </style>
 </head>
 <body>
-    <%- include("../../views/partials/admin/header") %>  
   
+    <%-include("../../views/partials/admin/header")%>  
 
     <div class="container">
         <h1>Sales Report</h1>
@@ -251,7 +255,7 @@
                 <tbody>
                     <% orders.forEach(order => { %>
                         <tr>
-                            <td><%= order._id %></td>
+                            <td><%= order.orderId %></td>
                             <td>
                                 <% order.orderedItems.forEach(item => { %>
                                     <div><%= item.product.productName %></div>
@@ -344,9 +348,13 @@
             <a href="/admin/sales-report?startDate=<%= startDate %>&endDate=<%= endDate %>&format=excel" class="excel-btn">Download Excel</a>
         </div>
         <%}%>
+        
     </div>
 
+ 
     
        
 </body>
+
+
 </html>

@@ -1,3 +1,243 @@
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+    .footer{
+        margin-left:16%;
+        margin-top: 50px;
+    }
+    .form-select {
+        z-index: 1060; /* Higher than the header to ensure dropdown shows above the header */
+    }
+    .chart-title, .section-title {
+        background-color: rgb(122, 122, 206);
+        color: white;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .sales {
+        background-color: rgb(122, 122, 206);
+        color: white;
+        text-align: center;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .total-overview {
+        font-size: 1.1rem;
+        margin-top: 20px;
+    }
+    .sales-overview-card {
+        background-color: #ffc107;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-left: 10%;
+    }
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    .container{
+        padding-top: 50px;
+        
+    
+
+      
+    }
+</style>
+<div>
+
+
 <%- include("../../views/partials/admin/header") %>
-<h1>Dashboard</h1>
+
+
+
+<div class="container mt-5">
+    
+    <!-- Filter Section -->
+    <div class="container-filter mt-5">
+        <!-- Filter Section -->
+        <div class="row">
+            <div class="col-12 col-md-4 offset-md-8 text-end mb-4">
+                <label for="reportType" class="form-label me-2">View Sales Report:</label>
+                <select id="reportType" class="form-select d-inline-block  w-auto" onchange="fetchSalesReport()"  >
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+
+    <!-- Sales Report Chart -->
+    <div class="row" style="margin-left: 10%;">
+        <div class="col-12 col-md-10 offset-md-1">
+            <div class="bg-light p-3 rounded">
+                <h2 class="chart-title"><i class="fas fa-chart-bar"></i> Sales Report</h2>
+                <div class="chart-container">
+                    <canvas id="salesReportChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Overview -->
+    <div class="row mt-4">
+        <div class="col-12 col-md-10 offset-md-1">
+            <div class="sales-overview-card">
+                <div class="sales">
+                    <h2>&#8377;   Sales Overview </h2>
+                </div>
+                <div class="total-overview text-center">
+                    <p><strong>Total Sales:</strong> <%= totalSales %> </p>
+                    <p><strong>Total Discount:</strong> <%= totalDiscount %> </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 10 Selling Products -->
+    <div class="row mt-5">
+        <div class="col-12 col-md-10 offset-md-1">
+            
+           
+        <div class="col-12 col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header text-white bg-primary">
+                    <i class="fas fa-box"></i> Best Selling Products (Top 10)
+                </div>
+                <ul class="list-group list-group-flush">
+                    <% resultp.forEach(product => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <%= product.productName %>
+                            <span class="badge bg-success">Sold: <%= product.totalSales %></span>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+            
+            </div>
+        </div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-12 col-md-10 offset-md-1">
+            
+           
+        <div class="col-12 col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header text-white bg-primary">
+                    <i class="fas fa-folder"></i> Best Selling Categories (Top 10)
+                </div>
+                <ul class="list-group list-group-flush">
+                    <% results.forEach(category => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <%= category._id%>
+                            <span class="badge bg-success">Sold: <%= category.totalSales %></span>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+            
+            </div>
+        </div>
+    </div>
+
+
+    
+</div>
+<div class="footer">
+    <%- include("../../views/partials/admin/footer") %>    
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    async function fetchSalesReport() {
+        const reportType = document.getElementById('reportType').value;
+
+        try {
+            const response = await fetch(`/admin/api/sales-report?reportType=${reportType}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            
+            displaySalesReportChart(data);
+         
+          
+        } catch (error) {
+            console.error('Error fetching sales report data:', error);
+        }
+    }
+
+    function displaySalesReportChart(data) {
+        const ctx = document.getElementById('salesReportChart').getContext('2d');
+        if (window.salesChart) window.salesChart.destroy();
+
+        window.salesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    {
+                        label: 'Net Sales',
+                        data: data.netSales,
+                        borderColor: 'blue',
+                        backgroundColor: 'blue',
+                        borderWidth: 1,
+                        fill: true
+                    },
+                    {
+                        label: 'Total Discount',
+                        data: Array.isArray(data.discount) ? data.discount : [data.discount],
+                        borderColor: 'green',
+                        backgroundColor: 'brown',
+                        borderWidth: 1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Amount' }, beginAtZero: true }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    
+    document.addEventListener("DOMContentLoaded", fetchSalesReport);
+</script>
+
+
 
