@@ -57,9 +57,10 @@
     <% orderHistory.forEach(order => { %>
       <div class="card mb-4 order-card">
         <div class="card-body position-relative">
-          <%if(order.paymentStatus!='paid'){%>
-          <button class="btn btn-outline-success btn-top-right">Pay Online</button>
-          <%}%>
+          <% if (order.paymentStatus != 'paid') { %>
+            <button class="btn btn-outline-success btn-top-right">Pay Online</button>
+          <% } %>
+          
           <% order.orderedItems.forEach(item => { %>
             <div class="row mb-3">
               <div class="col-md-3">
@@ -67,46 +68,61 @@
                      alt="<%= item.product.productName %>" width="100%" height="auto">
               </div>
               <div class="col-md-9">
-               
+                <p><strong>Order ID:</strong> <%= order.orderId %></p>
+                <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
                 <strong>Product:</strong> <%= item.product.productName %><br>
                 <strong>Description:</strong> <%= item.product.description %><br>
                 <strong>Quantity:</strong> <%= item.quantity %><br>
+                <strong>Original Price:</strong> <%=( item.quantity*item.price) %><br>
+                <%if(order.discount>0){%>
+                 <% if((order.discount / order.orderedItems.length) >(item.quantity * item.price)){%>
+                  <strong>Discounted Price:</strong> Rs 0<br>
+                  <%}else{%>
+                  <strong>Discounted Price:</strong> Rs <%= (item.quantity * item.price) - (order.discount / order.orderedItems.length) %><br>
+                  <%}%>
+                <%}%>
+                
+                <p><strong>Status:</strong> <%= item.status %></p>
+                <p><strong>Payment Status:</strong> 
+                  <span class="<%= item.paymentStatus === 'paid' ? 'text-success' : 'text-danger' %>">
+                    <%= item.paymentStatus %>
+                  </span>
+                </p>
+                <p><strong>Delivery Status:</strong> 
+                  <span class="<%= item.deliveryStatus === 'Delivered' ? 'text-success' : 
+                                  item.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>">
+                    <%= item.deliveryStatus %>
+                  </span>
+                </p>
+                <% if (item.paymentStatus === 'pending' && item.deliveryStatus === 'confirmed') { %>
+                  <p><strong>Payment Method used:</strong> Cash On Delivery</p>
+                <% } else { %>
+                  <p><strong>Payment Method used:</strong> Online Payment</p>
+                <% } %>
+  
+                <!-- Action buttons for each item -->
+                <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(item.status)) { %>
+                  <form action="/order/order-cancel/<%= order._id %>/<%= item.product._id %>" method="GET">
+                    <button type="submit" class="btn btn-warning btn-cancel">Cancel Order</button>
+                  </form>
+                <% } else { %>
+                  <p class="text-danger">Order cannot be cancelled.</p>
+                <% } %>
+  
+                <% if (['Shipped', 'Delivered'].includes(item.status)) { %>
+                  <form action="/userprofile/return/<%= order._id %>/<%= item.product._id %>" method="GET">
+                    <button type="submit" class="btn btn-info btn-return">Return</button>
+                  </form>
+                <% } %>
+  
+                <a href="/order/orderDetails/<%= order._id %>/<%= item._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
               </div>
             </div>
+            <hr>
           <% }) %>
-
-          <hr>
-          <p><strong>Order ID:</strong> <%= order.orderId %></p>
-          <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-          <p><strong>Total Amount:</strong> Rs <%= order.finalAmount+30 %></p>
-          <p><strong>Status:</strong> <%= order.status %></p>
-
-         <p><strong>Payment Status:</strong> <span class="<%= order.paymentStatus === 'paid' ? 'text-success' : 'text-danger' %>"><%= order.paymentStatus %></span></p>
-         <p><strong>Delivery Status:</strong> <span class="<%= order.deliveryStatus === 'Delivered' ? 'text-success' : order.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>"><%= order.deliveryStatus %></span></p>
-         <%if (order.paymentStatus==='pending'&&order.deliveryStatus==='confirmed'){%>
-         <p><strong>Payment Method used:</strong> Cash On Delivery</p>
-         <%}else{%>
-          <p><strong>Payment Method used:</strong> Online Payment</p>
-          <%}%>
-
+  
           
-
-
-          <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(order.status)) { %>
-            <form action="/order/order-cancel/<%= order._id %>" method="GET">
-              <button type="submit" class="btn btn-warning btn-cancel">Cancel Order</button>
-            </form>
-          <% } else { %>
-            <p class="text-danger">Order cannot be cancelled.</p>
-          <% } %>
-
-          <% if (['Shipped', 'Delivered'].includes(order.status)) { %>
-            <form action="/userprofile/return/<%= order._id %>" method="GET">
-              <button type="submit" class="btn btn-info btn-return">Return</button>
-            </form>
-          <% } %>
-
-          <a href="/order/orderDetails/<%= order._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
+         
         </div>
       </div>
     <% }) %>
@@ -115,6 +131,7 @@
       <p>No order history available.</p>
     </div>
   <% } %>
+  
 
 </div>
 <div class="pagination mt-4 d-flex justify-content-center">

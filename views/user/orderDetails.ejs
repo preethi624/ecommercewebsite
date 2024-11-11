@@ -10,36 +10,39 @@
 
   <h3 style="color: #555; margin-bottom: 20px; font-family: 'Verdana', sans-serif;">Items:</h3>
 
-  <% if (order && order.orderedItems.length > 0) { %>
+ 
    
-    <% order.orderedItems.forEach(item => { %>
+    
       <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
         
         <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 120px; height: 120px; border-radius: 10px; border: 1px solid #ccc; margin-right: 20px;">
+        
         <div>
           
           <p style="font-size: 18px; color: #333; margin-bottom: 5px;"><strong>Product:</strong> <%= item.product.productName %></p>
-          <p style="font-size: 16px; color: #777;"><strong>Price:&#8377;</strong> <%= item.product.salePrice%></p>
+          <p style="font-size: 16px; color: #777;"><strong>Price:&#8377;</strong> <%= item.price*item.quantity%></p>
           <p style="font-size: 16px; color: #777;"><strong>Description:</strong> <%= item.product.description %></p>
           <p style="font-size: 16px; color: #777;"><strong>Quantity:</strong> <%= item.quantity %></p>
         </div>
       </div>
-    <% }) %>
+   
     <div style="border-top: 1px solid #eee; padding-top: 20px;">
       <p style="font-size: 18px; color: #333;"><strong>Order ID:</strong> <%= order.orderId %></p>
       <p style="font-size: 18px; color: #333;"><strong>Order Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Total Amount:</strong> &#8377;<%= order.totalPrice %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= order.status %></p>
+      
+      <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= item.status %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Payment Status:</strong> <%= item.paymentStatus %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Delivery Status:</strong> <%= item.deliveryStatus %></p>
       <h4>Order Status:</h4>
-      <%if(order.deliveryStatus==='confirmed'){%>
+      <%if(item.deliveryStatus==='confirmed'){%>
         <div style="background-color: rgb(158, 217, 158); margin-bottom:15px">Order Confirmed (updatedDate:<%=order.updatedDate%>)</div>
         <%}else{%>
           <div style="background-color: rgb(157, 122, 122); margin-bottom:15px">Order Not Placed (updatedDate:<%=order.updatedDate%>)</div>
           <%}%>
-      <%if(order.paymentStatus==='pending'){%>
-        <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=order.finalAmount+30%></button>
+      <%if(item.paymentStatus==='pending'){%>
+        <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=(item.price*item.quantity)+30-itemCouponShare%></button>
 
-        <%}else if(order.deliveryStatus==='order not placed'){%>
+        <%}else if(item.deliveryStatus==='order not placed'){%>
           <button>Cash ondelivery</button>
           <%}else{%>
             <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
@@ -47,23 +50,21 @@
             <%}%>
       
     </div>
-  <% } else { %>
-    <p style="color: #ff0000; font-size: 18px; text-align: center;">No items found for this order.</p>
-  <% } %>
+ 
 
 <div id="right">
   <h3>Price Details</h3>
-    <p><strong>Price:</strong>&#8377; <%= order.totalPrice %></p>
+    <p><strong>Price:</strong>&#8377; <%= item.price*item.quantity%></p>
     <p><strong>Delivery Charge:&#8377;</strong>30</p>
     <p><strong>GST(0%):&#8377;</strong>0</p>
     <%if(order.discount>0){%>
 
-    <p><strong>Coupon Applied: &#8377;</strong><%=order.discount%></p>
+    <p><strong>Coupon Applied: &#8377;</strong><%=itemCouponShare%></p>
     <%}else{%>
       <p><strong>Coupon Applied: </strong>N/A</p>
       <%}%>
 
-    <p><strong>Final Amount: &#8377;</strong><%=order.finalAmount+30%></p>
+    <p><strong>Final Amount: &#8377;</strong><%=(item.price*item.quantity)+30-itemCouponShare%></p>
     
     
   </div>
@@ -160,7 +161,7 @@
     "currency": "<%=currency%>",
     "order_id": "<%=razorpayOrderId%>",
     "handler": function(response) {
-      window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&system_order_id=<%= order._id %>`;
+      window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&system_order_id=<%= order._id %>&item_id=<%=item._id%>`;
     },
     "theme": {
       "color": "#007bff"

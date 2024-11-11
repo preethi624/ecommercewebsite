@@ -470,8 +470,42 @@ const getOrders=async(req,res)=>{
 }
 const editOrder=async(req,res)=>{
     try {
-        const order = await Order.findById(req.params.id);
-        res.render('edit-order.ejs', { order });
+        const{Id,itemId}=req.params;
+        console.log("id only",Id)
+        const{status}=req.body
+        const order = await Order.findById(Id);
+        const item = order.orderedItems.find((item) => item._id.toString() === itemId);
+        if (!item) {
+            return res.status(404).send("Item not found");
+        }
+
+        // Conditional logic for status updates
+        if (status === "Delivered" && (item.paymentStatus !== "paid" || item.deliveryStatus !== "confirmed")) {
+            return res.status(400).send("Cannot mark as Delivered without payment and confirmation.");
+        }
+        
+        if (status === "Cancelled" && (item.status === "Shipped" || item.status === "Delivered")) {
+            return res.status(400).send("Cannot cancel an order that has already been shipped or delivered.");
+        }
+
+        if (status === "Return Request" && item.status !== "Delivered") {
+            return res.status(400).send("Can only request a return if the order has been delivered.");
+        }
+
+        if (status === "Returned" && item.status !== "Delivered") {
+            return res.status(400).send("Can only mark as Returned if the order has been delivered.");
+        }
+
+        if (status === "Processing" && item.status !== "Pending") {
+            return res.status(400).send("Can only mark as Processing if the order is still Pending.");
+        }
+
+        await Order.updateOne(
+            { _id: Id, "orderedItems._id": itemId },
+            { $set: { "orderedItems.$.status": status } }
+        );
+       
+       res.redirect("/admin/orders");
         
     } catch (error) {
         console.error('Error fetching order:', error);

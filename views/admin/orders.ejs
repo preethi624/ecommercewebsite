@@ -138,29 +138,50 @@
       <thead>
         <tr>
           <th>Order ID</th>
-          <th>Date</th>
+          <th>Product Name</th>
+          <th>Quantiy</th>
+          <th>Price</th>
           <th>Status</th>
-          <th>Total Amount</th>
+          <th>Order Date</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         <% orders.forEach(order => { %>
+         <% order.orderedItems.forEach(item=>{%>
           <tr>
             <td><%= order.orderId %></td>
-            <td><%= new Date(order.createdOn).toDateString() %></td>
-            <td><%= order.status %></td>
-            <td>Rs <%= order.finalAmount %></td>
+            <td><%=item.product.productName%></td>
+            <td><%=item.quantity%></td>
+            <td><%=item.price%></td>
+            <td><%=item.status%></td>
             <td>
+              <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/status" method="POST">
+                <select name="status" onchange="this.form.submit()">
+                  <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="Processing" <%= item.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                  <option value="Shipped" <%= item.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                  <option value="Delivered" <%= item.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                  <option value="Cancelled" <%= item.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  <option value="Return Request" <%= item.status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                  <option value="Returned" <%= item.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                </select>
+              </form>
+            </td>
+            <td><%= new Date(order.createdOn).toDateString() %></td>
+
+           <td>
               <div class="action-buttons">
-                <a href="/admin/order/<%= order._id %>/edit">Change Status</a>
-                <form action="/admin/order/<%= order._id %>/cancel" method="POST" style="display:inline;">
-                  <button type="submit">Cancel Order</button>
+                <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/cancel" method="POST" style="display:inline;">
+                  <button type="submit">Cancel Item</button>
                 </form>
               </div>
             </td>
+            
+            
           </tr>
         <% }) %>
+        <% }) %> 
       </tbody>
     </table>
   </div>

@@ -31,7 +31,24 @@ const orderSchema = new Schema({
         purchaseQuantity:{
             type:[Number],
             default:[]
-        }
+        },
+        status:{
+            type:String,
+        required:true,
+        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
+
+        },
+        paymentStatus:{
+            type:String,
+            required:true,
+            enum:['pending','paid']
+        },
+        deliveryStatus:{
+            type:String,
+            required:true,
+            enum:['confirmed','order not placed']
+    
+        },
         
 
     }],
@@ -62,11 +79,7 @@ const orderSchema = new Schema({
 
 
     },
-    status:{
-        type:String,
-        required:true,
-        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
-    },
+   
     expectedDeliveryDate: {
         type: Date
     },
@@ -79,17 +92,7 @@ const orderSchema = new Schema({
         type:Boolean,
         default:false
     },
-    paymentStatus:{
-        type:String,
-        required:true,
-        enum:['pending','paid']
-    },
-    deliveryStatus:{
-        type:String,
-        required:true,
-        enum:['confirmed','order not placed']
-
-    },
+    
     updatedDate:{
         type:Date,
         default:Date.now

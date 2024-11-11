@@ -205,11 +205,11 @@ body {
 
         <div class="buttons">
             <form id="returnForm" method="POST" action="/orders/confirm-return">
-                <% order.orderedItems.forEach((item, index) => { %>
-                <input type="hidden" name="orderId" value="<%= orderId %>">
-                <input type="hidden" name="productId" value="<%= item.product %>">
+               
+                <input type="hidden" name="orderId" value="<%=id %>">
+                <input type="hidden" name="productId" value="<%= item.product._id %>">
                 
-                <% }); %>
+                
                 <button type="button" onclick="openModal()" class="confirm-btn">Confirm Return</button>
                 <a href="/orders/history" class="cancel-btn">Cancel</a>
             </form>

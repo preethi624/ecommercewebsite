@@ -132,7 +132,7 @@ body {
         <h2>Confirm Cancel</h2>
         
         <ul class="billed-items">
-            <% order.orderedItems.forEach((item, index) => { %>
+          
               <li>
                 <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
                 <div>
@@ -141,7 +141,7 @@ body {
                   <strong>Price:</strong> Rs <%= item.price %>
                 </div>
               </li>
-            <% }); %>
+            
         </ul>
 
 
@@ -154,11 +154,11 @@ body {
 
         <div class="buttons">
             <form action="/userprofile/cancel-order" method="POST" style="display: inline;">
-                <% order.orderedItems.forEach((item, index) => { %>
+              
                 <input type="hidden" name="orderId" value="<%= orderId %>">
-                <input type="hidden" name="productId" value="<%= item.product %>">
+                <input type="hidden" name="productId" value="<%= item.product._id %>">
                 
-                <% }); %>
+                
                 <button type="submit" class="confirm-btn">Confirm Cancel</button>
             </form>
             <a href="/orders" class="cancel-btn">Cancel</a>

@@ -297,7 +297,11 @@ const postCheckout = async (req, res) => {
     const orderItems = user.cart.map((item, index) => ({
       product: item.product._id,
       quantity: quantity[index], // Map quantity from the array
-      price: item.product.salePrice
+      price: item.product.salePrice,
+      status: 'Pending',
+       deliveryStatus:'order not placed',
+      paymentStatus:'pending'
+
     }));
     console.log("items",orderItems)
 
@@ -348,11 +352,10 @@ const postCheckout = async (req, res) => {
       discount,
       finalAmount,
       address: defaultAddress._id,
-      status: 'Pending',
+     
       invoiceDate: new Date(),
       deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expected delivery in 7 days
-      deliveryStatus:'order not placed',
-      paymentStatus:'pending'
+     
     });
 
     await newOrder.save();
@@ -454,14 +457,24 @@ const confirmation=async(req,res)=>{
 }
 const orderCancel=async(req,res)=>{
   try {
-    const orderId=req.params.orderId;
-    const order = await Order.findById(orderId)
+    const {Id,productId}=req.params;
+    console.log("proid",productId)
+    const order = await Order.findById(Id)
       .populate({
         path: 'orderedItems.product',
-        model: 'Product'
+        select:'_id productImage'
+        
       })
-      
-      res.render("cancel.ejs",{order:order,orderId:orderId})
+      console.log("order",order)
+
+      const item = order.orderedItems.find(
+      (orderedItem) => orderedItem.product._id.toString() === productId.toString()
+    );
+    console.log("item",item)
+    if (!item) {
+      return res.status(404).send('Item not found in order');
+    }
+      res.render("cancel.ejs",{order:order,orderId:Id,item})
     
   } catch (error) {
     console.error(error)
@@ -470,32 +483,56 @@ const orderCancel=async(req,res)=>{
 }
 const cancelOrder=async(req,res)=>{
   const {orderId,productId}=req.body
+  console.log("proId",productId)
   try {
     const userId=req.session.user.id
-    const order=await Order.findById(orderId)
+    const order=await Order.findById(orderId).populate({path:'orderedItems.product',select:'_id'})
     if(!order){
       return res.status(404).send('Order not found');
     }
-    console.log('Order status:', order.status); 
+    console.log('Order after population:', JSON.stringify(order, null, 2));
+   
+    const item = order.orderedItems.find(
+      (orderedItem) => orderedItem.product._id.toString() ===productId.toString( ) 
+    );
+    if (!item) {
+      return res.status(404).send('Item not found in order');
+    }
 
-    if (['Shipped', 'Delivered', 'Cancelled'].includes(order.status)) {
+    if (['Shipped', 'Delivered', 'Cancelled'].includes(item.status)) {
       return res.status(400).send('Order cannot be cancelled');
     }
     console.log("order",order)
-    const refundAmount=order.totalPrice
-    console.log("refund",refundAmount)
-    await User.findByIdAndUpdate(
-      userId,
-      { $inc: { wallet: refundAmount } }
+    const length=order.orderedItems.length
+    const couponShared=order.discount/Number(length)
+    let refundAmount=(item.price*item.quantity)+couponShared
+    const hasActiveItems = order.orderedItems.some(
+      (orderedItem) =>
+        orderedItem._id.toString() !== item._id.toString() &&
+        !['Shipped', 'Delivered', 'Cancelled'].includes(orderedItem.status)
     );
-    const transaction = new Transaction({
-      userId,
-      amount: refundAmount,
-      type: 'credit', // Since it's a refund
-      description: `Refund for cancelled order ID: ${orderId}`,
-    });
-    await transaction.save();
-    order.status = 'Cancelled';
+    if (!hasActiveItems) {
+      refundAmount += 30; // Assuming the delivery charge is 30
+    }
+    console.log("refund",refundAmount)
+    if(item.paymentStatus==='paid'){
+      await User.findByIdAndUpdate(
+        userId,
+        { $inc: { wallet: refundAmount } }
+      );
+      const transaction = new Transaction({
+        userId,
+        amount: refundAmount,
+        type: 'credit', // Since it's a refund
+        description: `Refund for cancelled order ID: ${orderId}`,
+      });
+      await transaction.save();
+      item.paymentStatus='pending'
+
+    }
+    
+    item.deliveryStatus='order not placed'
+    item.status = 'Cancelled';
     await order.save();
     
     res.redirect("/orders")
@@ -507,78 +544,90 @@ const cancelOrder=async(req,res)=>{
   }
 
 }
-const orderDetails=async(req,res)=>{
+const orderDetails = async (req, res) => {
   try {
+    const user = req.session.user;
+    const userId = user.id;
     
-    const user=req.session.user
-    const userId=user.id
-    const userData = await User.findById(userId).populate({
-      path: 'orderHistory',
-      populate: {
+    const userData = await User.findById(userId)
+      .populate({
+        path: 'orderHistory',
+        populate: {
           path: 'orderedItems.product',
           model: 'Product'
-      }
-  }).populate('addresses')
-  if(!userData){
-    return res.redirect("/login")
-}
+        }
+      })
+      .populate('addresses');
 
-if (!userData.addresses) {
-    userData.addresses = [];
-}
+    if (!userData) {
+      return res.redirect("/login");
+    }
 
-  
+    const { orderId, itemId } = req.params;
 
-    const orderId=req.params.orderId
-    console.log(orderId)
-  
-    const order=await Order.findById(orderId).populate('orderedItems.product')
-    let totalPrice=order.finalAmount+30
-    
+    const order = await Order.findById(orderId).populate('orderedItems.product');
     if (!order) {
       return res.status(404).send('Order not found');
     }
-    const orderAddress=userData.addresses.find(address=>address._id.toString()===order.address.toString())
+    const length=order.orderedItems.length
+    const itemCouponShare=order.discount/Number(length);
+
+    // Find the specific item in the orderedItems array
+    const item = order.orderedItems.find(i => i._id.toString() === itemId);
+    if (!item) {
+      return res.status(404).send('Item not found in this order');
+    }
+
+    // Calculate price for the individual item
+    const itemPrice = item.price * item.quantity + 30-itemCouponShare;
+
+    // Find the delivery address for the order
+    const orderAddress = userData.addresses.find(
+      address => address._id.toString() === order.address.toString()
+    );
+
     if (!orderAddress) {
       return res.status(404).send('Address not found for the order');
     }
-    const options={
-      amount:totalPrice*100,
-      currency:'INR',
-      receipt:orderId,
-      payment_capture:1
-     }
-     try{
-      const razorpayOrder=await razorpayInstance.orders.create(options);
-      console.log("details",razorpayOrder.amount, razorpayOrder.currency, razorpayOrder.id);
-      return res.render('orderDetails.ejs',{
-       razorpayOrderId: razorpayOrder.id,
-       amount: razorpayOrder.amount,
-       currency: razorpayOrder.currency,
-       orderId: orderId,
-       order:order,
-       user:userData,
-       defaultAddress: userData.defaultAddress,
-       orderAddress
 
-     });
 
-     }catch(error){
-     console.log(error)
+    // Razorpay payment setup for individual item
+    const options = {
+      amount: itemPrice * 100, // Amount in paisa (INR)
+      currency: 'INR',
+      receipt:orderId.toString(), 
+     
+      payment_capture: 1
+    };
+
+    try {
+      const razorpayOrder = await razorpayInstance.orders.create(options);
+      console.log("Razorpay order details:", razorpayOrder);
+
+      return res.render('orderDetails.ejs', {
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        orderId: orderId,
+        item: item, // Pass only the item data
+        user: userData,
+        defaultAddress: userData.defaultAddress,
+        orderAddress,
+        order,
+        itemCouponShare
+      });
+
+    } catch (error) {
+      console.log(error);
       return res.status(500).send('Payment setup failed.');
+    }
 
-     }
-    
-
-
-   
-    
   } catch (error) {
     console.error('Error fetching order details:', error);
     res.status(500).send('Internal Server Error');
-    
   }
-}
+};
+
 const codConfirmation=async(req,res)=>{
   try {
     const orderId=req.params.id
@@ -598,8 +647,13 @@ const codConfirmation=async(req,res)=>{
     await user.save();
    
     const order=await Order.findById(orderId)
-    order.paymentStatus='pending'
-    order.deliveryStatus='confirmed'
+    order.orderedItems.forEach(item=>{
+      item.paymentStatus='pending'
+    item.deliveryStatus='confirmed'
+    item.status='Pending'
+
+    })
+    
     order.updatedDate=new Date();
     await order.save()
 
@@ -610,39 +664,69 @@ const codConfirmation=async(req,res)=>{
     
   }
 }
-const orderConfirmation=async(req,res)=>{
-  try{
-    const userId=req.session.user.id
-    let user=await User.findById(userId)
+const orderConfirmation = async (req, res) => {
+  try {
+    const userId = req.session.user.id;
+    const { payment_id, order_id, system_order_id, item_id } = req.query; // `item_id` will be passed if it’s a single-item payment
 
-    for (let i = 0; i < user.cart.length; i++) {
-      const cartItem = user.cart[i];
-      const quantity=cartItem.quantity
-      const product = await Product.findById(cartItem.product._id);
-      product.quantity -= quantity; // Deduct the quantity from the stock
-      await product.save();
+    let user = await User.findById(userId);
+
+    const order = await Order.findById(system_order_id);
+    if (!order) {
+      return res.status(404).send("Order not found");
     }
-    user.cart = [];
-    user.hasPurchased=true;
-    user.referralCredits=0;
+
+    // Handle payment based on the presence of `item_id`
+    if (item_id) {
+      // Single Item Payment
+      const item = order.orderedItems.find(item => item._id.toString() === item_id);
+      if (!item) {
+        return res.status(404).send("Item not found in this order");
+      }
+
+      // Update stock and mark item as paid
+      const product = await Product.findById(item.product);
+      product.quantity -= item.quantity; // Deduct stock quantity
+      await product.save();
+
+      // Update item payment and delivery status
+      item.paymentStatus = 'paid';
+      item.deliveryStatus = 'confirmed';
+      
+      // Remove the paid item from the user’s cart
+      user.cart = user.cart.filter(cartItem => cartItem.product._id.toString() !== item_id);
+    } else {
+      // Full Order Payment
+      for (let orderedItem of order.orderedItems) {
+        const product = await Product.findById(orderedItem.product);
+        product.quantity -= orderedItem.quantity; // Deduct stock for each item
+        await product.save();
+
+        // Mark all items in the order as paid and confirmed
+        orderedItem.paymentStatus = 'paid';
+        orderedItem.deliveryStatus = 'confirmed';
+      }
+
+      // Clear the user’s cart for a full-order purchase
+      user.cart = [];
+    }
+
+    // Update user properties
+    user.hasPurchased = true;
+    user.referralCredits = 0;
     await user.save();
 
- const { payment_id, order_id,system_order_id  } = req.query;
- console.log("search",order_id)
- const order = await Order.findById(system_order_id);
- order.paymentStatus='paid';
- order.deliveryStatus='confirmed'
- order.updatedDate=new Date();
- order.save()
- 
+    // Update the order's updated date
+    order.updatedDate = new Date();
+    await order.save();
 
+    res.redirect("/orders");
 
- res.redirect("/orders")
-
-  }catch{
-
+  } catch (error) {
+    console.error("Error in order confirmation:", error);
+    res.status(500).send("Internal Server Error");
   }
-}
+};
 
 const applyCoupon=async(req,res)=>{
   try {
@@ -766,30 +850,76 @@ const getWishlist=async(req,res)=>{
 const returnOrder=async(req,res)=>{
 
   try {
-    const orderId=req.params.id;
-    const order = await Order.findById(orderId)
+    const {id,itemId}=req.params;
+    console.log("test order",id)
+    console.log("itemIds",itemId)
+    const order = await Order.findById(id)
       .populate({
         path: 'orderedItems.product',
         model: 'Product'
       })
+      if (!order) {
+        return res.status(404).send("Order not found");
+      }
+      const item = order.orderedItems.find(orderedItem => orderedItem.product._id.toString() === itemId);
       
-      res.render("return.ejs",{order:order,orderId:orderId})
+    if (!item) {
+      return res.status(404).send("Item not found in order");
+    }
+      res.render("return.ejs",{order:order,id,item,itemId})
     
   } catch (error) {
     console.error(error)
     
   }
 }
+
+
+
 const confirmReturn=async(req,res)=>{
   try {
     const {orderId,productId}=req.body;
     console.log("orderId",orderId)
+    const userId=req.session.user.id
     
-    const order=await Order.findById(orderId)
+    const order=await Order.findById(orderId).populate('orderedItems.product');
     if (!order) {
       return res.status(404).send("Order not found");
     }
-    order.status="Return Request"
+    const item = order.orderedItems.find(orderedItem => orderedItem.product._id.toString() === productId);
+    if (!item) {
+      return res.status(404).send("Product not found in order");
+    }
+
+    item.status="Return Request"
+    const length=order.orderedItems.length
+    const couponShared=order.discount/Number(length)
+    let refundAmount=(item.price*item.quantity)
+    const hasActiveItems = order.orderedItems.some(
+      (orderedItem) =>
+        orderedItem._id.toString() !== item._id.toString() &&
+        !['Shipped', 'Delivered', 'Cancelled'].includes(orderedItem.status)
+    );
+    if (!hasActiveItems) {
+      refundAmount += 30; 
+     
+    }
+    console.log("refund",refundAmount)
+    if(item.paymentStatus==='paid'){
+      await User.findByIdAndUpdate(
+        userId,
+        { $inc: { wallet: refundAmount } }
+      );
+      const transaction = new Transaction({
+        userId,
+        amount: refundAmount,
+        type: 'credit', // Since it's a refund
+        description: `Refund for cancelled order ID: ${orderId}`,
+      });
+      await transaction.save();
+     
+
+    }
     await order.save();
    res.redirect("/orders")
     
