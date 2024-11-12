@@ -96,7 +96,13 @@ const orderSchema = new Schema({
     updatedDate:{
         type:Date,
         default:Date.now
+    },
+    paymentMethod:{
+        type:String,
+        required:false,
+        enum:['Online payment','Cash on delivery','Wallet payment']
     }
+    
 
 
 })

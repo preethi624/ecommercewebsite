@@ -94,11 +94,11 @@
                     <%= item.deliveryStatus %>
                   </span>
                 </p>
-                <% if (item.paymentStatus === 'pending' && item.deliveryStatus === 'confirmed') { %>
-                  <p><strong>Payment Method used:</strong> Cash On Delivery</p>
-                <% } else { %>
-                  <p><strong>Payment Method used:</strong> Online Payment</p>
-                <% } %>
+                
+                  <p><strong>Payment Method used:</strong> <%=order.paymentMethod%></p>
+                
+                  
+               
   
                 <!-- Action buttons for each item -->
                 <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(item.status)) { %>

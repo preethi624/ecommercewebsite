@@ -729,17 +729,17 @@ const salesReport = async (req, res) => {
             
         });
 
-        
         if (format === 'pdf') {
             const doc = new PDFDocument();
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'attachment; filename="sales_report.pdf"');
             doc.pipe(res);
         
+            // Title
             doc.fontSize(20).text('Sales Report', { align: 'center' });
             doc.moveDown();
         
-            // Summary Table
+            // Summary Section
             doc.fontSize(14).text('Summary', { underline: true });
             doc.moveDown();
             doc.fontSize(12);
@@ -753,20 +753,54 @@ const salesReport = async (req, res) => {
             // Order Details Table Header
             doc.fontSize(14).text('Order Details', { underline: true });
             doc.moveDown();
-            doc.fontSize(12).text('Order ID | Product | Quantity | Regular Total Price | Discount | Sold Price');
-            doc.moveDown();
         
-            // Order Details Table Data
+            // Define column widths
+            const columnWidths = [80, 150, 50, 100, 80, 80];
+            const startX = 50; // Left padding for the table
+            let currentY = doc.y;
+        
+            // Table Header
+            doc.fontSize(12).font('Helvetica-Bold');
+            const headers = ['Order ID', 'Product', 'Quantity', 'Regular Total Price', 'Discount', 'Sold Price'];
+            headers.forEach((header, i) => {
+                doc.text(header, startX + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), currentY, { width: columnWidths[i], align: 'left' });
+            });
+            currentY += 20; // Move down for rows
+        
+            // Draw header underline
+            doc.moveTo(startX, currentY).lineTo(startX + columnWidths.reduce((a, b) => a + b, 0), currentY).stroke();
+            currentY += 10;
+        
+            // Table Rows
+            doc.font('Helvetica').fontSize(10); // Set font for table rows
             allOrders.forEach(order => {
                 order.orderedItems.forEach(item => {
-                    doc.text(`${order._id} | ${item.product.productName} | ${item.quantity} | Rs ${(item.product.regularPrice * item.quantity).toFixed(2)} | Rs ${order.discount} | Rs ${order.finalAmount}`);
+                    const row = [
+                        order.orderId,
+                        item.product.productName || "No product name",
+                        item.quantity || 0,
+                        `Rs ${(item.product.regularPrice * item.quantity).toFixed(2)}`,
+                        `Rs ${order.discount || 0}`,
+                        `Rs ${order.finalAmount || 0}`
+                    ];
+        
+                    // Render each column in the row
+                    row.forEach((cell, i) => {
+                        doc.text(cell, startX + columnWidths.slice(0, i).reduce((a, b) => a + b, 0), currentY, { width: columnWidths[i], align: 'left' });
+                    });
+        
+                    currentY += 20; // Move down for the next row
+        
+                    // Draw row underline for separation
+                    doc.moveTo(startX, currentY).lineTo(startX + columnWidths.reduce((a, b) => a + b, 0), currentY).stroke();
+                    currentY += 10;
                 });
-                doc.moveDown();
             });
         
             doc.end();
-        
         }
+        
+        
          else if (format === 'excel') {
             const workbook = new ExcelJS.Workbook();
             

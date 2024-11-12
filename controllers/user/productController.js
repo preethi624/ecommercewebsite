@@ -523,7 +523,7 @@ const cancelOrder=async(req,res)=>{
       const transaction = new Transaction({
         userId,
         amount: refundAmount,
-        type: 'credit', // Since it's a refund
+        type: 'credit', 
         description: `Refund for cancelled order ID: ${orderId}`,
       });
       await transaction.save();
@@ -655,6 +655,8 @@ const codConfirmation=async(req,res)=>{
     })
     
     order.updatedDate=new Date();
+    order.paymentMethod='Cash on delivery'
+
     await order.save()
 
    res.redirect('/orders')
@@ -718,6 +720,7 @@ const orderConfirmation = async (req, res) => {
 
     // Update the order's updated date
     order.updatedDate = new Date();
+    order.paymentMethod='Online payment'
     await order.save();
 
     res.redirect("/orders");
@@ -1040,6 +1043,54 @@ const downloadInvoice=async(req,res)=>{
   doc.text(`Country: ${orderAddress.country}`);
   doc.end();
 }
+const walletPayment=async(req,res)=>{
+  try {
+    const userId = req.session.user.id;
+    const orderId = req.params.id;
+    
+
+    const user = await User.findById(userId);
+    const order = await Order.findById(orderId).populate('orderedItems');
+    const amount=order.finalAmount+30
+
+    // Check if user has enough wallet balance
+    if (user.wallet < amount) {
+      return res.json({ success: false, message: 'Insufficient wallet balance' });
+    }
+
+    // Deduct amount from wallet
+    user.wallet -= amount;
+    const transaction = new Transaction({
+      userId,
+      amount: amount,
+      type: 'Purchase', 
+      description: `debit for: ${orderId}`,
+    });
+    await transaction.save();
+    user.cart = [];
+    user.hasPurchased=true;
+    user.referralCredits=0;
+    await user.save();
+
+    order.orderedItems.forEach(item=>{
+      item.status='Pending'
+      item.paymentStatus='paid'
+      item.deliveryStatus='confirmed'
+
+    })
+
+   order.updatedDate=new Date();
+   order.paymentMethod='Wallet payment'
+   
+    await order.save();
+
+   res.redirect("/orders")
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: 'Error processing wallet payment' });
+  }
+
+}
 
 module.exports={
     addToCart,
@@ -1063,6 +1114,8 @@ module.exports={
     confirmReturn,
     orderCancel,
     getOrders,
-    downloadInvoice
+    downloadInvoice,
+    walletPayment,
+    
     
 }
