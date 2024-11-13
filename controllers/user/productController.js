@@ -67,8 +67,35 @@ const getCart = async (req, res) => {
   console.log("get cart triggered");
   try {
     const userId = req.session.user.id;
-    const user = await User.findById(userId).populate('cart.product').populate('addresses');
-    
+    const user = await User.findById(userId)
+    .populate({
+      path: 'cart.product',
+      populate: { path: 'category', select: 'categoryOffer' }
+    })
+    .populate('addresses');
+    let totalRegularPrice = 0;
+    let totalDiscountedPrice = 0;
+
+    user.cart.forEach(item => {
+      if (item.product && item.product.regularPrice) {
+        const regularPrice = item.product.regularPrice * item.quantity;
+        const categoryOffer = item.product.category?.categoryOffer || 0;
+        const productOffer = item.product.productOffer || 0;
+        const applicableOffer = categoryOffer > 0 ? categoryOffer : productOffer;
+
+        // Apply the applicable offer as a percentage discount
+        const discountAmount = (regularPrice * applicableOffer) / 100;
+        const discountedPrice = regularPrice - discountAmount;
+
+        totalRegularPrice += regularPrice;
+        totalDiscountedPrice += discountedPrice;
+      }
+    });
+    const totalDiscountAmount = totalRegularPrice - totalDiscountedPrice;
+    const effectiveDiscountPercentage = totalRegularPrice > 0 
+      ? (totalDiscountAmount / totalRegularPrice) * 100 
+      : 0;
+
     if (!user) {
       return res.status(404).send('User not found.');
     }
@@ -82,8 +109,18 @@ const getCart = async (req, res) => {
           return total;
         }, 0)
       : 0;
+      const discount= user.cart.length > 0 
+      ? user.cart.reduce((total, item) => {
+          if (item.product && item.product.regularPrice) {
+            return total + (item.product.regularPrice -item.product.salePrice);
+          }
+          return total;
+        }, 0)
+      : 0;
+      console.log("discount",discount)
+      
 
-    res.render('cart.ejs', { cart: user.cart, addresses: user.addresses, user: user, cartTotal: cartTotal });
+    res.render('cart.ejs', { cart: user.cart, addresses: user.addresses, user: user, cartTotal: cartTotal, effectiveDiscountPercentage: effectiveDiscountPercentage.toFixed(2)});
   } catch (error) {
     console.error('Error fetching cart:', error);
     res.status(500).send('An error occurred while fetching the cart');

@@ -33,6 +33,8 @@
       <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= item.status %></p>
       <p style="font-size: 18px; color: #333;"><strong>Payment Status:</strong> <%= item.paymentStatus %></p>
       <p style="font-size: 18px; color: #333;"><strong>Delivery Status:</strong> <%= item.deliveryStatus %></p>
+      <p style="font-size: 18px; color: #333;"><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+
       <h4>Order Status:</h4>
       <%if(item.deliveryStatus==='confirmed'){%>
         <div style="background-color: rgb(158, 217, 158); margin-bottom:15px">Order Confirmed (updatedDate:<%=order.updatedDate%>)</div>

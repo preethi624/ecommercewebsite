@@ -65,6 +65,9 @@ router.get("/orders",productController.getOrders)
 router.post("/cart/update-quantity",productController.updateCart)
 router.get('/download-invoice/:orderId',productController.downloadInvoice)
 router.post('/order/paymentWallet/:id',productController.walletPayment)
+router.post("/update-quantity/:itemId",userController.updateQuantity)
+
+
 
 
 

@@ -1,6 +1,9 @@
+
 <%- include("../../views/partials/user/header") %>
 
 <div class="container mt-5">
+  <div class="row" style="margin-bottom: 20px;">
+    <div class="col-md-8" style="margin-top: 0px;">
   <h1 class="mb-4">Your Cart</h1>
   <div class="mb-4">
     <h4>Shipping Address</h4>
@@ -26,7 +29,8 @@
         <tr>
           <th>Image</th>
           <th>Product</th>
-          <th>Price</th>
+          <th>Regular Price</th>
+          <th>Sales Price</th>
           <th>Quantity</th>
           <th>Total</th>
           <th>Action</th>
@@ -34,10 +38,11 @@
       </thead>
       <tbody>
         <% cart.forEach(item => { %>
-          <tr data-product-id="<%=item.product._id%>">
+          <tr data-item-id="<%= item._id %>" data-product-id="<%= item.product._id %>">
             <td> <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" width="100" height="100"></td>
             
             <td><%= item.product.productName %></td>
+            <td id="prize">Rs <%=item.product.regularPrice%></td>
             <td id="prize">Rs <%=item.product.salePrice%></td>
             <td>
               <button class="btn btn-outline-secondary update-quantity" data-action="decrease">-</button>
@@ -62,11 +67,32 @@
     <div class="text-end">
       <div class="text-end" id="cart-total">Total: Rs <%= cartTotal.toFixed(2) %></div>
 
-      <a href="/order/checkout/" class="btn btn-success" id="checkout-btn" >Proceed to Checkout</a>
+     
     </div>
   <% } else { %>
     <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
   <% } %>
+</div>
+<div class="col-md-4" style="margin-top:200px;">
+
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Order Summary</h5>
+      <hr>
+    
+        <p>Total: Rs <%= cartTotal.toFixed(2) %></p>
+        <p>Discount(%):<span id="discount"><%=effectiveDiscountPercentage%></span></p>
+        <p>Tax: Rs <span id="tax">0.00</span></p>
+        <hr>
+        <h5>Grand Total: Rs <span id="grand-total"><%= cartTotal.toFixed(2)%></span></h5>
+
+        <a href="/order/checkout/" class="btn btn-success" id="checkout-btn" >Proceed to Checkout</a>
+      
+    
+    </div>
+  </div>
+  
+</div> 
 </div>
 
 <%- include("../../views/partials/user/footer") %>
@@ -87,7 +113,8 @@
           const quantitySpan = productRow.querySelector('.quantity-value'); // Get the quantity span
           const productTotal = productRow.querySelector('.product-total'); // Get the total price element for the product
           const productPrice = parseFloat(productRow.querySelector('.product-total').getAttribute('data-product-price')); // Get the product price
-          
+          const unitPrice = parseFloat(productRow.querySelector('#prize').textContent.replace('Rs ', '')); // Get the per-unit product price
+
           let quantity = parseInt(quantitySpan.textContent); // Get current quantity
     
           // Increase or decrease quantity
@@ -99,9 +126,29 @@
     
           // Update the quantity in the DOM
           quantitySpan.textContent = quantity;
+          const itemId = this.closest('tr').dataset.itemId; 
+          
+          fetch(`/update-quantity/${itemId}`,{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({quantity:quantity})
+
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              console.log('Quantity updated successfully');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating quantity:', error);
+          });
+    
     
           // Update the total price for the product
-          const newProductTotal = (productPrice * quantity).toFixed(2);
+          const newProductTotal = (unitPrice * quantity).toFixed(2);
           productTotal.textContent = ` Rs ${newProductTotal}`;
     
           // Recalculate the cart total
@@ -120,7 +167,22 @@
     
         // Update the cart total in the DOM
         document.getElementById('cart-total').textContent = `Total: Rs ${cartTotal.toFixed(2)}`;
+        updateOrderSummary(cartTotal);
       }
+      function updateOrderSummary(cartTotal) {
+        const discount = calculateDiscount(cartTotal);
+        const tax = calculateTax(cartTotal - discount);
+        const grandTotal = cartTotal - discount + tax;
+    
+        document.getElementById('items-total').textContent = `Rs ${cartTotal.toFixed(2)}`;
+        document.getElementById('discount').textContent = `Rs ${discount.toFixed(2)}`;
+        document.getElementById('tax').textContent = `Rs 0`;
+        document.getElementById('grand-total').textContent = `Rs ${grandTotal.toFixed(2)}`;
+      }
+    
+     
+    
+      
       function updateQuantityInCart(productId, quantity) {
         fetch('/cart/update-quantity', {
           method: 'POST',
@@ -176,3 +238,4 @@
   
   
 </script> 
+

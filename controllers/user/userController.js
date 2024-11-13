@@ -325,6 +325,20 @@ const productDetails=async(req,res)=>{
         
     }
 }
+const updateQuantity=async(req,res)=>{
+    try {
+        const userId=req.session.user.id
+        const itemId=req.params.itemId;
+        console.log("User ID:", userId);
+console.log("Item ID:", itemId);
+        const newQuantity=req.body.quantity
+        await User.updateOne({_id:userId,"cart._id":itemId},{$set:{"cart.$.quantity": newQuantity}})
+        
+    } catch (error) {
+        console.error('Error updating cart item quantity:', error);
+        
+    }
+}
    
 
 
@@ -340,5 +354,6 @@ module.exports = {
     logout,
     productDetails,
     products,
+    updateQuantity,
     
 };

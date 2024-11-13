@@ -1,160 +1,439 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order History</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <style>
-    .order-card {
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s;
-      max-width: 80%;
-      margin: 0 auto;
-    }
-    .order-card:hover {
-      transform: scale(1.02);
-    }
-    .order-card img {
-      border-radius: 8px;
-    }
-    .btn-cancel, .btn-return {
-      margin-top: 10px;
-      width: 30%;
-    }
-    .btn-details{
-      width:30%
-    }
-    .no-orders {
-      text-align: center;
-      color: #777;
-      font-size: 1.2em;
-      padding: 50px;
-    }
-    .container {
-      max-width: 70%; /* Set the width to 80% of the screen */
-    }
-    .btn-top-right {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    
-    
-    
-  </style>
-</head>
-<body>
-    <%- include("../partials/user/header") %> 
+<%- include("../../views/partials/user/header") %>
 
-<div class="container container mt-5">
-  <h2 class="mb-4 text-center">Track Your Orders</h2>
-
-  <% if (user.orderHistory && user.orderHistory.length > 0) { %>
-    <% orderHistory.forEach(order => { %>
-      <div class="card mb-4 order-card">
-        <div class="card-body position-relative">
-          <%if(order.paymentStatus!='paid'){%>
-          <button class="btn btn-outline-success btn-top-right">Pay Online</button>
-          <%}%>
-          <% order.orderedItems.forEach(item => { %>
-            <div class="row mb-3">
-              <div class="col-md-3">
-                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
-                     alt="<%= item.product.productName %>" width="100%" height="auto">
-              </div>
-              <div class="col-md-9">
-               
-                <strong>Product:</strong> <%= item.product.productName %><br>
-                <strong>Description:</strong> <%= item.product.description %><br>
-                <strong>Quantity:</strong> <%= item.quantity %><br>
-              </div>
-              <p><strong>Order ID:</strong> <%= order.orderId %></p>
-              <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-              <p><strong> Amount:</strong> Rs <%= item.price %></p>
-              <p><strong>Status:</strong> <%= order.status %></p>
-              <p><strong>Payment Status:</strong> <span class="<%= order.paymentStatus === 'paid' ? 'text-success' : 'text-danger' %>"><%= order.paymentStatus %></span></p>
-              <p><strong>Delivery Status:</strong> <span class="<%= order.deliveryStatus === 'Delivered' ? 'text-success' : order.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>"><%= order.deliveryStatus %></span></p>
-         <%if (order.paymentStatus==='pending'&&order.deliveryStatus==='confirmed'){%>
-         <p><strong>Payment Method used:</strong> Cash On Delivery</p>
-         <%}else{%>
-          <p><strong>Payment Method used:</strong> Online Payment</p>
-          <%}%>
-          
-          <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(order.status)) { %>
-            <form action="/order/order-cancel/<%= order._id %>/<%=item.product%>" method="GET">
-              <button type="submit" class="btn btn-warning btn-cancel">Cancel Order</button>
-            </form>
-          <% } else { %>
-            <p class="text-danger">Order cannot be cancelled.</p>
-          <% } %>
-          <% if (['Shipped', 'Delivered'].includes(order.status)) { %>
-            <form action="/userprofile/return/<%= order._id %>/<%=item.product%>" method="GET">
-              <button type="submit" class="btn btn-info btn-return">Return</button>
-            </form>
-          <% } %>
-          <a href="/order/orderDetails/<%= order._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
-
-    
-            </div>
-
-          <% }) %>
-
-          <hr>
-        
-         
-         
-          
-
-
-         
-
-         
-
-          
-        </div>
-      </div>
-    <% }) %>
-  <% } else { %>
-    <div class="no-orders">
-      <p>No order history available.</p>
-    </div>
-  <% } %>
-
-</div>
-<div class="pagination mt-4 d-flex justify-content-center">
-    <% if (totalPages > 1) { %>
-      <nav>
-        <ul class="pagination">
-          <% if (currentPage > 1) { %>
-            <li class="page-item">
-              <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-            </li>
-          <% } %>
+<div class="container mt-5">
   
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-          <% } %>
-  
-          <% if (currentPage < totalPages) { %>
-            <li class="page-item">
-              <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-            </li>
-          <% } %>
-        </ul>
-      </nav>
+  <h1 class="mb-4">Your Cart</h1>
+  <div class="mb-4">
+    <h4>Shipping Address</h4>
+    
+    <% if (user.defaultAddress) { %>
+      <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+      <% if (defaultAddress) { %>
+        <p>
+          <%= defaultAddress.fullName %>, <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+        </p>
+      <% } else { %>
+        <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+      <% } %>
+      <button id="change-address-btn" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+    <% } else { %>
+      <p>No default address set. Please <a href="/profile">add an address</a>.</p>
     <% } %>
   </div>
   
+  <% if (cart.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Price(before adding offer)</th>
+          <th>Price(after offer added)</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cart.forEach(item => { %>
+          <tr data-item-id="<%= item._id %>" data-product-id="<%= item.product._id %>">
+            <td> <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" width="100" height="100"></td>
+            
+            <td><%= item.product.productName %></td>
+            <td id="prize">Rs <%=item.product.regularPrice%></td>
+            <td id="prize">Rs <%=item.product.salePrice%></td>
+            <td>
+              <button class="btn btn-outline-secondary update-quantity" data-action="decrease">-</button>
+              <span class="quantity-value"><%= item.quantity %></span>
+              <button class="btn btn-outline-secondary update-quantity" data-action="increase">+</button>
+            </td>
+            <td class="product-total" data-product-price="<%=item.product.salePrice*item.quantity %>">Rs <%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<%- include("../partials/user/footer") %>
-</body>
-</html> 
+            <td>
+              <form action="/cart/remove/<%= item.product._id %>" method="POST" onclick="remove-cart">
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmRemove(this)">
+                  <i class="fas fa-trash-alt"></i> Remove
+              </button>
+               
+               
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div class="text-end">
+      <div class="text-end" id="cart-total">GrandTotal: Rs <%= cartTotal.toFixed(2) %></div>
+
+      <a href="/order/checkout/" class="btn btn-success" id="checkout-btn" >Proceed to Checkout</a>
+    </div>
+  <% } else { %>
+    <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
+  <% } %>
+</div>
+
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+ 
+  // Select all buttons with the class update-quantity
+
+  
+    document.addEventListener('DOMContentLoaded', function() {
+      // Select all quantity update buttons
+      const quantityButtons = document.querySelectorAll('.update-quantity');
+    
+      quantityButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const action = this.getAttribute('data-action'); // 'increase' or 'decrease'
+          const productRow = this.closest('tr'); // Get the row for this product
+          const quantitySpan = productRow.querySelector('.quantity-value'); // Get the quantity span
+          const productTotal = productRow.querySelector('.product-total'); // Get the total price element for the product
+          const productPrice = parseFloat(productRow.querySelector('.product-total').getAttribute('data-product-price')); // Get the product price
+          
+          let quantity = parseInt(quantitySpan.textContent); // Get current quantity
+    
+          // Increase or decrease quantity
+          if (action === 'increase') {
+            quantity++;
+          } else if (action === 'decrease' && quantity > 1) { // Prevent quantity from going below 1
+            quantity--;
+          }
+    
+          // Update the quantity in the DOM
+          quantitySpan.textContent = quantity;
+          const itemId = this.closest('tr').dataset.itemId; 
+          
+          fetch(`/update-quantity/${itemId}`,{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({quantity:quantity})
+
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              console.log('Quantity updated successfully');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating quantity:', error);
+          });
+    
+          // Update the total price for the product
+          const newProductTotal = (productPrice * quantity).toFixed(2);
+          productTotal.textContent = ` Rs ${newProductTotal}`;
+    
+          // Recalculate the cart total
+          updateCartTotal();
+        });
+      });
+    
+      // Function to recalculate the cart total
+      function updateCartTotal() {
+        let cartTotal = 0;
+        const productTotals = document.querySelectorAll('.product-total');
+    
+        productTotals.forEach(product => {
+          cartTotal += parseFloat(product.textContent.replace('Rs', '').trim());
+        });
+    
+        // Update the cart total in the DOM
+        document.getElementById('cart-total').textContent = `Total: Rs ${cartTotal.toFixed(2)}`;
+      }
+      function updateQuantityInCart(productId, quantity) {
+        fetch('/cart/update-quantity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error('Failed to update cart quantity');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+    });
+    
+    
+  document.getElementById('checkout-btn').addEventListener('click',function(e){
+    e.preventDefault();
+    let updateCart=[];
+    document.querySelectorAll('tbody tr').forEach(row=>{
+      let productId=row.getAttribute('data-product-id');
+      let quantity=parseInt(row.querySelector('.quantity-value').textContent);
+      updateCart.push({
+        productId:productId,
+        quantity:quantity
+      })
+
+    })
+    
+    const queryString=updateCart.map(item=>`productId=${item.productId}&quantity=${item.quantity}`).join('&')
+    window.location.href=`/order/checkout?${queryString}`;
+  })
+
+    function confirmRemove(button) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This item will be removed from your cart.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, remove it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Find the closest form element and submit it
+          button.closest("form").submit();
+        }
+      });
+    }
+  
+  
+</script> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%- include("../../views/partials/user/header") %>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8">
+  <h1 class="mb-4">Your Cart</h1>
+  <div class="mb-4">
+    <h4>Shipping Address</h4>
+    
+    <% if (user.defaultAddress) { %>
+      <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+      <% if (defaultAddress) { %>
+        <p>
+          <%= defaultAddress.fullName %>, <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
+        </p>
+      <% } else { %>
+        <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+      <% } %>
+      <button id="change-address-btn" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
+    <% } else { %>
+      <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+    <% } %>
+  </div>
+  
+  <% if (cart.length > 0) { %>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% cart.forEach(item => { %>
+          <tr data-item-id="<%= item._id %>" data-product-id="<%= item.product._id %>">
+            <td> <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" width="100" height="100"></td>
+            
+            <td><%= item.product.productName %></td>
+            <td id="prize">Rs <%=item.product.salePrice%></td>
+            <td>
+              <button class="btn btn-outline-secondary update-quantity" data-action="decrease">-</button>
+              <span class="quantity-value"><%= item.quantity %></span>
+              <button class="btn btn-outline-secondary update-quantity" data-action="increase">+</button>
+            </td>
+            <td class="product-total" data-product-price="<%=item.product.salePrice*item.quantity %>">Rs <%= (item.product.salePrice * item.quantity).toFixed(2) %></td>
+
+            <td>
+              <form action="/cart/remove/<%= item.product._id %>" method="POST" onclick="remove-cart">
+                <button type="button" class="btn btn-danger btn-sm" onclick="confirmRemove(this)">
+                  <i class="fas fa-trash-alt"></i> Remove
+              </button>
+               
+               
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <div class="text-end">
+      <div class="text-end" id="cart-total">Total: Rs <%= cartTotal.toFixed(2) %></div>
+
+      <a href="/order/checkout/" class="btn btn-success" id="checkout-btn" >Proceed to Checkout</a>
+    </div>
+  <% } else { %>
+    <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
+  <% } %>
+</div>
+<div class="col-md-4">
+  
+  
+</div> 
+</div>
+
+<%- include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+ 
+  // Select all buttons with the class update-quantity
+
+  
+    document.addEventListener('DOMContentLoaded', function() {
+      // Select all quantity update buttons
+      const quantityButtons = document.querySelectorAll('.update-quantity');
+    
+      quantityButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const action = this.getAttribute('data-action'); // 'increase' or 'decrease'
+          const productRow = this.closest('tr'); // Get the row for this product
+          const quantitySpan = productRow.querySelector('.quantity-value'); // Get the quantity span
+          const productTotal = productRow.querySelector('.product-total'); // Get the total price element for the product
+          const productPrice = parseFloat(productRow.querySelector('.product-total').getAttribute('data-product-price')); // Get the product price
+          const unitPrice = parseFloat(productRow.querySelector('#prize').textContent.replace('Rs ', '')); // Get the per-unit product price
+
+          let quantity = parseInt(quantitySpan.textContent); // Get current quantity
+    
+          // Increase or decrease quantity
+          if (action === 'increase') {
+            quantity++;
+          } else if (action === 'decrease' && quantity > 1) { // Prevent quantity from going below 1
+            quantity--;
+          }
+    
+          // Update the quantity in the DOM
+          quantitySpan.textContent = quantity;
+          const itemId = this.closest('tr').dataset.itemId; 
+          
+          fetch(`/update-quantity/${itemId}`,{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json'
+            },
+            body:JSON.stringify({quantity:quantity})
+
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              console.log('Quantity updated successfully');
+            }
+          })
+          .catch(error => {
+            console.error('Error updating quantity:', error);
+          });
+    
+    
+          // Update the total price for the product
+          const newProductTotal = (unitPrice * quantity).toFixed(2);
+          productTotal.textContent = ` Rs ${newProductTotal}`;
+    
+          // Recalculate the cart total
+          updateCartTotal();
+        });
+      });
+    
+      // Function to recalculate the cart total
+      function updateCartTotal() {
+        let cartTotal = 0;
+        const productTotals = document.querySelectorAll('.product-total');
+    
+        productTotals.forEach(product => {
+          cartTotal += parseFloat(product.textContent.replace('Rs', '').trim());
+        });
+    
+        // Update the cart total in the DOM
+        document.getElementById('cart-total').textContent = `Total: Rs ${cartTotal.toFixed(2)}`;
+        updateOrderSummary(cartTotal);
+      }
+      function updateOrderSummary(cartTotal) {
+        const discount = calculateDiscount(cartTotal);
+        const tax = calculateTax(cartTotal - discount);
+        const grandTotal = cartTotal - discount + tax;
+    
+        document.getElementById('items-total').textContent = `Rs ${cartTotal.toFixed(2)}`;
+        document.getElementById('discount').textContent = `Rs ${discount.toFixed(2)}`;
+        document.getElementById('tax').textContent = `Rs 0`;
+        document.getElementById('grand-total').textContent = `Rs ${grandTotal.toFixed(2)}`;
+      }
+    
+     
+    
+      
+      function updateQuantityInCart(productId, quantity) {
+        fetch('/cart/update-quantity', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ productId, quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) {
+            console.error('Failed to update cart quantity');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+    });
+    
+    
+  document.getElementById('checkout-btn').addEventListener('click',function(e){
+    e.preventDefault();
+    let updateCart=[];
+    document.querySelectorAll('tbody tr').forEach(row=>{
+      let productId=row.getAttribute('data-product-id');
+      let quantity=parseInt(row.querySelector('.quantity-value').textContent);
+      updateCart.push({
+        productId:productId,
+        quantity:quantity
+      })
+
+    })
+    
+    const queryString=updateCart.map(item=>`productId=${item.productId}&quantity=${item.quantity}`).join('&')
+    window.location.href=`/order/checkout?${queryString}`;
+  })
+
+    function confirmRemove(button) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "This item will be removed from your cart.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, remove it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Find the closest form element and submit it
+          button.closest("form").submit();
+        }
+      });
+    }
+  
+  
+</script> 
+
