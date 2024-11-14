@@ -7,6 +7,7 @@ const productController=require("../controllers/user/productController.js")
 const {userAuth,adminAuth}=require("../middleware/auth")
 const { ensureAuthenticated } = require('../middleware/auth');
 const passport=require("passport");
+const User=require("../models/userSchema.js")
 
 router.get('/', userController.loadHomepage);
 router.get('/signup', userController.loadSignup);
@@ -17,9 +18,26 @@ router.get("/pageNotFound",userController.pageNotFound)
 
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-router.get('auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),(req,res)=>{
+router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),async(req,res)=>{
+    try{
+    let user=await User.findOne({googleId:req.user.id})
+    if (!user) {
+        // If user not found, create a new user document with Google ID
+        user = new User({
+            username: req.user.displayName,
+            email: req.user.emails[0].value,
+            googleId: req.user.id
+        });
+        await user.save();
+    }
+    req.session.user = req.user
     console.log("Google authentication successful,user:",req.user)
     res.redirect('/')
+}catch(error){
+
+console.error("Error during Google sign-in:", error);
+            res.redirect('/signup');
+}
 })
 router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
@@ -63,7 +81,7 @@ router.get("/userprofile/return/:id/:itemId",productController.returnOrder)
 router.post("/orders/confirm-return",productController.confirmReturn)
 router.get("/orders",productController.getOrders)
 router.post("/cart/update-quantity",productController.updateCart)
-router.get('/download-invoice/:orderId',productController.downloadInvoice)
+router.get('/download-invoice/:orderId/:itemId',productController.downloadInvoice)
 router.post('/order/paymentWallet/:id',productController.walletPayment)
 router.post("/update-quantity/:itemId",userController.updateQuantity)
 

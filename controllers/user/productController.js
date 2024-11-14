@@ -109,18 +109,18 @@ const getCart = async (req, res) => {
           return total;
         }, 0)
       : 0;
-      const discount= user.cart.length > 0 
+
+     const cartRegularTotal = user.cart.length > 0 
       ? user.cart.reduce((total, item) => {
           if (item.product && item.product.regularPrice) {
-            return total + (item.product.regularPrice -item.product.salePrice);
+            return total + (item.product.regularPrice )* item.quantity;
           }
           return total;
         }, 0)
       : 0;
-      console.log("discount",discount)
       
 
-    res.render('cart.ejs', { cart: user.cart, addresses: user.addresses, user: user, cartTotal: cartTotal, effectiveDiscountPercentage: effectiveDiscountPercentage.toFixed(2)});
+    res.render('cart.ejs', { cart: user.cart, addresses: user.addresses, user: user, cartTotal: cartTotal, effectiveDiscountPercentage: effectiveDiscountPercentage.toFixed(2),cartRegularTotal});
   } catch (error) {
     console.error('Error fetching cart:', error);
     res.status(500).send('An error occurred while fetching the cart');
@@ -1018,8 +1018,9 @@ const orderHistory = await Order.find({ user: userId })
   }
 }
 const downloadInvoice=async(req,res)=>{
-  const {orderId}=req.params;
+  const {orderId,itemId}=req.params;
   console.log("orderid1",orderId)
+  console.log("itemId",itemId)
   const user=req.session.user
   const userId=user.id
   const userData = await User.findById(userId).populate({
@@ -1035,43 +1036,50 @@ const downloadInvoice=async(req,res)=>{
   if (!order) {
     return res.status(404).send('Order not found');
   }
-  
+  const orderItem=order.orderedItems.find(item=>item._id.toString()===itemId
+
+  )
+  if (!orderItem) {
+    return res.status(404).send('Item not found in the order');
+  }
+
   const orderAddress=userData.addresses.find(address=>address._id.toString()===order.address.toString())
   if (!orderAddress) {
     return res.status(404).send('Address not found for the order');
   }
   console.log("order1",order)
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename=Invoice-${orderId}.pdf`);
+  res.setHeader('Content-Disposition', `attachment; filename=Invoice-${orderId}-${itemId}.pdf`);
   const doc = new PDFDocument();
   doc.pipe(res);
   doc.fontSize(20).text('Order Invoice', { align: 'center' });
   doc.moveDown();
   doc.fontSize(12).text(`Order ID: ${order.orderId}`);
   doc.text(`Order Date: ${order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available'}`);
-  doc.text(`Total Amount: ₹${order.totalPrice}`);
-  doc.text(`Status: ${order.status}`);
+  doc.text(`Total Amount: ₹${orderItem.price}`);
+  doc.text(`Status: ${orderItem.status}`);
   doc.text(`UpdatedDate: ${order.updatedDate}`);
 
   doc.moveDown();
-  if (order.deliveryStatus === 'confirmed') {
+ 
+  if (orderItem.deliveryStatus === 'confirmed') {
     doc.text('Order Confirmed', { fillColor: 'green' });
   } else {
     doc.text('Order Not Placed', { fillColor: 'red' });
   }
-  if (order.paymentStatus === 'pending') {
+  if (orderItem.paymentStatus === 'pending') {
     doc.text('Payment Status: Pending');
   } else {
     doc.text('Payment Status: Paid');
   }
   doc.moveDown().fontSize(16).text('Ordered Items:', { underline: true });
-  order.orderedItems.forEach(item => {
-    doc.fontSize(12).text(`Product: ${item.product.productName}`);
-    doc.text(`Price: ₹${item.product.salePrice}`);
-    doc.text(`Description: ${item.product.description}`);
-    doc.text(`Quantity: ${item.quantity}`);
+  
+    doc.fontSize(12).text(`Product: ${orderItem.product.productName}`);
+    doc.text(`Price: ₹${orderItem.product.salePrice}`);
+    doc.text(`Description: ${orderItem.product.description}`);
+    doc.text(`Quantity: ${orderItem.quantity}`);
     doc.moveDown();
-  });
+
   doc.moveDown().fontSize(16).text('Shipping Address:', { underline: true });
   doc.fontSize(12).text(`Full Name: ${orderAddress.fullName}`);
   doc.text(`Address: ${orderAddress.address}`);

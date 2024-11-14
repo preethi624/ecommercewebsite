@@ -39,7 +39,7 @@ const loadHomepage = async (req, res) => {
         .skip((page - 1) * limit)
         .populate('category');
 
-        // Prepare wishlist status if the user is logged in
+        
         let wishlistIds = [];
         if (user) {
             const userData = await User.findById(user.id).populate('wishlist');
@@ -48,11 +48,20 @@ const loadHomepage = async (req, res) => {
             }
         }
 
-        // Map products to include wishlist status
+      
         productData = productData.map(product => ({
             ...product.toObject(),
             isInWishlist: wishlistIds.includes(product._id.toString())
         }));
+        const trendingProducts = await Product.find({
+            isBlocked: false,
+            isDeleted: false,
+            _id: { $nin: productData.map(product => product._id) }, // Exclude main products
+            category: { $in: categories.map(category => category._id) }
+        })
+        .sort({ createdAt: 1 }) // Oldest first to reverse
+         // Limit to desired number for trending section
+        .populate('category');
 
         res.setHeader('Cache-Control', 'no-store');
 
@@ -62,7 +71,8 @@ const loadHomepage = async (req, res) => {
             wishlistIds,
             currentPage: page,
             totalPages,
-            categories // Pass categories to render as well
+            categories ,
+            trendingProducts: trendingProducts,
         });
 
     } catch (error) {

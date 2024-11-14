@@ -1,8 +1,7 @@
-
 <%- include("../../views/partials/user/header") %>
 
-<div class="container mt-5">
-  <div class="row" style="margin-bottom: 20px;">
+<div class="container-fuid mt-5">
+  <div class="row" style="margin-bottom: 20px; padding:60px">
     <div class="col-md-8" style="margin-top: 0px;">
   <h1 class="mb-4">Your Cart</h1>
   <div class="mb-4">
@@ -64,23 +63,19 @@
         <% }) %>
       </tbody>
     </table>
-    <div class="text-end">
-      <div class="text-end" id="cart-total">Total: Rs <%= cartTotal.toFixed(2) %></div>
-
-     
-    </div>
+    
   <% } else { %>
     <p>Your cart is empty. <a href="/products">Continue shopping</a>.</p>
   <% } %>
 </div>
-<div class="col-md-4" style="margin-top:200px;">
+<div class="col-md-4" style="margin-top:100px; padding-left:10%;">
 
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">Order Summary</h5>
       <hr>
     
-        <p>Total: Rs <%= cartTotal.toFixed(2) %></p>
+        <p>Total: Rs <%= cartRegularTotal.toFixed(2) %></p>
         <p>Discount(%):<span id="discount"><%=effectiveDiscountPercentage%></span></p>
         <p>Tax: Rs <span id="tax">0.00</span></p>
         <hr>
@@ -238,4 +233,3 @@
   
   
 </script> 
-

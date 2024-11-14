@@ -48,7 +48,7 @@ app.use((req,res,next)=>{
     next()
 })
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;  // Or based on passport authentication
+    res.locals.user = req.session.user || null;  
     next();
 })
 app.use((req, res, next) => {

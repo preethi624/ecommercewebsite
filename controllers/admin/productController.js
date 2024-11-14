@@ -480,7 +480,7 @@ const editOrder=async(req,res)=>{
         }
 
         // Conditional logic for status updates
-        if (status === "Delivered" && (item.paymentStatus !== "paid" || item.deliveryStatus !== "confirmed")) {
+        if (status === "Delivered" && (item.paymentStatus !== "paid" || item.deliveryStatus !== "confirmed"||item.status==='Return Request'||item.status==='Cancelled')) {
             return res.status(400).send("Cannot mark as Delivered without payment and confirmation.");
         }
         

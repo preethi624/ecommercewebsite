@@ -174,43 +174,34 @@ const getSalesReportData = async (req, res) => {
                 return res.status(400).json({ message: 'Invalid report type' });
         }
 
+        // Get orders within the date range and with 'Delivered' status
         const orders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
             status: 'Delivered'
         });
 
-        const dateLabels = [];
-        let netSales = [];
-        const totalOrders = [];
-        let salesCount = 0;
+        // Aggregated variables for total sales
         let totalAmount = 0;
-        let discount=0;
+        let totalDiscount = 0;
+        let salesCount = orders.length;
 
-        // Group orders by day or week based on reportType
         orders.forEach(order => {
-            dateLabels.push(order.invoiceDate.toLocaleDateString()); // Customize date formatting as needed
-            netSales.push(order.finalAmount || 0);
-            totalOrders.push(1); // Count each order
             totalAmount += order.finalAmount || 0;
-            salesCount += 1;
-            discount+=order.discount||0
+            totalDiscount += order.discount || 0;
         });
 
+        // Sending a single label and single data point for chart
         res.json({
-            labels: dateLabels,
-            netSales,
-            totalOrders,
-            totalAmount,
-            salesCount,
-            discount
+            labels: [`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Sales`],
+            netSales: [totalAmount],
+            totalOrders: [salesCount],
+            discount: [totalDiscount]
         });
     } catch (error) {
         console.error('Error fetching sales report data:', error);
         res.status(500).json({ message: 'Error generating report data' });
     }
 };
-
-
 
 
 module.exports={

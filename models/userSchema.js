@@ -44,7 +44,7 @@ const userSchema = new Schema({
    
       
     
-    // Password is required for signup
+    
     password: {
         type: String,
         required: false

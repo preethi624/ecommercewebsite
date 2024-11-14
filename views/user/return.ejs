@@ -169,7 +169,7 @@ body {
         <h2>Confirm Return</h2>
         
         <ul class="billed-items">
-            <% order.orderedItems.forEach((item, index) => { %>
+            
               <li>
                 <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
                 <div>
@@ -178,7 +178,7 @@ body {
                   <strong>Price:</strong> Rs <%= item.price %>
                 </div>
               </li>
-            <% }); %>
+         
         </ul>
 
         <div class="reason-section">

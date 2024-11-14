@@ -194,15 +194,15 @@
     function displaySalesReportChart(data) {
         const ctx = document.getElementById('salesReportChart').getContext('2d');
         if (window.salesChart) window.salesChart.destroy();
-
+    
         window.salesChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: data.labels,
+                labels: data.labels, 
                 datasets: [
                     {
                         label: 'Net Sales',
-                        data: data.netSales,
+                        data: data.netSales, 
                         borderColor: 'blue',
                         backgroundColor: 'blue',
                         borderWidth: 1,
@@ -210,7 +210,7 @@
                     },
                     {
                         label: 'Total Discount',
-                        data: Array.isArray(data.discount) ? data.discount : [data.discount],
+                        data: data.discount, 
                         borderColor: 'green',
                         backgroundColor: 'brown',
                         borderWidth: 1,
@@ -222,7 +222,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { title: { display: true, text: 'Date' } },
+                    x: { title: { display: true, text: 'Sales Report' } },
                     y: { title: { display: true, text: 'Amount' }, beginAtZero: true }
                 },
                 plugins: {
@@ -234,7 +234,7 @@
             }
         });
     }
-
+    
     
     document.addEventListener("DOMContentLoaded", fetchSalesReport);
 </script>

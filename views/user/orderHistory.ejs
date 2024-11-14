@@ -57,9 +57,7 @@
     <% orderHistory.forEach(order => { %>
       <div class="card mb-4 order-card">
         <div class="card-body position-relative">
-          <% if (order.paymentStatus != 'paid') { %>
-            <button class="btn btn-outline-success btn-top-right">Pay Online</button>
-          <% } %>
+          
           
           <% order.orderedItems.forEach(item => { %>
             <div class="row mb-3">
@@ -88,12 +86,14 @@
                     <%= item.paymentStatus %>
                   </span>
                 </p>
+                <%if(item.status!=='Return Request'&& item.status!=='Cancelled'){%>
                 <p><strong>Delivery Status:</strong> 
                   <span class="<%= item.deliveryStatus === 'Delivered' ? 'text-success' : 
                                   item.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>">
                     <%= item.deliveryStatus %>
                   </span>
                 </p>
+                <%}%>
                 
                   <p><strong>Payment Method used:</strong> <%=order.paymentMethod%></p>
                 

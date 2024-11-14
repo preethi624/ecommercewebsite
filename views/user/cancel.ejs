@@ -1,4 +1,12 @@
+
 <!DOCTYPE html>
+<div class="fixed-header">
+    <%- include("../../views/partials/user/header") %>
+</div>
+
+    
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,13 +22,15 @@
     left: 0;
     width: 100%;
     z-index: 1000; /* Ensures it stays above other content */
-    background-color: #fff; /* Same background as header to avoid transparency */
+    ; /* Same background as header to avoid transparency */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for separation */
     padding: 10px 20px; /* Adjust padding as needed */
-}
+} 
 
 body {
-    padding-top: 60px; /* Adjust based on header height to avoid overlap */
+    padding-top: 60px; 
+    display: flex;
+    flex-direction: column;
 }
 
             font-family: Arial, sans-serif;
@@ -28,7 +38,7 @@ body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
         .return-container {
@@ -164,5 +174,11 @@ body {
             <a href="/orders" class="cancel-btn">Cancel</a>
         </div>
     </div>
+    
 </body>
+
+    
+
+
 </html>
+

@@ -103,7 +103,7 @@
 
     <!-- Hero Section -->
     <section class="hero">
-        <img src="images/organic.png" alt="Organic Products">
+        <img style="margin-top: 50px;" src="images/organic.png" alt="Organic Products">
         <div class="hero-content">
             <h5>Premium Organic Quality</h5>
             <h2>Join The Organic Movement!</h2>
@@ -192,35 +192,24 @@
       
     
     <!-- Trending Products Section -->
-    <section class="product-section container">
-        <h2>Trending Products</h2>
-        <div class="row">
+    <!-- Trending Products Section -->
+<section class="product-section container">
+    <h2>Trending Products</h2>
+    <div class="row">
+        <% for (let i = 0; i < trendingProducts.length; i++) { %>
             <div class="col-md-4 product">
-                <img src="images/banana.jpg" alt="Assorted Coffee">
-                <h5>Banana</h5>
-                <p>Rs 12.00</p>
-                <button class="shop-btn">SHOP NOW</button>
+                <a href="/productDetails?id=<%= trendingProducts[i]._id %>">
+                    <img src="/uploads/product-images/<%= trendingProducts[i].productImage[0] %>" alt="<%= trendingProducts[i].productName %>">
+                </a>
+                <h5><%= trendingProducts[i].productName %></h5>
+                <p>Price: Rs <%= trendingProducts[i].salePrice.toFixed(2) %></p>
+                
+
             </div>
-            <div class="col-md-4 product">
-                <img src="images/pomgranates.jpg" alt="Hand Sanitizer">
-                <h5>pomgranates</h5>
-                <p>Price: Rs 50</p>
-                <button class="shop-btn">SHOP NOW</button>
-            </div>
-            <div class="col-md-4 product">
-                <img src="images/strawberries.jpg" alt="Red Chillies">
-                <h5>Strawberries</h5>
-                <p>Price: Rs 90</p>
-                <button class="shop-btn">SHOP NOW</button>
-            </div>
-            <div class="col-md-4 product">
-                <img src="images/pasta.jpg" alt="Edible Oil">
-                <h5>Raw pasta</h5>
-                <p>Price: Rs 75</p>
-                <button class="shop-btn">SHOP NOW</button>
-            </div>
-        </div>
-    </section>
+        <% } %>
+    </div>
+</section>
+
 
     <!-- Reviews Section -->
     <section class="reviews">
