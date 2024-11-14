@@ -400,16 +400,13 @@ const postCheckout = async (req, res) => {
     await User.findByIdAndUpdate(
       userId,
       { $push: { orderHistory: newOrder._id } },
-      { new: true } // Optional: returns the updated document
+      { new: true } 
     );
     
     
    
 
-    // Update product quantities in the inventory
-   
-
-    // Clear the cart after successful checkout
+    
     
 
     return res.redirect(`/order/confirmation/${newOrder._id}`);
@@ -549,7 +546,7 @@ const cancelOrder=async(req,res)=>{
         !['Shipped', 'Delivered', 'Cancelled'].includes(orderedItem.status)
     );
     if (!hasActiveItems) {
-      refundAmount += 30; // Assuming the delivery charge is 30
+      refundAmount += 30; 
     }
     console.log("refund",refundAmount)
     if(item.paymentStatus==='paid'){
@@ -609,16 +606,16 @@ const orderDetails = async (req, res) => {
     const length=order.orderedItems.length
     const itemCouponShare=order.discount/Number(length);
 
-    // Find the specific item in the orderedItems array
+    
     const item = order.orderedItems.find(i => i._id.toString() === itemId);
     if (!item) {
       return res.status(404).send('Item not found in this order');
     }
 
-    // Calculate price for the individual item
+    
     const itemPrice = item.price * item.quantity + 30-itemCouponShare;
 
-    // Find the delivery address for the order
+    
     const orderAddress = userData.addresses.find(
       address => address._id.toString() === order.address.toString()
     );
@@ -628,9 +625,9 @@ const orderDetails = async (req, res) => {
     }
 
 
-    // Razorpay payment setup for individual item
+   
     const options = {
-      amount: itemPrice * 100, // Amount in paisa (INR)
+      amount: itemPrice * 100, 
       currency: 'INR',
       receipt:orderId.toString(), 
      
@@ -646,7 +643,7 @@ const orderDetails = async (req, res) => {
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         orderId: orderId,
-        item: item, // Pass only the item data
+        item: item, 
         user: userData,
         defaultAddress: userData.defaultAddress,
         orderAddress,
@@ -675,7 +672,7 @@ const codConfirmation=async(req,res)=>{
       const cartItem = user.cart[i];
       const quantity=cartItem.quantity
       const product = await Product.findById(cartItem.product._id);
-      product.quantity -= quantity; // Deduct the quantity from the stock
+      product.quantity -= quantity; 
       await product.save();
     }
     user.cart = [];
@@ -706,7 +703,7 @@ const codConfirmation=async(req,res)=>{
 const orderConfirmation = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { payment_id, order_id, system_order_id, item_id } = req.query; // `item_id` will be passed if it’s a single-item payment
+    const { payment_id, order_id, system_order_id, item_id } = req.query; 
 
     let user = await User.findById(userId);
 
@@ -715,47 +712,47 @@ const orderConfirmation = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    // Handle payment based on the presence of `item_id`
+    
     if (item_id) {
-      // Single Item Payment
+      
       const item = order.orderedItems.find(item => item._id.toString() === item_id);
       if (!item) {
         return res.status(404).send("Item not found in this order");
       }
 
-      // Update stock and mark item as paid
+      
       const product = await Product.findById(item.product);
-      product.quantity -= item.quantity; // Deduct stock quantity
+      product.quantity -= item.quantity; 
       await product.save();
 
-      // Update item payment and delivery status
+      
       item.paymentStatus = 'paid';
       item.deliveryStatus = 'confirmed';
       
-      // Remove the paid item from the user’s cart
+      
       user.cart = user.cart.filter(cartItem => cartItem.product._id.toString() !== item_id);
     } else {
-      // Full Order Payment
+      
       for (let orderedItem of order.orderedItems) {
         const product = await Product.findById(orderedItem.product);
-        product.quantity -= orderedItem.quantity; // Deduct stock for each item
+        product.quantity -= orderedItem.quantity; 
         await product.save();
 
-        // Mark all items in the order as paid and confirmed
+        
         orderedItem.paymentStatus = 'paid';
         orderedItem.deliveryStatus = 'confirmed';
       }
 
-      // Clear the user’s cart for a full-order purchase
+     
       user.cart = [];
     }
 
-    // Update user properties
+   
     user.hasPurchased = true;
     user.referralCredits = 0;
     await user.save();
 
-    // Update the order's updated date
+   
     order.updatedDate = new Date();
     order.paymentMethod='Online payment'
     await order.save();
@@ -830,11 +827,11 @@ const addToWishlist = async (req, res) => {
       return res.status(400).json({ error: "Product ID is required" });
     }
 
-    // Use $addToSet to ensure the product is added only once
+   
     const user = await User.findByIdAndUpdate(
       userId,
-      { $addToSet: { wishlist: productId } }, // Add productId to wishlist
-      { new: true }  // Return the updated user document
+      { $addToSet: { wishlist: productId } }, 
+      { new: true }  
     );
 
     if (!user) {
@@ -953,7 +950,7 @@ const confirmReturn=async(req,res)=>{
       const transaction = new Transaction({
         userId,
         amount: refundAmount,
-        type: 'credit', // Since it's a refund
+        type: 'credit', 
         description: `Refund for cancelled order ID: ${orderId}`,
       });
       await transaction.save();
@@ -975,8 +972,8 @@ const getOrders=async(req,res)=>{
 
     const user=req.session.user
     const userId=user.id
-    const page = parseInt(req.query.page) || 1; // Current page number, default to 1
-    const limit = 5; // Number of orders per page
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5;
     const skip = (page - 1) * limit;
     const userData=await User.findById(userId).populate({
       path: 'orderHistory',
@@ -1098,12 +1095,12 @@ const walletPayment=async(req,res)=>{
     const order = await Order.findById(orderId).populate('orderedItems');
     const amount=order.finalAmount+30
 
-    // Check if user has enough wallet balance
+    
     if (user.wallet < amount) {
       return res.json({ success: false, message: 'Insufficient wallet balance' });
     }
 
-    // Deduct amount from wallet
+    
     user.wallet -= amount;
     const transaction = new Transaction({
       userId,
