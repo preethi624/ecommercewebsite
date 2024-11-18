@@ -124,8 +124,8 @@ const loadDashboard=async(req,res)=>{
             const results=await getTopSellingCategories()
             const orders = await Order.find({}, 'finalAmount'); 
             const disc=await Order.find({}, 'discount'); 
-            const totalSales = orders.reduce((sum, order) => sum + (order.finalAmount || 0), 0);
-            const totalDiscount = disc.reduce((sum, order) => sum + (order.discount || 0), 0);
+            const totalSales = orders.reduce((sum, order) => sum + (order.finalAmount || 0), 0).toFixed(2);
+            const totalDiscount = disc.reduce((sum, order) => sum + (order.discount || 0), 0).toFixed(2);
             res.render("dashboard",{resultp,results,totalSales,totalDiscount})
             
         } catch (error) {
@@ -173,12 +173,14 @@ const getSalesReportData = async (req, res) => {
             default:
                 return res.status(400).json({ message: 'Invalid report type' });
         }
+       
 
         // Get orders within the date range and with 'Delivered' status
         const orders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
-            status: 'Delivered'
+            'orderedItems.status': 'Delivered'
         });
+        console.log(orders)
 
         // Aggregated variables for total sales
         let totalAmount = 0;
@@ -189,6 +191,7 @@ const getSalesReportData = async (req, res) => {
             totalAmount += order.finalAmount || 0;
             totalDiscount += order.discount || 0;
         });
+        console.log("disc",totalDiscount)
 
         // Sending a single label and single data point for chart
         res.json({

@@ -995,13 +995,27 @@ const orderHistory = await Order.find({ user: userId })
             .limit(limit)
       const totalOrders = await Order.countDocuments({ user: userId });
       const totalPages = Math.ceil(totalOrders / limit);
+     const itemCouponShare= orderHistory.forEach(order=>{
+      const length = order.orderedItems.length;
+      const couponSharePerItem = order.discount / length;
+      order.orderedItems.forEach(item => {
+        item.itemCouponShare = couponSharePerItem; 
+        item.itemPrice = item.price * item.quantity + 30- couponSharePerItem;
+        
+      });
+
+      })
+      
+      
+      
 
 
          res.render('orderHistory.ejs', { 
             user: userData, 
             orderHistory: orderHistory,
             currentPage: page,
-           totalPages: totalPages
+           totalPages: totalPages,
+           
            
            
         });        
@@ -1102,6 +1116,13 @@ const walletPayment=async(req,res)=>{
 
     
     user.wallet -= amount;
+    for (let i = 0; i < user.cart.length; i++) {
+      const cartItem = user.cart[i];
+      const quantity=cartItem.quantity
+      const product = await Product.findById(cartItem.product._id);
+      product.quantity -= quantity; 
+      await product.save();
+    }
     const transaction = new Transaction({
       userId,
       amount: amount,
@@ -1133,6 +1154,12 @@ const walletPayment=async(req,res)=>{
   }
 
 }
+const createOrder=async(req,res)=>{
+  const{amount,currency="INR"}=req.body
+  console.log("amount",amount)
+  console.log("currency",currency)
+
+}
 
 module.exports={
     addToCart,
@@ -1158,6 +1185,8 @@ module.exports={
     getOrders,
     downloadInvoice,
     walletPayment,
+    createOrder,
+   
     
     
 }

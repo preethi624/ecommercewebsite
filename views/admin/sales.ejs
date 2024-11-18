@@ -227,9 +227,9 @@
     <div class="form-group">
         <label for="reportType">Select Report Type:</label>
         <select name="reportType" id="reportType">
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="yearly">Yearly</option>
+            <option value="weekly" <%= reportType === 'weekly' ? 'selected' : '' %>>Weekly</option>
+            <option value="monthly" <%= reportType === 'monthly' ? 'selected' : '' %>>Monthly</option>
+            <option value="yearly"<%= reportType === 'yearly' ? 'selected' : '' %> >Yearly</option>
         </select>
     </div>
     <button type="submit">Generate Sales Report</button>

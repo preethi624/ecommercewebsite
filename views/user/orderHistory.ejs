@@ -62,10 +62,12 @@
           <% order.orderedItems.forEach(item => { %>
             <div class="row mb-3">
               <div class="col-md-3">
+               
+                
                 <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
                      alt="<%= item.product.productName %>" width="100%" height="auto">
               </div>
-              <div class="col-md-9">
+              <div class="col-md-6">
                 <p><strong>Order ID:</strong> <%= order.orderId %></p>
                 <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
                 <strong>Product:</strong> <%= item.product.productName %><br>
@@ -116,6 +118,14 @@
                 <% } %>
   
                 <a href="/order/orderDetails/<%= order._id %>/<%= item._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
+              </div>
+              <div class="col-md-3">
+                <form action="/order/orderDetails/<%= order._id %>/<%= item._id %>">
+                  <%if((item.paymentStatus==='pending')&&(item.status!=='Cancelled'&&item.status!=='Return Request')){%>
+                    <button id="rzp-button1" class="btn btn-outline-success">Complete Your Order Here</button>
+                  <%}%>
+
+                </form>
               </div>
             </div>
             <hr>

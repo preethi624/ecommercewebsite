@@ -628,8 +628,10 @@ const deleteCoupon=async(req,res)=>{
 }
 const salesReport = async (req, res) => {
     try {
-        const { startDate, endDate,format ,reportType} = req.query;
-       
+        let { startDate, endDate,format ,reportType} = req.query;
+        if (!reportType) {
+            reportType = 'weekly';
+        }
 
         console.log("reporttype",reportType)
         let adjustedStartDate = startDate ? new Date(startDate) : null;
@@ -674,7 +676,7 @@ const salesReport = async (req, res) => {
 
         const orders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
-            status: "Delivered"
+            'orderedItems.status': "Delivered"
         }).populate({
             path: 'orderedItems.product',
             populate: {
@@ -685,7 +687,7 @@ const salesReport = async (req, res) => {
         .limit(limit);
         const totalOrders = await Order.countDocuments({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
-            status: "Delivered"
+            'orderedItems.status': "Delivered"
         });
         const totalPages = Math.ceil(totalOrders / limit);
 
@@ -698,7 +700,7 @@ const salesReport = async (req, res) => {
         let totalOffersApplied = 0;
         const allOrders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
-            status: "Delivered"
+            'orderedItems.status': "Delivered"
         }).populate({
             path: 'orderedItems.product',
             populate: {
