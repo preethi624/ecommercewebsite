@@ -196,17 +196,14 @@ const verifyOtp = async (req, res) => {
                     { $inc: { referralCredits: 10 } } // Example field to track rewards
                 );
             }
-            req.session.regenerate((err) => {
-                if (err) {
-                    console.error("Error regenerating session", err);
-                    return res.status(500).json({ success: false, message: "Session error" });
-                }
-            req.session.user=saveUserData._id;
+            
+            req.session.userOtp=null;
+            req.session.userData=null;
            
-                res.json({ success: true, redirectUrl: "/" });
+               return res.json({ success: true, redirectUrl: "/" });
             
           
-            })
+            
         }else{
             res.status(400).json({success:false,message:"Invalid OTP,please try again"})
         }

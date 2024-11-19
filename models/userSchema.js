@@ -24,7 +24,8 @@ const userSchema = new Schema({
     email: {
         type: String,
         unique: true,
-        sparse: true,  // Makes the index sparse (allows null but unique when provided)
+        sparse: true, 
+        // Makes the index sparse (allows null but unique when provided)
     },
     
     // Phone field: unique but optional if email is provided

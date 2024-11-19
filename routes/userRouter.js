@@ -18,27 +18,45 @@ router.get("/pageNotFound",userController.pageNotFound)
 
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
-router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),async(req,res)=>{
-    try{
-    let user=await User.findOne({googleId:req.user.id})
-    if (!user) {
-        // If user not found, create a new user document with Google ID
-        user = new User({
+router.get(
+    '/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/signup' }),
+    async (req, res) => {
+      try {
+        // Check if user with the same email exists
+        let user = await User.findOne({ email: req.user.emails[0].value });
+  
+        if (!user) {
+          // If user not found, create a new user document
+          user = new User({
             username: req.user.displayName,
             email: req.user.emails[0].value,
-            googleId: req.user.id
-        });
-        await user.save();
+            googleId: req.user.id,
+          });
+          await user.save();
+        } else if (!user.googleId) {
+          // If user exists but Google ID is not set, update it
+          user.googleId = req.user.id;
+          await user.save();
+        }
+  
+        // Save user information in the session
+        req.session.user = {id:user._id,email:user.email};
+        console.log('Google authentication successful, user:', user);
+        req.session.save(err => {
+            if (err) {
+              console.error("Error saving session:", err);
+              return res.redirect('/signup'); // Handle session save error
+            }
+            res.redirect('/');
+          });
+      } catch (error) {
+        console.error('Error during Google sign-in:', error);
+        res.redirect('/signup');
+      }
     }
-    req.session.user = req.user
-    console.log("Google authentication successful,user:",req.user)
-    res.redirect('/')
-}catch(error){
-
-console.error("Error during Google sign-in:", error);
-            res.redirect('/signup');
-}
-})
+  );
+  
 router.get("/login",userController.loadLogin)
 router.post("/login",userController.login)
 router.get("/logout",userController.logout)
