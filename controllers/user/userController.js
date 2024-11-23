@@ -15,6 +15,7 @@ const pageNotFound = async (req, res) => {
 };
 const loadHomepage = async (req, res) => {
     try {
+        console.log("loadhome")
         const user = req.session.user;  
         const categories = await Category.find({ isListed: true });
 
@@ -26,6 +27,7 @@ const loadHomepage = async (req, res) => {
             isDeleted: false,
             category: { $in: categories.map(category => category._id) }
         });
+        console.log("cout",totalProducts)
         
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -38,6 +40,7 @@ const loadHomepage = async (req, res) => {
         .limit(limit)
         .skip((page - 1) * limit)
         .populate('category');
+        console.log(productData)
 
         
         let wishlistIds = [];

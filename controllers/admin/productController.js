@@ -633,7 +633,7 @@ const salesReport = async (req, res) => {
             reportType = 'weekly';
         }
 
-        console.log("reporttype",reportType)
+        
         let adjustedStartDate = startDate ? new Date(startDate) : null;
         let adjustedEndDate = endDate ? new Date(endDate) : new Date();
 
@@ -649,7 +649,7 @@ const salesReport = async (req, res) => {
                     adjustedStartDate = new Date(now);
                     adjustedStartDate.setDate(now.getDate() - 7);
 
-                    console.log("djust",adjustedStartDate)
+                   
                     adjustedEndDate = now; 
                     break;
                 case 'monthly':
@@ -666,13 +666,9 @@ const salesReport = async (req, res) => {
                     break;
             }
         }
-        console.log('Adjusted Start Date:', adjustedStartDate);
-        console.log('Adjusted End Date:', adjustedEndDate);
+        
 
-        // Ensure dates are defined
-        /*if (!adjustedStartDate || !adjustedEndDate) {
-            return res.status(400).json({ message: 'Start and end dates are required' });
-        }*/
+        
 
         const orders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
@@ -800,6 +796,7 @@ const salesReport = async (req, res) => {
             });
         
             doc.end();
+            
         }
         
         

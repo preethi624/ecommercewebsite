@@ -13,6 +13,8 @@ const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
 require('dotenv').config();
+console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
+console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
 var razorpayInstance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
 const addToCart=async(req,res)=>{
   
