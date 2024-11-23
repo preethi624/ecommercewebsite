@@ -7,6 +7,7 @@ const productController=require("../controllers/user/productController.js")
 const {userAuth,adminAuth}=require("../middleware/auth")
 const { ensureAuthenticated } = require('../middleware/auth');
 const passport=require("passport");
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User=require("../models/userSchema.js")
 
 router.get('/', userController.loadHomepage);
@@ -15,6 +16,28 @@ router.post('/signup', userController.signup);
 router.post('/verify-otp', userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
 router.get("/pageNotFound",userController.pageNotFound)
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL, // Use environment variable
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Handle user data from Google
+        console.log('Google Profile:', profile);
+        return done(null, profile);
+      } catch (err) {
+        console.error('Error in Google Strategy:', err);
+        return done(err, null);
+      }
+    }
+  )
+);
+
+
 
 
 router.get('/auth/google',passport.authenticate('google',{scope:['profile','email']}))
@@ -35,7 +58,7 @@ router.get(
           });
           await user.save();
         } else if (!user.googleId) {
-          // If user exists but Google ID is not set, update it
+          
           user.googleId = req.user.id;
           await user.save();
         }
