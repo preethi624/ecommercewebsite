@@ -126,6 +126,8 @@ router.get('/download-invoice/:orderId/:itemId',productController.downloadInvoic
 router.post('/order/paymentWallet/:id',productController.walletPayment)
 router.post("/update-quantity/:itemId",userController.updateQuantity)
 router.post("/create-order",productController.createOrder)
+router.get("/about",userController.getAbout)
+router.get("/contact",userController.getContact)
 
 
 

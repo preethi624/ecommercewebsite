@@ -45,8 +45,8 @@
             <ul class="navbar-nav me-auto" >
                 <li class="nav-item"><a href="/" class="nav-link text-white">Home</a></li>
                 <li class="nav-item"><a href="/products" class="nav-link text-white">Shop</a></li>
-                <li class="nav-item"><a href="/" class="nav-link text-white">About Us</a></li>
-                <li class="nav-item"><a href="/" class="nav-link text-white">Contact</a></li>
+                <li class="nav-item"><a href="/about" class="nav-link text-white">About Us</a></li>
+                <li class="nav-item"><a href="/contact" class="nav-link text-white">Contact</a></li>
             </ul>
             <ul class="navbar-nav ms-auto" style="margin-left: 700px;">
                 <% if (locals.user) { %>
@@ -57,7 +57,11 @@
                     <li class="nav-item"><a href="/cart" class="nav-link text-white"><i class="fas fa-shopping-cart"></i> Cart</a></li>
                     <li class="nav-item dropdown">
                         <a href="#" class="nav-link dropdown-toggle text-white" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <%= locals.user.username %>
+                            <% if (locals.user.googleEmail) { %>
+                                <%= locals.user.googleEmail %>
+                            <% } else { %>
+                                <%= locals.user.username %>
+                            <% } %> 
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a href="/userProfile" class="dropdown-item">My Profile</a></li>

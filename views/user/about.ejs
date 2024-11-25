@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Organic Store</title>
+    <link rel="stylesheet" href="/css/styles.css"> <!-- Link to your external stylesheet -->
+    <style>
+        /* Basic styles for About Us page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        header {
+            background: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .about-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .about-container h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        .about-container p {
+            margin: 20px 0;
+        }
+        .about-container img {
+            display: block;
+            max-width: 100%;
+            margin: 20px auto;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <%- include("../../views/partials/user/header") %>
+        
+    </header>
+
+    <div class="about-container">
+        <h1>About Us</h1>
+        <p>
+            At <strong>Organic Store</strong>, we believe in the power of nature to provide the purest, healthiest, and most sustainable products. 
+            Founded with a mission to bring the best organic goods to your doorstep, we work directly with local farmers and trusted suppliers 
+            to ensure every item meets our rigorous quality standards.
+        </p>
+        <p>
+            Our store offers a wide range of organic fruits, vegetables, dairy, and pantry staples. 
+            Everything we sell is free from harmful chemicals, synthetic fertilizers, and GMOs, so you can shop with confidence for your family.
+        </p>
+        <img src="/images/organic-store-white-logo.png" alt="Organic Farm" />
+        <h2>Our Mission</h2>
+        <p>
+            We are committed to promoting health, sustainability, and community. By choosing organic, you’re not only caring for your well-being 
+            but also supporting eco-friendly practices and fair-trade principles.
+        </p>
+        <h2>Why Choose Us?</h2>
+        <ul>
+            <li>Fresh, locally sourced organic products</li>
+            <li>Eco-friendly packaging</li>
+            <li>Dedicated to quality and sustainability</li>
+            <li>Exceptional customer service</li>
+        </ul>
+        <p>
+            Thank you for choosing <strong>Organic Store</strong>. Together, let’s make healthier choices and nurture the planet for future generations.
+        </p>
+    </div>
+</body>
+</html>
+<%- include("../../views/partials/user/footer") %>

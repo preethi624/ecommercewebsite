@@ -349,6 +349,12 @@ console.log("Item ID:", itemId);
         
     }
 }
+const getAbout=async(req,res)=>{
+    res.render("about.ejs")
+}
+const getContact=async(req,res)=>{
+    res.render("contact.ejs")
+}
    
 
 
@@ -365,5 +371,7 @@ module.exports = {
     productDetails,
     products,
     updateQuantity,
+    getAbout,
+    getContact,
     
 };
