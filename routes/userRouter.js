@@ -107,6 +107,7 @@ router.get("/order/checkout/:productId?",productController.getCheckout)
 router.post("/order/checkout/",productController.postCheckout)
 router.get("/order/confirmation/:newOrderId",productController.confirmation)
 router.get("/order/order-cancel/:Id/:productId",productController.orderCancel)
+
 router.post("/userprofile/cancel-order",productController.cancelOrder)
 router.get("/order/orderDetails/:orderId/:itemId",productController.orderDetails)
 router.post("/order/codConfirmation/:id",productController.codConfirmation)
@@ -128,6 +129,7 @@ router.post("/update-quantity/:itemId",userController.updateQuantity)
 router.post("/create-order",productController.createOrder)
 router.get("/about",userController.getAbout)
 router.get("/contact",userController.getContact)
+
 
 
 

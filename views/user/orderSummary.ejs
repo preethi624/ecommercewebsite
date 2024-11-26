@@ -43,16 +43,15 @@
       <!-- Billing Details -->
       <h4>Billing Details</h4>
       <div class="card p-3">
-        <p>Subtotal: Rs <%= (product.salePrice * quantity).toFixed(2) %></p>
-        <p>Shipping Fee: <%=shippingFee%></p>
-        <p>Taxes: <%=taxes%></p>
+        <p>Subtotal: Rs <%= (product.regularPrice * quantity).toFixed(2) %></p>
+        <p>Discount(%):<%=discount%></p>
         <hr>
-        <p><strong>Total: Rs <%= ((product.salePrice *quantity) + shippingFee + taxes).toFixed(2) %></strong></p>
+        <p><strong>Total: Rs <%= ((product.salePrice *quantity) ).toFixed(2) %></strong></p>
       </div>
 
       <!-- Proceed to Checkout -->
       <div class="mt-4">
-        <a href="/order/checkout" class="btn btn-primary btn-lg">Proceed to Checkout</a>
+        <a href="/item/checkout?productId=<%=product._id%>&quantity=<%=quantity%>" class="btn btn-primary btn-lg">Proceed to Checkout</a>
       </div>
     </div>
   </div>

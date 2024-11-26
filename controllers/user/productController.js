@@ -186,26 +186,29 @@ const getOrderSummary=async(req,res)=>{
   try {
       const userId = req.session.user.id;
   const productId = req.params.productId;
+  const quantity = req.query.quantity || 1;
+  console.log("qua",quantity)
   
   const user = await User.findById(userId).populate('addresses');
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate('category');
   
   if (!product) {
     return res.status(404).send('Product not found.');
   }
   
-  const quantity = 1; // Default quantity. You can modify to allow selection.
+  const discount=product.category.categoryOffer?product.category.categoryOffer:product.productOffer
+ 
   const cartTotal = product.salePrice * quantity;
-  const shippingFee=3
-  const taxes=80
+  
   
   res.render('orderSummary', {
     user,
     product,
-    quantity,
+  
     cartTotal,
-    shippingFee,
-    taxes
+    
+    quantity,
+    discount
   })
       
   } catch (error) {
@@ -216,6 +219,7 @@ const getOrderSummary=async(req,res)=>{
 }
 const getCheckout = async (req, res) => {
   try {
+    
     const userId = req.session.user.id;
     let { productId, quantity } = req.query;
     
@@ -252,7 +256,8 @@ const getCheckout = async (req, res) => {
           total: totalPrice,
           address: defaultAddress
         },
-        user
+        user,
+        
       });
     }
     
@@ -275,14 +280,16 @@ const getCheckout = async (req, res) => {
 
     const totalPrice = cartItems.reduce((total, item) => total + item.total, 0);
     const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString());
-    
+   
     res.render('checkout', {
       order: {
         items: cartItems,
         total: totalPrice,
-        address: defaultAddress
+        address: defaultAddress,
+      
       },
-      user
+      user,
+      
     });
 
   } catch (error) {
@@ -291,7 +298,9 @@ const getCheckout = async (req, res) => {
   }
 };
 
+
 const postCheckout = async (req, res) => {
+  
   const generateOrderId=async()=>{
     let orderId;
     let isUnique=false;
@@ -331,6 +340,7 @@ const postCheckout = async (req, res) => {
     if (!defaultAddress) {
       return res.redirect('/userProfile'); // Prompt to add an address if not set
     }
+    
 
     // Map quantity array to the cart items
     const orderItems = user.cart.map((item, index) => ({
@@ -342,7 +352,7 @@ const postCheckout = async (req, res) => {
       paymentStatus:'pending'
 
     }));
-    console.log("items",orderItems)
+   
 
     // Validate if there's enough stock for each product
     for (let i = 0; i < user.cart.length; i++) {
@@ -373,8 +383,8 @@ const postCheckout = async (req, res) => {
        console.log("referel",referralDiscount)
        console.log("discb",discount)
       discount += Number(referralDiscount);
-      console.log("disca",discount)
-      // Deduct the used referral credits
+     
+      
     }
       
      
@@ -421,6 +431,8 @@ const postCheckout = async (req, res) => {
 
 const confirmation=async(req,res)=>{
   try {
+    
+    
     const user=req.session.user
     userId=user.id
     
@@ -467,7 +479,9 @@ const confirmation=async(req,res)=>{
        currency: razorpayOrder.currency,
        orderId: orderId,
        order:order,
-       user:userData
+       user:userData,
+       
+
 
      });
 
@@ -666,6 +680,7 @@ const orderDetails = async (req, res) => {
 
 const codConfirmation=async(req,res)=>{
   try {
+   
     const orderId=req.params.id
     const userId=req.session.user.id
     let user=await User.findById(userId)
@@ -677,7 +692,11 @@ const codConfirmation=async(req,res)=>{
       product.quantity -= quantity; 
       await product.save();
     }
-    user.cart = [];
+   
+      user.cart = [];
+
+    
+    
     user.hasPurchased=true;
     user.referralCredits=0;
     await user.save();
@@ -705,7 +724,7 @@ const codConfirmation=async(req,res)=>{
 const orderConfirmation = async (req, res) => {
   try {
     const userId = req.session.user.id;
-    const { payment_id, order_id, system_order_id, item_id } = req.query; 
+    const { payment_id, order_id, system_order_id, item_id } = req.query;
 
     let user = await User.findById(userId);
 
@@ -714,53 +733,46 @@ const orderConfirmation = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    
     if (item_id) {
-      
+      // Handle single item purchase
       const item = order.orderedItems.find(item => item._id.toString() === item_id);
       if (!item) {
         return res.status(404).send("Item not found in this order");
       }
 
-      
       const product = await Product.findById(item.product);
-      product.quantity -= item.quantity; 
+      product.quantity -= item.quantity;
       await product.save();
 
-      
-      item.paymentStatus = 'paid';
-      item.deliveryStatus = 'confirmed';
-      
-      
-      user.cart = user.cart.filter(cartItem => cartItem.product._id.toString() !== item_id);
+      item.paymentStatus = "paid";
+      item.deliveryStatus = "confirmed";
+
+      // Remove only the purchased item from the cart
+      user.cart = user.cart.filter(cartItem => cartItem.product.toString() !== item.product.toString());
     } else {
-      
+      // Handle multiple item purchase
       for (let orderedItem of order.orderedItems) {
         const product = await Product.findById(orderedItem.product);
-        product.quantity -= orderedItem.quantity; 
+        product.quantity -= orderedItem.quantity;
         await product.save();
 
-        
-        orderedItem.paymentStatus = 'paid';
-        orderedItem.deliveryStatus = 'confirmed';
-      }
+        orderedItem.paymentStatus = "paid";
+        orderedItem.deliveryStatus = "confirmed";
 
-     
-      user.cart = [];
+        // Remove each purchased item from the cart
+        user.cart = user.cart.filter(cartItem => cartItem.product.toString() !== orderedItem.product.toString());
+      }
     }
 
-   
     user.hasPurchased = true;
     user.referralCredits = 0;
     await user.save();
 
-   
     order.updatedDate = new Date();
-    order.paymentMethod='Online payment'
+    order.paymentMethod = "Online payment";
     await order.save();
 
     res.redirect("/orders");
-
   } catch (error) {
     console.error("Error in order confirmation:", error);
     res.status(500).send("Internal Server Error");
@@ -1163,6 +1175,7 @@ const createOrder=async(req,res)=>{
 
 }
 
+
 module.exports={
     addToCart,
     getCart,
@@ -1188,6 +1201,7 @@ module.exports={
     downloadInvoice,
     walletPayment,
     createOrder,
+    
    
     
     
