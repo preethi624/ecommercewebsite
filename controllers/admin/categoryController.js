@@ -195,16 +195,7 @@ const softDeleteCategory=async (req,res)=>{
     }
 
 }
-/*const getSoftDeletedCategories=async(req,res)=>{
-    try {
-        const categories = await Category.find({ isDeleted: true });
-    res.render("softDeletedCategories", { categories });
 
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching categories", error });
-        
-    }
-}*/
 const viewSoftDeleted=async(req,res)=>{
     try {
         // Fetch soft-deleted categories (assuming you mark deleted categories with a flag)
@@ -221,8 +212,7 @@ const viewSoftDeleted=async(req,res)=>{
 }
 const restore=async (req,res)=>{
     try {
-        console.log("Request body:", req.body);
-        console.log(req.body)
+        
         const { id } = req.body;
     await Category.findByIdAndUpdate(id, { isDeleted: false });
     res.json({ status: true, message: 'Category restored successfully' })

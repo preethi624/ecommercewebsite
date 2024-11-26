@@ -93,7 +93,7 @@ const getAllProducts=async(req,res)=>{
             }
         });
         productData.forEach(product => {
-            console.log(product.productImage);
+           
         });
         const count=await Product.find({
             $and:[{isDeleted:false},
@@ -102,7 +102,7 @@ const getAllProducts=async(req,res)=>{
             ] 
 
         }).countDocuments();
-        console.log("Products found:", productData);
+      
 
         const category=await Category.find({isListed:true});
         
@@ -148,7 +148,7 @@ const addProductOffer = async (req, res) => {
         // Check if there is an existing category offer
         if (findCategory.categoryOffer > 0) {
             
-                 console.log("Product saved with salePrice:", findProduct.salePrice); //      
+                     
             
             return res.json({ status: false, message: "Cannot add product offer because the category has an existing offer" });
         }
@@ -193,7 +193,7 @@ const removeProductOffer = async (req, res) => {
         }
 
       
-        console.log("Product found:", findProduct);
+     
 
         
         findProduct.salePrice = findProduct.regularPrice;
@@ -203,7 +203,7 @@ const removeProductOffer = async (req, res) => {
         await findProduct.save();
 
        
-        console.log("Product offer removed successfully:", findProduct);
+     
 
         
         return res.json({ status: true, message: "Product offer removed successfully" });
@@ -219,7 +219,7 @@ const getEditProduct=async(req,res)=>{
         const id=req.query.id;
         const product=await Product.findOne({_id:id});
         const category=await Category.find({});
-        console.log(product)
+      
         res.render("edit-product",{
             product:product,
            
@@ -340,17 +340,15 @@ const editProduct = async (req, res) => {
 
 
 const deleteSingleImage=async(req,res)=>{
-    console.log("deleteSingleImage route hit");
-    console.log(req.body)
+    
     try {
         const {imageNameToServer,productIdToServer,newImage}=req.body;
-        console.log('Image Name:', imageNameToServer);  // Log destructured values
-        console.log('Product ID:', productIdToServer);
+        
         const product=await Product.findByIdAndUpdate(productIdToServer,{$pull:{productImage:imageNameToServer}})
         const imagePath=path.join("public","uploads","re-image",imageNameToServer)
         if(fs.existsSync(imagePath)){
             await fs.unlinkSync(imagePath);
-            console.log(`Image ${imageNameToServer}deleted successfully`)
+           
         }else{
             console.log(`Imagem${imageNameToServer} not found`)
         }
@@ -393,8 +391,7 @@ const viewSoftDeletedProduct=async(req,res)=>{
 }
 const restore=async(req,res)=>{
     try {
-        console.log("Request body:", req.body);
-        console.log(req.body)
+        
         const { id } = req.body;
     await Product.findByIdAndUpdate(id, { isDeleted: false });
     res.json({ status: true, message: 'Product restored successfully' })
@@ -435,12 +432,11 @@ const updateImage=async(req,res)=>{
 
 const saveCropped=async(req,res)=>{
     try {
-      console.log("save cropped called")
-        console.log("request body",req.body)
+      
         
         const croppedImageData = req.body.croppedImage;
     const oldImagePath = req.body.oldImagePath;
-    console.log("old image path",oldImagePath)
+   
     const base64Data = croppedImageData.replace(/^data:image\/png;base64,/, "");
     
     // Use the old image path to replace the old image
@@ -471,7 +467,7 @@ const getOrders=async(req,res)=>{
 const editOrder=async(req,res)=>{
     try {
         const{Id,itemId}=req.params;
-        console.log("id only",Id)
+        
         const{status}=req.body
         const order = await Order.findById(Id);
         const item = order.orderedItems.find((item) => item._id.toString() === itemId);
@@ -480,7 +476,7 @@ const editOrder=async(req,res)=>{
         }
 
         // Conditional logic for status updates
-        if (status === "Delivered" && (item.paymentStatus !== "paid" || item.deliveryStatus !== "confirmed"||item.status==='Return Request'||item.status==='Cancelled')) {
+        if (status === "Delivered" && ( item.deliveryStatus !== "confirmed"||item.status==='Return Request'||item.status==='Cancelled')) {
             return res.status(400).send("Cannot mark as Delivered without payment and confirmation.");
         }
         

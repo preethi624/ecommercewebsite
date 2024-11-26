@@ -180,7 +180,7 @@ const getSalesReportData = async (req, res) => {
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
             'orderedItems.status': 'Delivered'
         });
-        console.log(orders)
+       
 
         // Aggregated variables for total sales
         let totalAmount = 0;
@@ -191,7 +191,7 @@ const getSalesReportData = async (req, res) => {
             totalAmount += order.finalAmount || 0;
             totalDiscount += order.discount || 0;
         });
-        console.log("disc",totalDiscount)
+        
 
         // Sending a single label and single data point for chart
         res.json({

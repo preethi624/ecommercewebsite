@@ -15,7 +15,7 @@ const pageNotFound = async (req, res) => {
 };
 const loadHomepage = async (req, res) => {
     try {
-        console.log("loadhome")
+        
         const user = req.session.user;  
         const categories = await Category.find({ isListed: true });
 
@@ -27,7 +27,7 @@ const loadHomepage = async (req, res) => {
             isDeleted: false,
             category: { $in: categories.map(category => category._id) }
         });
-        console.log("cout",totalProducts)
+        
         
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -40,7 +40,7 @@ const loadHomepage = async (req, res) => {
         .limit(limit)
         .skip((page - 1) * limit)
         .populate('category');
-        console.log(productData)
+       
 
         
         let wishlistIds = [];
@@ -179,8 +179,7 @@ const securePassword = async (password) => {
 const verifyOtp = async (req, res) => {
     try {
         const {otp}=req.body;
-        console.log("Enterd otp",otp)
-        console.log("session otp:",req.session.userOtp)
+        
         if(otp===req.session.userOtp){
             const user=req.session.userData
             const passwordHash=await securePassword(user.password)
@@ -228,7 +227,7 @@ const resendOtp=async (req,res)=>{
         req.session.userOtp=otp;
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
-            console.log("Resend OTP:",otp);
+          
             res.status(200).json({success:true,message:"OTP resend successfully"})
 
         }else{
@@ -339,7 +338,7 @@ const updateQuantity=async(req,res)=>{
     try {
         const userId=req.session.user.id
         const itemId=req.params.itemId;
-        console.log("User ID:", userId);
+       
 console.log("Item ID:", itemId);
         const newQuantity=req.body.quantity
         await User.updateOne({_id:userId,"cart._id":itemId},{$set:{"cart.$.quantity": newQuantity}})

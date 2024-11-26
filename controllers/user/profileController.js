@@ -38,7 +38,7 @@ const sendVerificationEmail=async(email,otp)=>{
             html:`<b><h4>Your OTP:${otp}</h4><br></b>`
         }
         const info=await transporter.sendMail(mailOptions);
-        console.log("email sent:",info.messageId)
+        
         return true;
 
 
@@ -127,7 +127,7 @@ const resendOtp=async(req,res)=>{
         const otp=generateOtp();
         req.session.userOtp=otp;
         const email=req.session.email
-        console.log("Resending otp to email:",email)
+        
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
             console.log("ResendOTP:",otp)
@@ -174,13 +174,11 @@ const getUserProfile=async(req,res)=>{
        
        
         const user=req.session.user
-       /* if(user.isDemo){
-            return res.render('user-profile.ejs', { user });
-        }*/
+      
       
         const userId=user.id;
         
-        console.log(userId)
+       
 
         
 
@@ -210,9 +208,9 @@ const getUserProfile=async(req,res)=>{
                 path: 'orderedItems.product',
                 model: 'Product'
             })
-            console.log("order history",orderHistory)
+            
 
-        // Fetch total order count for pagination controls
+        
         const totalOrders = await Order.countDocuments({ user: userId });
         
         res.render('user-profile.ejs', { 
@@ -231,8 +229,7 @@ const getUserProfile=async(req,res)=>{
 const addAddress=async(req,res)=>{
     const user=req.session.user
     const userId=req.session.user.id
-    console.log(req.session.user)
-   
+    
     const addresses=[];
     for (let i = 0; i < req.body.fullName.length; i++) {
         const address = {
@@ -263,14 +260,14 @@ const editAddress = async (req, res) => {
         return res.status(401).send('User not logged in');
     }
    
-        console.log("session",req.session.user)
+       
         const userId = req.session.user.id
-        console.log("user id",userId)
+       
         const { addressId } = req.params
-        console.log("address id",addressId)
+        
         const { fullName, address, city, postalCode, country } = req.body;
         const userData = await User.findById(userId);
-        console.log("user data",userData)
+        
         const addressIndex = userData.addresses.findIndex(a => a._id.toString() ===addressId);
         if (!userData.addresses) {
             return res.status(404).send('Addresses not found'); // Handle case when addresses is undefined
@@ -314,12 +311,12 @@ const deleteAddress=async(req,res)=>{
 }
 const defaultAddress=async(req,res)=>{
     try {
-        console.log("default triggerd")
+       
         const user=req.session.user
         const userId = user.id;
         const addressId = req.params.addressId;
         await User.findByIdAndUpdate(userId, { defaultAddress: addressId });
-        console.log(user)
+       
         res.redirect('/userProfile');
         
     } catch (error) {
@@ -335,7 +332,7 @@ const addresses=async(req,res)=>{
             return res.status(401).send("Unauthorized");
         }
         const userRecord = await User.findById(user.id);
-        console.log("user address",userRecord.address)
+        
         res.render('addresses.ejs', { addresses: userRecord.addresses, user: userRecord });
         
     } catch (error) {

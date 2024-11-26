@@ -13,22 +13,21 @@ const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
 require('dotenv').config();
-console.log('RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID);
-console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET);
+
 var razorpayInstance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
 const addToCart=async(req,res)=>{
   
     try {
-        console.log("session",req.session)
+      
         const user=req.session.user
        
         const{quantity}=req.body;
-        console.log("quantity",quantity)
+       
         const productId=req.params.productId
-        console.log("product id",productId)
+       
         const product=await Product.findById(productId)
         
-        console.log("product quantity",product.quantity)
+       
         if(product.quantity>=quantity){
             const user = await User.findById(req.session.user.id);
            
@@ -66,7 +65,7 @@ const addToCart=async(req,res)=>{
     }
 }
 const getCart = async (req, res) => {
-  console.log("get cart triggered");
+ 
   try {
     const userId = req.session.user.id;
     const user = await User.findById(userId)
@@ -132,7 +131,7 @@ const getCart = async (req, res) => {
 
 const removeCart=async(req,res)=>{
     try {
-        console.log("session-user",req.session.user)
+        
         const productId=req.params.productId;
         const user=req.session.user
 
@@ -187,7 +186,7 @@ const getOrderSummary=async(req,res)=>{
       const userId = req.session.user.id;
   const productId = req.params.productId;
   const quantity = req.query.quantity || 1;
-  console.log("qua",quantity)
+  
   
   const user = await User.findById(userId).populate('addresses');
   const product = await Product.findById(productId).populate('category');
@@ -316,7 +315,7 @@ const postCheckout = async (req, res) => {
   try {
     const userId = req.session.user.id;
     let { paymenentMethod, productId, quantity, grandtotal ,discountAmount} = req.body;
-    console.log("disc1",discountAmount)
+   
 
     // Ensure quantity is always an array
     if (!Array.isArray(quantity)) {
@@ -373,15 +372,13 @@ const postCheckout = async (req, res) => {
     const referralCredits = user.referralCredits || 0;
 
 
-     console.log("grandtotal",grandtotal)
-     console.log("dicountamount",discountAmount)
+     
      let discount=Number(discountAmount);
      let referralDiscount=0;
      if (referralCredits > 0) {
 
        referralDiscount = Math.min(referralCredits, totalPrice - discount); 
-       console.log("referel",referralDiscount)
-       console.log("discb",discount)
+       
       discount += Number(referralDiscount);
      
       
@@ -389,7 +386,7 @@ const postCheckout = async (req, res) => {
       
      
     const finalAmount = totalPrice-discount;
-    console.log("finalamount",finalAmount)
+    
     const orderId = await generateOrderId();
 
     // Create new order
@@ -437,7 +434,7 @@ const confirmation=async(req,res)=>{
     userId=user.id
     
     const orderId = req.params.newOrderId;
-    console.log("newOrdercheck",orderId)
+    
     const userData = await User.findById(userId).populate('addresses'); 
 
     
@@ -457,7 +454,7 @@ const confirmation=async(req,res)=>{
     const defaultAddress = userData?.addresses
     ? userData.addresses.find(addr => addr._id.toString() === userData.defaultAddress?.toString())
     : null;
-    console.log(userData)
+    
     if(req.body['paymentMethod']=='cod'){
       
       await order.save();
@@ -469,10 +466,10 @@ const confirmation=async(req,res)=>{
       receipt:orderId,
       payment_capture:1
      }
-     console.log("options",options)
+    
      try{
       const razorpayOrder=await razorpayInstance.orders.create(options);
-      console.log("details",razorpayOrder.amount, razorpayOrder.currency, razorpayOrder.id);
+     
       return res.render('confirmation.ejs',{
        razorpayOrderId: razorpayOrder.id,
        amount: razorpayOrder.amount,
@@ -508,19 +505,19 @@ const confirmation=async(req,res)=>{
 const orderCancel=async(req,res)=>{
   try {
     const {Id,productId}=req.params;
-    console.log("proid",productId)
+   
     const order = await Order.findById(Id)
       .populate({
         path: 'orderedItems.product',
         select:'_id productImage'
         
       })
-      console.log("order",order)
+     
 
       const item = order.orderedItems.find(
       (orderedItem) => orderedItem.product._id.toString() === productId.toString()
     );
-    console.log("item",item)
+    
     if (!item) {
       return res.status(404).send('Item not found in order');
     }
@@ -533,14 +530,14 @@ const orderCancel=async(req,res)=>{
 }
 const cancelOrder=async(req,res)=>{
   const {orderId,productId}=req.body
-  console.log("proId",productId)
+  
   try {
     const userId=req.session.user.id
     const order=await Order.findById(orderId).populate({path:'orderedItems.product',select:'_id'})
     if(!order){
       return res.status(404).send('Order not found');
     }
-    console.log('Order after population:', JSON.stringify(order, null, 2));
+   
    
     const item = order.orderedItems.find(
       (orderedItem) => orderedItem.product._id.toString() ===productId.toString( ) 
@@ -552,7 +549,7 @@ const cancelOrder=async(req,res)=>{
     if (['Shipped', 'Delivered', 'Cancelled'].includes(item.status)) {
       return res.status(400).send('Order cannot be cancelled');
     }
-    console.log("order",order)
+    
     const length=order.orderedItems.length
     const couponShared=order.discount/Number(length)
     let refundAmount=(item.price*item.quantity)+couponShared
@@ -564,7 +561,7 @@ const cancelOrder=async(req,res)=>{
     if (!hasActiveItems) {
       refundAmount += 30; 
     }
-    console.log("refund",refundAmount)
+    
     if(item.paymentStatus==='paid'){
       await User.findByIdAndUpdate(
         userId,
@@ -652,7 +649,7 @@ const orderDetails = async (req, res) => {
 
     try {
       const razorpayOrder = await razorpayInstance.orders.create(options);
-      console.log("Razorpay order details:", razorpayOrder);
+    
 
       return res.render('orderDetails.ejs', {
         razorpayOrderId: razorpayOrder.id,
@@ -801,7 +798,7 @@ const applyCoupon=async(req,res)=>{
     return res.status(400).json({ success: false, message: 'Coupon has expired.' });
 }
 let discountAmount=coupon.discountValue
-console.log("disce",discountAmount)
+
 if(coupon.discountType==='percentage'){
   discountAmount = (discountAmount / 100) * totalAmount;
 }
@@ -822,7 +819,7 @@ const getCoupon=async(req,res)=>{
     const today=new Date()
     today.setHours(0, 0, 0, 0);
     coupon=await Coupon.find({ isActive:true, expiryDate: { $gte: today }})
-    console.log('Coupons fetched:', coupon);
+   
     res.render("coupons.ejs",{coupon})
     
   } catch (error) {
@@ -902,8 +899,7 @@ const returnOrder=async(req,res)=>{
 
   try {
     const {id,itemId}=req.params;
-    console.log("test order",id)
-    console.log("itemIds",itemId)
+    
     const order = await Order.findById(id)
       .populate({
         path: 'orderedItems.product',
@@ -930,7 +926,7 @@ const returnOrder=async(req,res)=>{
 const confirmReturn=async(req,res)=>{
   try {
     const {orderId,productId}=req.body;
-    console.log("orderId",orderId)
+   
     const userId=req.session.user.id
     
     const order=await Order.findById(orderId).populate('orderedItems.product');
@@ -955,7 +951,7 @@ const confirmReturn=async(req,res)=>{
       refundAmount += 30; 
      
     }
-    console.log("refund",refundAmount)
+    
     if(item.paymentStatus==='paid'){
       await User.findByIdAndUpdate(
         userId,
@@ -1044,8 +1040,7 @@ const orderHistory = await Order.find({ user: userId })
 }
 const downloadInvoice=async(req,res)=>{
   const {orderId,itemId}=req.params;
-  console.log("orderid1",orderId)
-  console.log("itemId",itemId)
+  
   const user=req.session.user
   const userId=user.id
   const userData = await User.findById(userId).populate({
@@ -1072,7 +1067,7 @@ const downloadInvoice=async(req,res)=>{
   if (!orderAddress) {
     return res.status(404).send('Address not found for the order');
   }
-  console.log("order1",order)
+ 
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename=Invoice-${orderId}-${itemId}.pdf`);
   const doc = new PDFDocument();
@@ -1170,8 +1165,7 @@ const walletPayment=async(req,res)=>{
 }
 const createOrder=async(req,res)=>{
   const{amount,currency="INR"}=req.body
-  console.log("amount",amount)
-  console.log("currency",currency)
+  
 
 }
 
