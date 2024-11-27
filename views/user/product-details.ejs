@@ -110,7 +110,9 @@
                         </div>
                         <button type="submit" class="btn btn-success">Add to Cart</button>
                     </form>
+                    
                 <% } else { %>
+                   
                     <h4 class="text-danger">Sold Out</h4>
                     <p class="text-muted">The item is currently out of stock.</p>
                     <div class="input-group">
@@ -123,6 +125,10 @@
                 <p>Expiry: 10 days</p>
                 <p>30-day return policy</p>
 
+                <a id="order-now-btn" href="/order/summary/<%= product._id %>?quantity=1" class="btn btn-primary">
+                    Shop Now
+                </a>
+                
                 
             </div>
         </div>

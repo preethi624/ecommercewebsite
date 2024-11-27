@@ -185,7 +185,7 @@ const getOrderSummary=async(req,res)=>{
   try {
       const userId = req.session.user.id;
   const productId = req.params.productId;
-  const quantity = req.query.quantity || 1;
+  const quantity = req.query.quantity || 1;//new commet
   
   
   const user = await User.findById(userId).populate('addresses');
@@ -221,6 +221,7 @@ const getCheckout = async (req, res) => {
     
     const userId = req.session.user.id;
     let { productId, quantity } = req.query;
+    const flag=0;
     
     // Fetch user with populated cart and addresses
     const user = await User.findById(userId).populate('addresses').populate('cart.product');
@@ -288,6 +289,7 @@ const getCheckout = async (req, res) => {
       
       },
       user,
+      flag
       
     });
 
@@ -296,8 +298,55 @@ const getCheckout = async (req, res) => {
     res.status(500).send('An error occurred while preparing the checkout.');
   }
 };
+const itemCheckout=async(req,res)=>{
+  try{
+    const userId = req.session.user.id;
+  const productId=req.query.productId;
+  const quantity=req.query.quantity;
+  const flag=1;
+  const user = await User.findById(userId).populate('addresses');
+    
+  // Fetch the product details by productId
+  const product = await Product.findById(productId).populate('category');
+
+  if (!product) {
+    return res.status(404).send('Product not found.');
+  }
+
+  // Calculate the total price for the single product
+  const totalPrice = product.salePrice * quantity;
+
+  // Determine the default address for the user
+  const defaultAddress = user.addresses.find(
+    (addr) => addr._id.toString() === user.defaultAddress.toString()
+  );
+
+  // Render the checkout page with the single product
+  res.render('checkout', {
+    order: {
+      items: [
+        {
+          product,
+          quantity,
+          total: totalPrice,
+        },
+      ],
+      total: totalPrice,
+      address: defaultAddress,
+    },
+    user,
+    flag
+  });
+
+  }catch(error){
+
+   console.error('Error fetching single product checkout page:', error);
+    res.status(500).send('An error occurred while preparing the checkout.');
+  }
+  
 
 
+}
 const postCheckout = async (req, res) => {
   
   const generateOrderId=async()=>{
@@ -1195,6 +1244,7 @@ module.exports={
     downloadInvoice,
     walletPayment,
     createOrder,
+    itemCheckout,
     
    
     

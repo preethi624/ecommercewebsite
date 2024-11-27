@@ -104,7 +104,7 @@ router.get("/user/addresses",profileController.addresses)
 router.get('/products',profileController.getProducts)
 router.get("/order/summary/:productId",productController.getOrderSummary)
 router.get("/order/checkout/:productId?",productController.getCheckout)
-router.post("/order/checkout/",productController.postCheckout)
+router.post("/order/checkout/:flag",productController.postCheckout)
 router.get("/order/confirmation/:newOrderId",productController.confirmation)
 router.get("/order/order-cancel/:Id/:productId",productController.orderCancel)
 
@@ -129,6 +129,7 @@ router.post("/update-quantity/:itemId",userController.updateQuantity)
 router.post("/create-order",productController.createOrder)
 router.get("/about",userController.getAbout)
 router.get("/contact",userController.getContact)
+router.get("/item/checkout",productController.itemCheckout)
 
 
 
