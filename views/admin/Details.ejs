@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Details</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      background: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333333;
+      margin-bottom: 20px;
+    }
+
+    .details, .address {
+      margin-bottom: 30px;
+      padding: 15px;
+      background: #fafafa;
+      border: 1px solid #dddddd;
+      border-radius: 8px;
+    }
+
+    .details p, .address p {
+      margin: 8px 0;
+      color: #555555;
+    }
+
+    .details p strong, .address p strong {
+      color: #222222;
+    }
+
+    .address h3 {
+      margin-bottom: 10px;
+      color: #444444;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table th, table td {
+      border: 1px solid #dddddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    table th {
+      background: #f7f7f7;
+      color: #444444;
+      font-weight: bold;
+    }
+
+    table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    select {
+      padding: 5px;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #ff4c4c;
+    }
+
+    .return-dashboard {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .return-dashboard:hover {
+      background: #217dbb;
+    }
+
+    .action-buttons {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Order Details</h1>
+
+    <div class="details">
+      <p><strong>Order ID:</strong> <%= order.orderId %></p>
+     
+      <p><strong>Order Date:</strong> <%= new Date(order.createdOn).toDateString() %></p>
+      <p><strong>Total Price:</strong> Rs <%= order.totalPrice.toFixed(2) %></p>
+    </div>
+
+    <!-- Display the address details -->
+    <div class="address">
+      <h3>Shipping Address</h3>
+      <% if (userAddress) { %>
+        <p><strong>Full Name:</strong> <%= userAddress.fullName %></p>
+        <p><strong>Address:</strong> <%= userAddress.address %></p>
+        <p><strong>City:</strong> <%= userAddress.city %></p>
+        <p><strong>Postal Code:</strong> <%= userAddress.postalCode %></p>
+        <p><strong>Country:</strong> <%= userAddress.country %></p>
+      <% } else { %>
+        <p>Address details not found.</p>
+      <% } %>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.orderedItems.forEach(item => { %>
+          <tr>
+            <td><%= item.product.productName %></td>
+            <td><%= item.quantity %></td>
+            <td>Rs <%= item.price.toFixed(2) %></td>
+            <td>
+              <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/status" method="POST">
+                <select name="status" onchange="this.form.submit()">
+                  <option value="Pending" <%= item.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="Processing" <%= item.status === 'Processing' ? 'selected' : '' %>>Processing</option>
+                  <option value="Shipped" <%= item.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                  <option value="Delivered" <%= item.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                  <option value="Cancelled" <%= item.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  <option value="Return Request" <%= item.status === 'Return Request' ? 'selected' : '' %>>Return Request</option>
+                  <option value="Returned" <%= item.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                </select>
+              </form>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/cancel" method="POST">
+                  <button type="submit">Cancel Item</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <a href="/admin/" class="return-dashboard">Return to Dashboard</a>
+  </div>
+</body>
+</html>

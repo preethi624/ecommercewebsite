@@ -257,6 +257,7 @@ const getCheckout = async (req, res) => {
           address: defaultAddress
         },
         user,
+        flag
         
       });
     }
@@ -348,7 +349,6 @@ const itemCheckout=async(req,res)=>{
 
 }
 const postCheckout = async (req, res) => {
-  
   const generateOrderId=async()=>{
     let orderId;
     let isUnique=false;
@@ -361,84 +361,106 @@ const postCheckout = async (req, res) => {
     }
     return orderId
   }
+  const flag = req.params.flag;
+  console.log("flag", flag);
+
   try {
     const userId = req.session.user.id;
-    let { paymenentMethod, productId, quantity, grandtotal ,discountAmount} = req.body;
-   
+    let { paymentMethod, productId, quantity, grandtotal, discountAmount, address } = req.body;
+    console.log("proid", productId);
 
-    // Ensure quantity is always an array
-    if (!Array.isArray(quantity)) {
-      quantity = [Number(quantity)];
-    } else {
-      quantity = quantity.map(qty => Number(qty));
-    }
-
-    const user = await User.findById(userId)
-      .populate('addresses')
-      .populate('cart.product');
-    
-    if (!user || user.cart.length === 0) {
-      return res.redirect('/cart');
-    }
-
-    const defaultAddress = user.addresses.find(
-      addr => addr._id.toString() === user.defaultAddress.toString()
-    );
-
-    if (!defaultAddress) {
-      return res.redirect('/userProfile'); // Prompt to add an address if not set
-    }
-    
-
-    // Map quantity array to the cart items
-    const orderItems = user.cart.map((item, index) => ({
-      product: item.product._id,
-      quantity: quantity[index], // Map quantity from the array
-      price: item.product.salePrice,
-      status: 'Pending',
-       deliveryStatus:'order not placed',
-      paymentStatus:'pending'
-
-    }));
-   
-
-    // Validate if there's enough stock for each product
-    for (let i = 0; i < user.cart.length; i++) {
-      const cartItem = user.cart[i];
-      const product = await Product.findById(cartItem.product._id);
-      const purchaseQuantity = quantity[i];
-
-      if (product.quantity < purchaseQuantity) {
-        return res.status(400).send(`Insufficient quantity for product: ${cartItem.product.name}`);
-      }
-    }
-
-    // Calculate total price
-    const totalPrice = orderItems.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
+    let orderItems = [];
+    let totalPrice = 0;
+    const user = await User.findById(userId).populate("addresses").populate("cart.product");
     const referralCredits = user.referralCredits || 0;
 
+    if (flag === "1") {
+      // For single product purchase
+      const product = await Product.findById(productId);
 
-     
-     let discount=Number(discountAmount);
-     let referralDiscount=0;
-     if (referralCredits > 0) {
-
-       referralDiscount = Math.min(referralCredits, totalPrice - discount); 
-       
-      discount += Number(referralDiscount);
-     
+      if (!product || product.quantity < quantity) {
+        return res.status(400).send(`Insufficient quantity for product: ${product ? product.name : "Unknown"}`);
+      }
       
+      const defaultAddress = user.addresses.find(
+        addr => addr._id.toString() === user.defaultAddress?.toString()
+      );
+
+      if (!defaultAddress) {
+        return res.redirect("/userProfile"); // Prompt to add an address if not set
+      }
+
+      address = defaultAddress;
+
+      orderItems.push({
+        product: product._id,
+        quantity,
+        price: product.salePrice,
+        status: "Pending",
+        deliveryStatus: "order not placed",
+        paymentStatus: "pending",
+      });
+
+      totalPrice += product.salePrice * quantity;
+
+      // Ensure address is provided
+      if (!address) {
+        return res.status(400).send("Address is required for placing an order.");
+      }
+    } else {
+      // For cart checkout
+      if (!Array.isArray(quantity)) {
+        quantity = [Number(quantity)];
+      } else {
+        quantity = quantity.map(qty => Number(qty));
+      }
+
+      if (!user || user.cart.length === 0) {
+        return res.redirect("/cart");
+      }
+
+      const defaultAddress = user.addresses.find(
+        addr => addr._id.toString() === user.defaultAddress?.toString()
+      );
+
+      if (!defaultAddress) {
+        return res.redirect("/userProfile"); // Prompt to add an address if not set
+      }
+
+      address = defaultAddress;
+
+      orderItems = user.cart.map((item, index) => ({
+        product: item.product._id,
+        quantity: quantity[index],
+        price: item.product.salePrice,
+        status: "Pending",
+        deliveryStatus: "order not placed",
+        paymentStatus: "pending",
+      }));
+
+      for (let i = 0; i < user.cart.length; i++) {
+        const cartItem = user.cart[i];
+        const product = await Product.findById(cartItem.product._id);
+
+        if (product.quantity < quantity[i]) {
+          return res.status(400).send(`Insufficient quantity for product: ${cartItem.product.name}`);
+        }
+      }
+
+      totalPrice = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);
     }
-      
-     
-    const finalAmount = totalPrice-discount;
-    
+
+    // Apply discounts
+    let discount = Number(discountAmount) || 0;
+    let referralDiscount = 0;
+    if (referralCredits > 0) {
+      referralDiscount = Math.min(referralCredits, totalPrice - discount);
+      discount += referralDiscount;
+    }
+
+    const finalAmount = totalPrice - discount;
     const orderId = await generateOrderId();
 
-    // Create new order
     const newOrder = new Order({
       user: userId,
       orderId,
@@ -446,34 +468,26 @@ const postCheckout = async (req, res) => {
       totalPrice,
       discount,
       finalAmount,
-      address: defaultAddress._id,
-     
+      address, // Use the validated address
       invoiceDate: new Date(),
       deliveryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expected delivery in 7 days
-     
     });
 
     await newOrder.save();
-   
+
+    // Update user's order history
     await User.findByIdAndUpdate(
       userId,
       { $push: { orderHistory: newOrder._id } },
-      { new: true } 
+      { new: true }
     );
-    
-    
-   
-
-    
-    
 
     return res.redirect(`/order/confirmation/${newOrder._id}`);
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Post checkout failed');
+    return res.status(500).send("Post checkout failed");
   }
 };
-
 
 const confirmation=async(req,res)=>{
   try {
@@ -495,7 +509,7 @@ const confirmation=async(req,res)=>{
           model:'Product'
         }
       })
-      const totalPrice = order.finalAmount
+      const totalPrice = order.finalAmount+30
 
     if (!order) {
       return res.status(404).send("Order not found");
@@ -612,6 +626,12 @@ const cancelOrder=async(req,res)=>{
     }
     
     if(item.paymentStatus==='paid'){
+      if(item.quantity<5){
+        refundAmount=refundAmount/2
+       
+
+      }
+
       await User.findByIdAndUpdate(
         userId,
         { $inc: { wallet: refundAmount } }
@@ -1162,9 +1182,11 @@ const walletPayment=async(req,res)=>{
     const userId = req.session.user.id;
     const orderId = req.params.id;
     
+    
 
     const user = await User.findById(userId);
     const order = await Order.findById(orderId).populate('orderedItems');
+ 
     const amount=order.finalAmount+30
 
     
@@ -1185,7 +1207,7 @@ const walletPayment=async(req,res)=>{
       userId,
       amount: amount,
       type: 'Purchase', 
-      description: `debit for: ${orderId}`,
+      description: `debit for ${orderId}`,
     });
     await transaction.save();
     user.cart = [];

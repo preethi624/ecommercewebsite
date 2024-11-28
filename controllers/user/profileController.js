@@ -405,13 +405,19 @@ const getProducts=async(req,res)=>{
 const getWallet=async(req,res)=>{
     const user=req.session.user
     const userId=user.id
-    const transactions = await Transaction.find({ userId }).sort({ date: -1 });
+    const { page = 1, limit = 10 } = req.query; // Default values for pagination
+        const skip = (page - 1) * limit;
+    const transactions = await Transaction.find({ userId }).sort({ date: -1 }).skip(skip)
+    .limit(parseInt(limit));
+    const totalTransactions = await Transaction.countDocuments({ userId });
+        const totalPages = Math.ceil(totalTransactions / limit);
     const updatedUser=await User.findById(userId)
     if (!updatedUser) {
         return res.status(404).send('User not found');
     }
     const walletBalance=updatedUser.wallet
-    res.render("wallet",{walletBalance:walletBalance,transactions:transactions,user:user})
+    res.render("wallet",{walletBalance:walletBalance,transactions:transactions,user:user,currentPage: parseInt(page),
+        totalPages,limit})
 }  
 const addWallet=async(req,res)=>{
     try {

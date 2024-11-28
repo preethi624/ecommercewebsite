@@ -267,7 +267,25 @@
     "currency": "<%= currency %>",
     "order_id": "<%= razorpayOrderId %>",
     "handler": function(response) {
+
       window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&system_order_id=<%= order._id %>`;
+    },
+    modal: {
+      ondismiss: function () {
+        // SweetAlert for modal dismissal
+        Swal.fire({
+          icon: 'warning',
+          title: 'Payment Not Completed',
+          text: 'You closed the payment window without completing the payment.',
+          showConfirmButton: true,
+          confirmButtonText: 'Try Again',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Optionally reopen Razorpay or take user action
+            rzp.open();
+          }
+        });
+      },
     },
     "theme": {
       "color": "#007bff"

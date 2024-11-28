@@ -895,6 +895,31 @@ const newEdit=async(req,res)=>{
       
     }
   }
+  const getOrderDetails=async(req,res)=>{
+    try {
+        const orderId = req.params.orderId;
+
+        // Find the order and populate the necessary fields
+        const order = await Order.findById(orderId)
+            .populate("orderedItems.product") // Populate the products in ordered items
+            .populate({
+                path: "user", // Populate the user reference
+                select: "addresses", // Fetch only the addresses from the user
+            });
+
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
+
+        // Find the specific address from the user's addresses array
+        const userAddress = order.user.addresses.id(order.address);
+
+        res.render("Details.ejs", { order, userAddress });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server error");
+    } 
+  }
   
 
 module.exports={
@@ -922,6 +947,7 @@ module.exports={
     salesReport,
     newEdit,
     addProducts,
+    getOrderDetails,
    
     
     

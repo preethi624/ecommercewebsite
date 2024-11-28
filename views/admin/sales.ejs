@@ -263,6 +263,7 @@
                 <thead>
                     <tr>
                         <th>Order ID</th>
+                        <th>Order Date</th>
                         <th>Product</th>
                         <th>Quantity</th>
                         <th>Regular Total Price</th>
@@ -275,6 +276,8 @@
                     <% orders.forEach(order => { %>
                         <tr>
                             <td><%= order.orderId %></td>
+                            <td><%= order.invoiceDate %></td> 
+
                             <td>
                                 <% order.orderedItems.forEach(item => { %>
                                     <div><%= item.product.productName %></div>

@@ -1,4 +1,4 @@
-
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +7,7 @@
   <title>My Wallet</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     /* General Styles */
     body {
@@ -18,29 +19,28 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-top: 60px; /* Offset for fixed header */
+      padding-top: 60px;
     }
-    
-    /* Header Styling */
     header {
       position: fixed;
       top: 0;
       width: 100%;
-      height: 60px;
-      
-      color: white;
+     
+    
+   
       text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
     
-    
+   
     .wallet-container {
       background-color: #fff;
       width: 100%;
-      max-width: 500px;
+      max-width: 800px;
       padding: 20px;
       margin-top: 100px;
       margin-bottom: auto;
@@ -64,6 +64,15 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .balance-box i {
+      font-size: 40px;
+      color: #ff9900;
+      position: absolute;
+      top: 10px;
+      right: 20px;
     }
     
     .balance-box p {
@@ -78,7 +87,9 @@
     }
     
     .shop-now-btn, .add-funds-btn {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       background: linear-gradient(45deg, #ff9900, #ff5500);
       color: white;
@@ -88,101 +99,140 @@
       font-size: 18px;
       font-weight: 500;
       cursor: pointer;
-      text-align: center;
       text-decoration: none;
       transition: all 0.3s ease;
       margin-top: 15px;
     }
     
+    .shop-now-btn i, .add-funds-btn i {
+      margin-right: 10px;
+    }
+    
     .shop-now-btn:hover, .add-funds-btn:hover {
       background: linear-gradient(45deg, #ff5500, #ff9900);
     }
-    footer{
-      position: fixed;
-     bottom: 0;
-     
+    
+    /* Transaction Table */
+    .transaction-table {
       width: 100%;
-      height: 60px;
-      
-      color: white;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
+      border-collapse: collapse;
+      margin: 20px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
+    .transaction-table th, .transaction-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
     
-    /* Mobile Adjustments */
-    @media (max-width: 500px) {
-      .wallet-container {
-        padding: 15px;
-      }
-      
-      h1 {
-        font-size: 22px;
-      }
-      
-      .balance-box p {
-        font-size: 16px;
-      }
-      
-      .wallet-balance {
-        font-size: 32px;
-      }
-      
-      .shop-now-btn, .add-funds-btn {
-        font-size: 16px;
-        padding: 12px;
-      }
+    .transaction-table th {
+      background-color: #f4f4f4;
+    }
+    
+    .transaction-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .transaction-table i {
+      margin-right: 10px;
+    }
+    
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .page-number {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin: 0 5px;
+      text-align: center;
+      text-decoration: none;
+      background-color: #f4f4f4;
+      color: #000;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .page-number:hover {
+      background-color: #007bff;
+      color: #fff;
+    }
+    
+    .page-number.active {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
     }
   </style>
 </head>
+<header>
+<%- include("../../views/partials/user/header") %> 
+</header>
 
 <body>
-  <!-- Full-width Header at the top of the page -->
-  <header>
-    <%- include("../../views/partials/user/header") %>
-  </header>
+ 
+    
+    
+
   
-  <!-- Wallet content centered vertically -->
   <div class="wallet-container">
     <h1>Wallet Balance</h1>
     
     <div class="balance-box">
       <p>Your current balance:</p>
       <p class="wallet-balance">Rs <%= walletBalance %></p>
+      
     </div>
     
-    <!-- Add Funds Form -->
     <form action="/wallet/add" method="POST">
-      <label for="amount">Add Funds:</label>
+      <label for="amount"><i class="fas fa-plus-circle"></i> Add Funds:</label>
       <input type="number" name="amount" id="amount" min="1" placeholder="Enter amount" required>
-      <button type="submit" class="add-funds-btn">Add to Wallet</button>
+      <button type="submit" class="add-funds-btn"><i class="fas fa-wallet"></i> Add to Wallet</button>
     </form>
     
-    <!-- Shop Now Button -->
-    <a href="/shop" class="shop-now-btn">Shop Now</a>
+    <a href="/" class="shop-now-btn"><i class="fas fa-shopping-cart"></i> Shop Now</a>
+    
     <h2 class="mt-4">Transaction History</h2>
     
     <% if (transactions && transactions.length > 0) { %>
-      <div class="list-group">
-        <% transactions.forEach(transaction => { %>
-          <div class="list-group-item">
-            <p><strong>Type:</strong> <%= transaction.type %></p>
-            <p><strong>Amount:</strong> Rs<%= transaction.amount.toFixed(2) %></p>
-            <p><strong>Date:</strong> <%= new Date(transaction.date).toLocaleDateString() %></p>
-            <p><strong>Description:</strong> <%= transaction.description %></p>
-          </div>
-        <% }) %>
-      </div>
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th><i class="fas fa-money-bill-wave"></i> Amount</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th><i class="fas fa-calendar"></i> Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% transactions.forEach(transaction => { %>
+            <tr>
+              <td><%= transaction.type === 'Purchase' ? `-₹${transaction.amount}` : `+₹${transaction.amount}` %></td>
+              <td><i class="<%= transaction.type === 'Purchase' ? 'fas fa-shopping-cart' : 'fas fa-credit-card' %>"></i> <%= transaction.type %></td>
+              <td><%= transaction.description %></td>
+              <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
     <% } else { %>
       <p>No transactions available.</p>
     <% } %>
+    
+    <div class="pagination">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="page-number <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+    </div>
   </div>
- 
-  
 </body>
-
-
 </html>
