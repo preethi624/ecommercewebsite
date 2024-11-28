@@ -97,7 +97,11 @@
 
                 <% if (product.regularPrice && product.productOffer > 0) { %>
                     <h5>Sale Price: <%= (product.regularPrice - (product.regularPrice * product.productOffer / 100)).toFixed(2) %></h5>
-                <% } else { %>
+                    
+                <% } else if(product.regularPrice&&product.category.categoryOffer){%>
+                    <h5>Sale Price: <%= (product.regularPrice - (product.regularPrice * product.category.categoryOffer / 100)).toFixed(2) %></h5>
+
+                <%}else { %>
                     <h5>Sale Price: <%= product.regularPrice %></h5>
                 <% } %>
 
