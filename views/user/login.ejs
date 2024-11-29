@@ -187,6 +187,11 @@
                     <a href="/auth/google" class="google-login">
                         <img src="images/googlesignup.png" alt="Google Logo"> Login with Google
                     </a>
+                    <div id="g_id_onload"
+                         data-client_id=process.env.GOOGLE_CLIENT_ID
+                         data-login_uri="http://localhost:3000/auth/google/callback"
+                         data-auto_prompt="false">
+                    </div>
                 </div>
 
                 <div class="form-group" style="margin-top: 30px;">

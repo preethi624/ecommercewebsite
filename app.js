@@ -28,7 +28,7 @@ app.use(passport.session())
 passport.use(new GoogleStrategy({
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret,
-    callbackURL: '/auth/google/callback' // Callback route
+    callbackURL: process.env. GOOGLE_CALLBACK_URL// Callback route
 }, function (accessToken, refreshToken, profile, done) {
     // Here, you would usually save the profile information in the database
     // But for this example, we'll just return the profile

@@ -7,7 +7,7 @@ const productController=require("../controllers/user/productController.js")
 const {userAuth,adminAuth}=require("../middleware/auth")
 const { ensureAuthenticated } = require('../middleware/auth');
 const passport=require("passport");
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
 const User=require("../models/userSchema.js")
 
 router.get('/', userController.loadHomepage);
@@ -17,25 +17,7 @@ router.post('/verify-otp', userController.verifyOtp);
 router.post("/resend-otp",userController.resendOtp);
 router.get("/pageNotFound",userController.pageNotFound)
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL, 
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Handle user data from Google
-        console.log('Google Profile:', profile);
-        return done(null, profile);
-      } catch (err) {
-        console.error('Error in Google Strategy:', err);
-        return done(err, null);
-      }
-    }
-  )
-);
+
 
 
 
@@ -46,9 +28,9 @@ router.get(
     passport.authenticate('google', { failureRedirect: '/signup' }),
     async (req, res) => {
       try {
-        // Check if user with the same email exists
+        console.log("Authenticated user:", req.user); 
         let user = await User.findOne({ email: req.user.emails[0].value });
-  
+       
         if (!user) {
           // If user not found, create a new user document
           user = new User({
@@ -56,6 +38,7 @@ router.get(
             email: req.user.emails[0].value,
             googleId: req.user.id,
           });
+          console,log("requser",req.user)
           await user.save();
         } else if (!user.googleId) {
           
