@@ -14,11 +14,11 @@
           <%= defaultAddress.fullName %>, <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
         </p>
       <% } else { %>
-        <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+        <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
       <% } %>
       <button id="change-address-btn" class="btn btn-outline-primary" onclick="window.location.href='/user/addresses'">Change Address</button>
     <% } else { %>
-      <p>No default address set. Please <a href="/profile">add an address</a>.</p>
+      <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
     <% } %>
   </div>
   
