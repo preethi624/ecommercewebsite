@@ -341,7 +341,41 @@
         confirmButtonText: 'Yes, proceed'
       }).then((result) => {
         if (result.isConfirmed) {
-          document.getElementById('wallForm').submit();
+          fetch(wallForm.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include', // Send session cookie
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Payment successful
+                Swal.fire({
+                  title: 'Payment Successful',
+                  icon: 'success',
+                  confirmButtonText: 'Go to Orders',
+                }).then(() => {
+                  window.location.href = data.redirect;
+                });
+              } else {
+                // Insufficient balance or other error
+                Swal.fire({
+                  title: 'Payment Failed',
+                  text: data.message,
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                });
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire({
+                title: 'Error',
+                text: 'Something went wrong. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+              });
+            });
         }
       });
     }

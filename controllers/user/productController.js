@@ -1226,8 +1226,8 @@ const walletPayment=async(req,res)=>{
    order.paymentMethod='Wallet payment'
    
     await order.save();
-
-   res.redirect("/orders")
+    res.json({ success: true, redirect: '/orders' });
+  
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: 'Error processing wallet payment' });
