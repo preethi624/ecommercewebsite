@@ -188,9 +188,7 @@
                                 <h5 class="card-title"><%= product.productName %></h5>
                                 <p class="card-text text-muted">Price:&#8377;<%= product.salePrice %></p>
                                 <p class="card-text">
-                                    Stock: <span class="<%= product.quantity > 0 ? 'text-success' : 'text-danger' %>">
-                                        <%= product.quantity > 0 ? product.quantity : 'Out of stock' %>
-                                    </span>
+                                   
                                 </p>
                                 <% if (product.quantity > 0) { %>
                                     <form method="POST" action="/cart/add/<%= product._id %>" >
@@ -198,7 +196,10 @@
                                         <input type="hidden" name="quantity" class="form-control mb-2" min="1" max="5" value="1" required>
                                         <button type="submit" class="btn btn-outline-success">Add to Cart</button>
                                     </form>
-                                <% } %>
+                                <% } else{%>
+                                    <button  class="btn btn-outline-success disabled">Out Of Stock</button>
+
+                                    <%}%>
                             </div>
                         </div>
                     </div>

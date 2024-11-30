@@ -29,8 +29,9 @@ router.get(
     async (req, res) => {
 
       try {
+        console.log("auth triggered");
        
-        console.log("Authenticated user:", req.user); 
+       
         let user = await User.findOne({ email: req.user.emails[0].value });
        
         if (!user) {
