@@ -142,7 +142,7 @@
           <th>Quantity</th>
           <th>Price</th>
           <th>Status</th>
-          <th>Actions</th>
+          
         </tr>
       </thead>
       <tbody>
@@ -164,18 +164,12 @@
                 </select>
               </form>
             </td>
-            <td>
-              <div class="action-buttons">
-                <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/cancel" method="POST">
-                  <button type="submit">Cancel Item</button>
-                </form>
-              </div>
-            </td>
+           
           </tr>
         <% }) %>
       </tbody>
     </table>
-    <a href="/admin/" class="return-dashboard">Return to Dashboard</a>
+    <a href="/admin/orders" class="return-dashboard">Return to Orders</a>
   </div>
 </body>
 </html>

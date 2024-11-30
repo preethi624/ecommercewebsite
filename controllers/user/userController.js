@@ -327,7 +327,11 @@ const productDetails=async(req,res)=>{
         if(!product){
             return res.status(404).send("product not found")
         }
-        res.render('product-details.ejs',{product})
+        const relatedProducts = await Product.find({
+            category: product.category._id,
+            _id: { $ne: product._id }, // Exclude the current product
+        }).limit(4); 
+        res.render('product-details.ejs',{product,relatedProducts})
         
     } catch (error) {
         res.status(500).send("server error")

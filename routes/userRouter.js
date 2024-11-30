@@ -27,7 +27,9 @@ router.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/signup' }),
     async (req, res) => {
+
       try {
+       
         console.log("Authenticated user:", req.user); 
         let user = await User.findOne({ email: req.user.emails[0].value });
        
