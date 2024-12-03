@@ -345,7 +345,7 @@ const getProducts=async(req,res)=>{
     try {
         const { search, sort, showOutOfStock ,category} = req.query;
         const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-        const limit = parseInt(req.query.limit) || 3; 
+        const limit = parseInt(req.query.limit) || 6; 
         let query = {
             isDeleted: false, // Exclude deleted products
           };

@@ -626,12 +626,7 @@ const cancelOrder=async(req,res)=>{
     }
     
     if(item.paymentStatus==='paid'){
-      if(item.quantity<5){
-        refundAmount=refundAmount/2
-       
-
-      }
-
+      
       await User.findByIdAndUpdate(
         userId,
         { $inc: { wallet: refundAmount } }

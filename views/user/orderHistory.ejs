@@ -78,7 +78,7 @@
                  <% if((order.discount / order.orderedItems.length) >(item.quantity * item.price)){%>
                   <strong>Discounted Price:</strong> Rs 0<br>
                   <%}else{%>
-                  <strong>Discounted Price:</strong> Rs <%= (item.quantity * item.price) - (order.discount / order.orderedItems.length) %><br>
+                  <strong>Discounted Price:</strong> Rs <%=((item.quantity * item.price) - (order.discount / order.orderedItems.length))+30 %><br>
                   <%}%>
                 <%}%>
                 

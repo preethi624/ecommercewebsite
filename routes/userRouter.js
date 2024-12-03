@@ -29,7 +29,7 @@ router.get(
     async (req, res) => {
 
       try {
-        console.log("auth triggered");
+        
        
        
         let user = await User.findOne({ email: req.user.emails[0].value });
@@ -41,7 +41,7 @@ router.get(
             email: req.user.emails[0].value,
             googleId: req.user.id,
           });
-          console,log("requser",req.user)
+          
           await user.save();
         } else if (!user.googleId) {
           
@@ -51,7 +51,7 @@ router.get(
   
         // Save user information in the session
         req.session.user = {id:user._id,email:user.email};
-        console.log('Google authentication successful, user:', user);
+        
         req.session.save(err => {
             if (err) {
               console.error("Error saving session:", err);
