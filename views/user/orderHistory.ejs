@@ -73,7 +73,7 @@
                 <strong>Product:</strong> <%= item.product.productName %><br>
                 <strong>Description:</strong> <%= item.product.description %><br>
                 <strong>Quantity:</strong> <%= item.quantity %><br>
-                <strong>Original Price:</strong> <%=( item.quantity*item.price) %><br>
+                <strong>Original Price:</strong> <%=( item.quantity*item.price)+30 %><br>
                 <%if(order.discount>0){%>
                  <% if((order.discount / order.orderedItems.length) >(item.quantity * item.price)){%>
                   <strong>Discounted Price:</strong> Rs 0<br>

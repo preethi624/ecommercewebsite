@@ -223,17 +223,17 @@ const getCheckout = async (req, res) => {
     let { productId, quantity } = req.query;
     const flag=0;
     
-    // Fetch user with populated cart and addresses
+    
     const user = await User.findById(userId).populate('addresses').populate('cart.product');
     
-    // Ensure productId and quantity are arrays, even for a single product
+    
     productId = Array.isArray(productId) ? productId : [productId];
     quantity = Array.isArray(quantity) ? quantity.map(q => parseInt(q)) : [parseInt(quantity)];
     
-    // If no productId is provided, handle checkout for all products in the cart
+    
     if (!productId || productId.length === 0) {
       if (user.cart.length === 0) {
-        return res.redirect('/cart'); // Redirect to cart if it's empty
+        return res.redirect('/cart'); 
       }
       
       const cartItems = user.cart.map((item, index) => {
@@ -362,12 +362,12 @@ const postCheckout = async (req, res) => {
     return orderId
   }
   const flag = req.params.flag;
-  console.log("flag", flag);
+ 
 
   try {
     const userId = req.session.user.id;
     let { paymentMethod, productId, quantity, grandtotal, discountAmount, address } = req.body;
-    console.log("proid", productId);
+   
 
     let orderItems = [];
     let totalPrice = 0;
@@ -387,6 +387,7 @@ const postCheckout = async (req, res) => {
       );
 
       if (!defaultAddress) {
+        
         return res.redirect("/userProfile"); // Prompt to add an address if not set
       }
 
@@ -614,8 +615,11 @@ const cancelOrder=async(req,res)=>{
     }
     
     const length=order.orderedItems.length
+    
     const couponShared=order.discount/Number(length)
     let refundAmount=(item.price*item.quantity)+couponShared
+ 
+    
     const hasActiveItems = order.orderedItems.some(
       (orderedItem) =>
         orderedItem._id.toString() !== item._id.toString() &&

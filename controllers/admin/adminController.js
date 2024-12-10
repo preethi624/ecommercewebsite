@@ -175,14 +175,14 @@ const getSalesReportData = async (req, res) => {
         }
        
 
-        // Get orders within the date range and with 'Delivered' status
+        
         const orders = await Order.find({
             invoiceDate: { $gte: adjustedStartDate, $lte: adjustedEndDate },
             'orderedItems.status': 'Delivered'
         });
        
 
-        // Aggregated variables for total sales
+        
         let totalAmount = 0;
         let totalDiscount = 0;
         let salesCount = orders.length;
@@ -193,7 +193,7 @@ const getSalesReportData = async (req, res) => {
         });
         
 
-        // Sending a single label and single data point for chart
+        
         res.json({
             labels: [`${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Sales`],
             netSales: [totalAmount],

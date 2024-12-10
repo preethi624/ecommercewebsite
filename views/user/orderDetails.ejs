@@ -44,9 +44,7 @@
       <%if((item.paymentStatus==='pending')&&(item.status!=='Cancelled'&&item.status!=='Return Request')){%>
         <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=(item.price*item.quantity)+30-itemCouponShare%></button>
 
-        <%}else if(item.deliveryStatus==='order not placed'){%>
-          <button>Cash ondelivery</button>
-          <%}else{%>
+        <%}else{%>
             <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
 
             <%}%>

@@ -198,10 +198,10 @@ const softDeleteCategory=async (req,res)=>{
 
 const viewSoftDeleted=async(req,res)=>{
     try {
-        // Fetch soft-deleted categories (assuming you mark deleted categories with a flag)
+        
         const softDeletedCategories = await Category.find({ isDeleted: true });
         
-        // Render the soft-deleted categories view
+        
         res.render('soft.ejs', {
           categories: softDeletedCategories
         });
