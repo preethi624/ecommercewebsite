@@ -4,7 +4,8 @@ const Product=require("../../models/productSchema")
 
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
+
 
 const pageNotFound = async (req, res) => {
     try {

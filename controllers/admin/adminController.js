@@ -3,7 +3,8 @@ const Product=require("../../models/productSchema")
 const Category=require("../../models/categorySchema")
 const Order=require("../../models/orderSchema")
 const mongoose=require("mongoose");
-const bcrypt=require("bcrypt");
+const bcrypt = require("bcryptjs");
+
 const { isAdmin } = require("../../middleware/auth");
 const pageError=async (req,res)=>{
     res.render("admin-error")

@@ -4,7 +4,8 @@ const Product=require("../../models/productSchema")
 const Category=require("../../models/categorySchema")
 const Transaction=require("../../models/transactionSchema")
 const nodemailer=require("nodemailer")
-const bcrypt=require("bcrypt")
+const bcrypt = require("bcryptjs");
+
 const env=require("dotenv").config()
 const session=require("express-session")
 const { getMaxListeners } = require('nodemailer/lib/xoauth2')
