@@ -138,7 +138,7 @@ const removeCart=async(req,res)=>{
         const userId=user.id;
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { $pull: { cart: { product: productId } } }, // Pull the product out of the user's cart array
+            { $pull: { cart: { product: productId } } }, 
             { new: true } // Return the updated user
           );
           if (updatedUser) {
