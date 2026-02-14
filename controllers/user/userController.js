@@ -5,6 +5,8 @@ const Product=require("../../models/productSchema")
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const pageNotFound = async (req, res) => {
     try {
@@ -97,7 +99,7 @@ function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-async function sendVerificationEmail(email, otp) {
+/*async function sendVerificationEmail(email, otp) {
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -119,6 +121,21 @@ async function sendVerificationEmail(email, otp) {
         return true;
     } catch (error) {
         console.error("Error sending email", error);
+        return false;
+    }
+}*/
+async function sendVerificationEmail(email, otp) {
+    try {
+        await sgMail.send({
+            to: email,
+            from: process.env.SENDGRID_FROM_EMAIL,
+            subject: "Verify your account",
+            text: `Your OTP is ${otp}`,
+            html: `<b>Your OTP: ${otp}</b>`,
+        });
+        return true;
+    } catch (error) {
+        console.error("Error sending email", error.response?.body || error.message);
         return false;
     }
 }
