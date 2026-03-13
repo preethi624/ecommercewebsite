@@ -8,6 +8,7 @@ const userRouter=require("./routes/userRouter")
 const passport=require("passport")
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const adminRouter=require('./routes/adminRouter')
+app.set("trust proxy", 1);
 
 db()
 app.use(express.json())
