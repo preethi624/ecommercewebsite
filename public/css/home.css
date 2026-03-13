@@ -127,4 +127,62 @@
         footer a:hover {
             color: #ffffff;
         }
-        
+     /* ── Wishlist isolation fix ── */
+#wishlist-root .w-empty {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 55vh !important;
+}
+#wishlist-root .w-empty-box {
+    text-align: center !important;
+    padding: 60px 40px !important;
+    background: #fff !important;
+    border-radius: 16px !important;
+    border: 1px solid #e0ece5 !important;
+    box-shadow: 0 4px 24px rgba(26,60,46,0.08) !important;
+    max-width: 420px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+#wishlist-root .w-empty-icon {
+    font-size: 4rem !important;
+    color: #e74c3c !important;
+    opacity: 0.22 !important;
+    display: block !important;
+    margin-bottom: 20px !important;
+}
+#wishlist-root .w-empty-box h3 {
+    font-family: 'Playfair Display', serif !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #1a3c2e !important;
+    margin-bottom: 10px !important;
+    display: block !important;
+    font-style: normal !important;
+}
+#wishlist-root .w-empty-box p {
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 14px !important;
+    color: #6b8c78 !important;
+    margin-bottom: 28px !important;
+    line-height: 1.6 !important;
+    font-style: normal !important;
+    display: block !important;
+    text-align: center !important;
+}
+#wishlist-root .btn-explore {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: linear-gradient(135deg, #52b788, #2d6a4f) !important;
+    color: #fff !important;
+    border-radius: 100px !important;
+    padding: 11px 30px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    box-shadow: 0 6px 18px rgba(45,106,79,0.28) !important;
+    cursor: pointer !important;
+}

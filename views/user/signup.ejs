@@ -1,306 +1,388 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup Form</title>
-    <style>
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-         /* Adjust as needed */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for a subtle effect */
-            z-index: 1000; /* Ensures it stays above other elements */
-            padding:10px 20px;
-            padding: 0;
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+<%-include("../../views/partials/user/header")%>
 
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-           
-           
-        }
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        .container {
-            display: flex;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 900px;
-            width: 60%;
-           
-            margin-top: 400px;
-            margin-left: 100px;
-            height: 700px;
-            margin-bottom: 200px;
-           
-        
-           
-           
-            
-        }
+<style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .form-container {
-            padding: 40px;
-            width: 50%;
-            margin-left: 30%;
-        }
+    :root {
+        --green-900: #0f2d1a;
+        --green-800: #1a4228;
+        --green-700: #245c38;
+        --green-500: #3a8c52;
+        --green-400: #52b06e;
+        --green-200: #b2dfca;
+        --gold:       #c8973a;
+        --cream:      #faf8f4;
+        --white:      #ffffff;
+        --text-dark:  #0f2d1a;
+        --text-light: #7aaa8a;
+        --border:     #d4e9dc;
+    }
 
-        .form-container h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+    body {
+        font-family: 'Outfit', sans-serif;
+        background: var(--green-900);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .form-container label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+    .signup-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 24px;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .form-container input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+    .bg-orb { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(80px); opacity: 0.18; }
+    .bg-orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, #3a8c52, transparent 70%); top: -150px; left: -150px; animation: drift 18s ease-in-out infinite; }
+    .bg-orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #c8973a, transparent 70%); bottom: -100px; right: -100px; animation: drift 22s ease-in-out infinite reverse; }
+    @keyframes drift {
+        0%,100% { transform: translate(0,0) scale(1); }
+        33%      { transform: translate(40px,-30px) scale(1.08); }
+        66%      { transform: translate(-25px,40px) scale(0.94); }
+    }
 
-        .form-container button {
-            width: 100%;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
+    .signup-card {
+        position: relative;
+        display: flex;
+        width: 100%;
+        max-width: 960px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 80px rgba(0,0,0,0.55);
+        animation: reveal 0.75s cubic-bezier(0.16,1,0.3,1) both;
+        z-index: 1;
+    }
+    @keyframes reveal {
+        from { opacity: 0; transform: translateY(30px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-        .form-container button:hover {
-            background-color: #218838;
-        }
+    /* Image Panel */
+    .panel-image { width: 40%; position: relative; overflow: hidden; flex-shrink: 0; }
+    .panel-image img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 10s ease; }
+    .signup-card:hover .panel-image img { transform: scale(1.06); }
+    .panel-image-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(160deg, rgba(15,45,26,0.65) 0%, rgba(15,45,26,0.25) 50%, rgba(200,151,58,0.2) 100%);
+    }
 
-        .image-container {
-            width: 50%;
-            background-image: url('https://www.example.com/organic-products.jpg'); /* Replace with your image URL */
-            background-size: cover;
-            background-position: center;
-        }
+    .badge-organic {
+        position: absolute; top: 20px; left: 20px; z-index: 4;
+        display: flex; align-items: center; gap: 7px;
+        background: rgba(15,45,26,0.75); backdrop-filter: blur(12px);
+        border: 1px solid rgba(82,176,110,0.35); border-radius: 100px;
+        padding: 5px 14px 5px 8px;
+    }
+    .badge-organic .pulse {
+        width: 9px; height: 9px; border-radius: 50%; background: var(--green-400);
+        box-shadow: 0 0 0 3px rgba(82,176,110,0.25);
+        animation: blink 2.2s ease-in-out infinite;
+    }
+    @keyframes blink {
+        0%,100% { box-shadow: 0 0 0 3px rgba(82,176,110,0.25); }
+        50%      { box-shadow: 0 0 0 7px rgba(82,176,110,0.08); }
+    }
+    .badge-organic span { font-size: 0.72rem; font-weight: 500; color: var(--green-200); letter-spacing: 0.07em; text-transform: uppercase; }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
+    .panel-caption {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        padding: 30px 26px 28px; z-index: 3;
+        background: linear-gradient(to top, rgba(15,45,26,0.92) 0%, transparent 100%);
+    }
+    .panel-caption .quote { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.3rem; color: #e0f0e6; line-height: 1.45; margin-bottom: 10px; }
+    .panel-caption .gold-line { width: 32px; height: 2px; background: var(--gold); border-radius: 2px; margin-bottom: 8px; }
+    .panel-caption .meta { font-size: 0.7rem; color: rgba(178,223,202,0.6); letter-spacing: 0.14em; text-transform: uppercase; }
 
-            .form-container, .image-container {
-                width: 100%;
-            }
+    /* Form Panel */
+    .panel-form {
+        flex: 1; background: var(--cream);
+        padding: 40px 42px;
+        display: flex; flex-direction: column; justify-content: center;
+        overflow-y: auto;
+    }
 
-            .image-container {
-                height: 300px;
-            }
-        }
-        .error-message{
-            color:red;
-            font-size: 0.75rem;
-            
-        }
-    </style>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
-</head>
-<body>
-    <header>
-        <%-include("../../views/partials/user/header")%>
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .brand-logo { width: 36px; height: 36px; background: var(--green-800); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 4px 12px rgba(15,45,26,0.3); }
+    .brand-text .name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; color: var(--green-800); display: block; }
+    .brand-text .sub  { font-size: 0.65rem; color: var(--text-light); letter-spacing: 0.12em; text-transform: uppercase; display: block; }
 
-    </header>
-    
-       
+    .form-title    { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: var(--text-dark); line-height: 1.1; margin-bottom: 4px; }
+    .form-subtitle { font-size: 0.83rem; color: var(--text-light); font-weight: 300; margin-bottom: 22px; }
 
-    
+    /* Two column grid for fields */
+    .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .field-full { grid-column: 1 / -1; }
 
-  
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green-700); margin-bottom: 6px; }
+    .field-wrap { position: relative; }
+    .field-wrap .ficon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; pointer-events: none; opacity: 0.4; }
+    .field-wrap input {
+        width: 100%; padding: 11px 14px 11px 36px;
+        background: var(--white); border: 1.5px solid var(--border); border-radius: 9px;
+        font-family: 'Outfit', sans-serif; font-size: 0.85rem; color: var(--text-dark); outline: none;
+        transition: border-color 0.22s, box-shadow 0.22s;
+    }
+    .field-wrap input:focus { border-color: var(--green-500); box-shadow: 0 0 0 3px rgba(58,140,82,0.11); }
+    .field-wrap input::placeholder { color: #c4cfc8; font-weight: 300; }
 
-    <div class="container">
-        <div class="form-container">
-            <h2>Signup</h2>
+    .error-message { font-size: 0.7rem; margin-top: 3px; color: #c0392b; display: none; }
+
+    /* Submit button */
+    .btn-signup {
+        width: 100%; padding: 13px; margin-top: 6px;
+        background: linear-gradient(135deg, var(--green-800) 0%, var(--green-500) 100%);
+        color: #fff; border: none; border-radius: 10px;
+        font-family: 'Outfit', sans-serif; font-size: 0.92rem; font-weight: 600; letter-spacing: 0.04em;
+        cursor: pointer; position: relative; overflow: hidden;
+        transition: transform 0.15s, box-shadow 0.2s;
+        box-shadow: 0 6px 20px rgba(26,66,40,0.35);
+    }
+    .btn-signup::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 100%); transform: translateX(-100%); transition: transform 0.5s ease; }
+    .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,66,40,0.4); }
+    .btn-signup:hover::after { transform: translateX(100%); }
+    .btn-signup:active { transform: translateY(0); }
+
+    /* Or divider */
+    .or-divider { display: flex; align-items: center; gap: 12px; margin: 14px 0 10px; }
+    .or-divider::before, .or-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .or-divider span { font-size: 0.7rem; color: #b0c0b5; font-weight: 500; }
+
+    /* Google */
+    .btn-google {
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+        padding: 11px; background: var(--white); border: 1.5px solid var(--border); border-radius: 10px;
+        font-family: 'Outfit', sans-serif; font-size: 0.86rem; font-weight: 500; color: var(--text-dark);
+        text-decoration: none; cursor: pointer; transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+    }
+    .btn-google:hover { border-color: #c0d5cc; box-shadow: 0 4px 14px rgba(0,0,0,0.07); transform: translateY(-1px); color: var(--text-dark); }
+    .btn-google img { width: 18px; height: 18px; }
+
+    /* Server error */
+    .alert-danger { font-size: 0.8rem; border-radius: 8px; padding: 10px 14px; margin-top: 10px; }
+
+    /* Login link */
+    .login-row { margin-top: 16px; text-align: center; font-size: 0.8rem; color: var(--text-light); font-weight: 300; }
+    .login-row a { color: var(--green-700); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid transparent; transition: border-color 0.18s, color 0.18s; }
+    .login-row a:hover { color: var(--green-800); border-color: var(--green-700); }
+
+    @media (max-width: 760px) {
+        .panel-image { display: none; }
+        .panel-form { padding: 32px 22px; }
+        .fields-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="signup-wrapper">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
+    <div class="signup-card">
+
+        <!-- Left image panel -->
+        <div class="panel-image">
+            <div class="panel-image-overlay"></div>
+            <div class="badge-organic">
+                <div class="pulse"></div>
+                <span>100% Organic</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" alt="Fresh organic produce">
+            <div class="panel-caption">
+                <div class="quote">"Join our community of<br>conscious shoppers."</div>
+                <div class="gold-line"></div>
+                <div class="meta">Farm to Table · Est. 2020</div>
+            </div>
+        </div>
+
+        <!-- Right form panel -->
+        <div class="panel-form">
+
+            <div class="brand">
+                <div class="brand-logo">🌱</div>
+                <div class="brand-text">
+                    <span class="name">Organic Store</span>
+                    <span class="sub">Pure · Fresh · Natural</span>
+                </div>
+            </div>
+
+            <h1 class="form-title">Create account</h1>
+            <p class="form-subtitle">Sign up and start shopping fresh today</p>
+
             <form method="POST" action="/signup" id="signform">
-                <label for="email">Email</label>
-                <input type="text" id="email" name="email" placeholder="Enter your email">
-                <div id="error1" class="error-message"></div>
-                <label for="email">phone</label>
-                <input type="text" id="phone" name="phone" placeholder="Enter your phonenumber" >
-                <div id="error2" class="error-message"></div>
 
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username">
-                <div id="error3" class="error-message"></div>
+                <div class="fields-grid">
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" >
-                <div id="error4" class="error-message"></div>
-                <label for="referralCode">Referral Code (Optional)</label>
-                <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code if you have one">
-                <div id="error5" class="error-message"></div>
-    
-                <% if(locals.message&&message.length>0){%>
-                    <div id="serverError" class="alert alert-danger text-center">
-                        <%=message%>
-
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <div class="field-wrap">
+                            <span class="ficon">✉</span>
+                            <input type="text" id="email" name="email" placeholder="you@example.com">
+                        </div>
+                        <div id="error1" class="error-message"></div>
                     </div>
 
-               <% }%>
+                    <div class="field">
+                        <label for="phone">Phone</label>
+                        <div class="field-wrap">
+                            <span class="ficon">📞</span>
+                            <input type="text" id="phone" name="phone" placeholder="10-digit number">
+                        </div>
+                        <div id="error2" class="error-message"></div>
+                    </div>
 
-                <button type="submit">Signup</button>
-                <p>Or signup with</p>
-                <div class="social-btns">
-                    <a href="/auth/google" class="btn btn-outline-danger">
-                      <img
-                        src="images/googlesignup.png"
-                        alt="Google Logo"
-                        style="width: 24px; height: 24px"
-                      />
-                    </a>
-                  </div>
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <div class="field-wrap">
+                            <span class="ficon">👤</span>
+                            <input type="text" id="username" name="username" placeholder="Your name">
+                        </div>
+                        <div id="error3" class="error-message"></div>
+                    </div>
+
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <div class="field-wrap">
+                            <span class="ficon">🔒</span>
+                            <input type="password" id="password" name="password" placeholder="Min. 8 characters">
+                        </div>
+                        <div id="error4" class="error-message"></div>
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="referralCode">Referral Code <span style="font-weight:300;text-transform:none;letter-spacing:0;">(Optional)</span></label>
+                        <div class="field-wrap">
+                            <span class="ficon">🎁</span>
+                            <input type="text" id="referralCode" name="referralCode" placeholder="Enter referral code if you have one">
+                        </div>
+                        <div id="error5" class="error-message"></div>
+                    </div>
+
+                </div>
+
+                <% if(locals.message && message.length > 0) { %>
+                    <div id="serverError" class="alert alert-danger text-center">
+                        <%= message %>
+                    </div>
+                <% } %>
+
+                <button type="submit" class="btn-signup">Create Account</button>
+
+                <div class="or-divider"><span>or sign up with</span></div>
+
+                <a href="/auth/google" class="btn-google">
+                    <img src="images/googlesignup.png" alt="Google Logo">
+                    Continue with Google
+                </a>
+
             </form>
+
+            <div class="login-row">
+                Already have an account? <a href="/login">Sign in</a>
+            </div>
+
         </div>
-        <div class="image-container"></div>
-        
-        
-
     </div>
-    
-    <script>
-        const referralCodeId = document.getElementById("referralCode");
-const error5 = document.getElementById("error5");
+</div>
 
-function referralCodeValidateChecking() {
-    const referralCodeVal = referralCodeId.value.trim();
-    const referralPattern = /^[A-Za-z0-9]{4,10}$/; // Example pattern for a referral code
+<script>
+    const referralCodeId = document.getElementById("referralCode");
+    const error5 = document.getElementById("error5");
 
-    if (referralCodeVal && !referralPattern.test(referralCodeVal)) {
-        error5.style.display = "block";
-        error5.innerHTML = "Referral code format is invalid";
-    } else {
-        error5.style.display = "none";
-        error5.innerHTML = "";
+    function referralCodeValidateChecking() {
+        const referralCodeVal = referralCodeId.value.trim();
+        const referralPattern = /^[A-Za-z0-9]{4,10}$/;
+        if (referralCodeVal && !referralPattern.test(referralCodeVal)) {
+            error5.style.display = "block";
+            error5.innerHTML = "Referral code format is invalid";
+        } else {
+            error5.style.display = "none";
+            error5.innerHTML = "";
+        }
     }
-}
-        const emailid=document.getElementById("email")
-        const phoneid=document.getElementById("phone")
-        const nameid=document.getElementById("username")
-        const passid=document.getElementById("password")
-        const error1=document.getElementById("error1")
-        const error2=document.getElementById("error2")
-        const error3=document.getElementById("error3")
-        const error4=document.getElementById("error4")
-        const signform=document.getElementById("signform")
-        const serverError = document.getElementById("serverError");
-        function clearServerError() {
-            if (serverError) {
-                serverError.style.display = 'none';
+
+    const emailid   = document.getElementById("email");
+    const phoneid   = document.getElementById("phone");
+    const nameid    = document.getElementById("username");
+    const passid    = document.getElementById("password");
+    const error1    = document.getElementById("error1");
+    const error2    = document.getElementById("error2");
+    const error3    = document.getElementById("error3");
+    const error4    = document.getElementById("error4");
+    const signform  = document.getElementById("signform");
+    const serverError = document.getElementById("serverError");
+
+    function clearServerError() {
+        if (serverError) serverError.style.display = 'none';
+    }
+
+    function nameValidateChecking() {
+        const nameval = nameid.value;
+        const namepattern = /^[A-Za-z\s]+$/;
+        if (nameval.trim() === "") {
+            error3.style.display = "block"; error3.innerHTML = "please enter a name";
+        } else if (!namepattern.test(nameval)) {
+            error3.style.display = "block"; error3.innerHTML = "name can only contain alphabets and spaces";
+        } else {
+            error3.style.display = "none"; error3.innerHTML = "";
+        }
+    }
+
+    function emailValidateChecking() {
+        const emailval = emailid.value;
+        const emailpattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailpattern.test(emailval)) {
+            error1.style.display = "block"; error1.innerHTML = "invalid format";
+        } else {
+            error1.style.display = "none"; error1.innerHTML = "";
+        }
+    }
+
+    function phoneValidateChecking() {
+        const phoneval = phoneid.value.trim();
+        const phoneDigits = phoneval.replace(/\D/g, '');
+        if (phoneval.trim() === "") {
+            error2.style.display = "block"; error2.innerHTML = "enter valid phone number";
+        } else if (phoneval.length < 10 || phoneval.length > 10) {
+            error2.style.display = "block"; error2.innerHTML = "Enter 10 digit";
+        } else if (phoneDigits === "0000000000") {
+            error2.style.display = "block"; error2.innerHTML = "Phone number cannot be all zeros";
+        } else {
+            error2.style.display = "none"; error2.innerHTML = "";
+        }
+    }
+
+    function passValidateChecking() {
+        passval = passid.value;
+        const alpha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (passval.length < 8) {
+            error4.style.display = "block"; error4.innerHTML = "Should contain atleast 8 characters";
+        } else if (!alpha.test(passval)) {
+            error4.style.display = "block"; error4.innerHTML = "Should contain numbers and alphabets";
+        } else {
+            error4.style.display = "none"; error4.innerHTML = "";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        signform.addEventListener("submit", function (e) {
+            nameValidateChecking();
+            emailValidateChecking();
+            phoneValidateChecking();
+            passValidateChecking();
+            if (error1.innerHTML !== "" || error2.innerHTML !== "" || error3.innerHTML !== "" || error4.innerHTML !== "") {
+                e.preventDefault();
             }
-        }
-    
-        function nameValidateChecking(){
-            const nameval=nameid.value;
-            const namepattern=/^[A-Za-z\s]+$/;
-            if(nameval.trim()===""){
-                error3.style.display="block"
-                error3.innerHTML="please enter a name"
-            }else if(!namepattern.test(nameval)){
-                error3.style.display="block"
-                error3.innerHTML="name can only contain alphabets and spaces"
-            }else{
-                error3.style.display="none"
-                error3.innerHTML="";
-            }
-        }
-        function emailValidateChecking(){
-            const emailval=emailid.value
-            const emailpattern= /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if(!emailpattern.test(emailval)){
-                error1.style.display="block";
-                error1.innerHTML="invalid format"
-
-            }else{
-                error1.style.display="none"
-                error1.innerHTML="";
-            }
-        }
-        function phoneValidateChecking(){
-
-            const phoneval=phoneid.value.trim();
-            const phoneDigits = phoneval.replace(/\D/g, '');
-
-
-            if(phoneval.trim()===""){
-                error2.style.display="block";
-                error2.innerHTML="enter valid phone number"
-            }else if(phoneval.length<10||phoneval.length>10){
-                error2.style.display="block";
-                error2.innerHTML="Enter 10 digit"
-                }else if(phoneDigits === "0000000000"){
-                    error2.style.display = "block";
-                    error2.innerHTML = "Phone number cannot be all zeros";
-                }else{
-                    error2.style.display="none"
-                    error2.innerHTML="";
-                }
-        }
-        function passValidateChecking(){
-            passval=passid.value;
-            const alpha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if(passval.length<8){
-                error4.style.display="block"
-                error4.innerHTML="Should contain atleast 8 characters"
-            }else if(!alpha.test(passval)){
-                error4.style.display="block"
-                error4.innerHTML="Should contain numbers and aphabets"
-            }else{
-                error4.style.display="none";
-                error4.innerHTML="";
-            }
-
-        }
-
-        
-        document.addEventListener("DOMContentLoaded",function(){
-            signform.addEventListener("submit",function(e){
-                nameValidateChecking();
-                emailValidateChecking();
-                phoneValidateChecking();
-                passValidateChecking();
-                
-                if (error1.innerHTML !== "" || error2.innerHTML !== "" || error3.innerHTML !== "" || error4.innerHTML !== "") {
-                    e.preventDefault(); // Prevent form submission if there are any validation errors
-                }
-            })
-            emailid.addEventListener('input', clearServerError);
-            phoneid.addEventListener('input', clearServerError);
-            nameid.addEventListener('input', clearServerError);
-            passid.addEventListener('input', clearServerError); 
-
-        })
-        
-        
-        
-
-
-    </script>
-
-</body>
-</html>
+        });
+        emailid.addEventListener('input', clearServerError);
+        phoneid.addEventListener('input', clearServerError);
+        nameid.addEventListener('input', clearServerError);
+        passid.addEventListener('input', clearServerError);
+    });
+</script>

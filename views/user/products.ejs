@@ -1,231 +1,435 @@
 <%- include("../../views/partials/user/header") %>
-<style>
-    /* Custom Sidebar Styling */
-    .green-checkbox .form-check-input:checked {
-        background-color: green;
-        border-color: green;
-    }
-.sidebar {
-    background-color: #f8f9fa;
-    border-radius: 15px;
-    padding: 5px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    height: 700px;
-    border-color: green;
-    margin-top: 0px;
-}
 
-.sidebar h4 {
-    font-weight: bold;
-    margin-bottom: 20px;
-    padding-top: 100px;
-}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-/* Sidebar form inputs and button */
-.form-select, .form-control {
-    border-radius: 8px;
-    margin-bottom: 10px;
-    border-color: green;
-}
+<script>
+  const s = document.createElement('style');
+  s.textContent = `
+    body { background: #faf7f0 !important; font-family: 'DM Sans', sans-serif !important; }
 
-/* Button Styling */
-.btn-primary {
-    border-radius: 8px;
-}
-
-/* Product Cards Styling */
-.card {
-    border-radius: 8px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Product Image Styling */
-.card-img-top {
-    border-radius: 8px;
-    height: auto;
-    object-fit: cover;
-    max-height: 300px; /* Optional: Limit maximum height for consistency */
-    object-fit: contain; /* Scale image to fit within container without cropping */
-    width: 100%; 
-}
-.card-body {
-    height: 150px; /* Fixed height to ensure consistency across cards */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 2px;
-   
-}
-.pagination {
-    display: flex;
-    justify-content: flex-end;  /* Aligns pagination to the right */
-    margin-top: 20px;
-   
-}
-
-.btn-pagination {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 0 5px;
-    background-color: #f8f9fa;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    text-decoration: none;
-    color: #007bff;
-    font-weight: bold;
-    font-size: 16px;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.btn-pagination:hover {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-}
-
-.btn-pagination.active {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-}
-
-.btn-pagination:focus {
-    outline: none;
-}
-
-
-/* Responsive adjustments for mobile */
-@media (max-width: 768px) {
-    .sidebar {
-        margin-bottom: 20px;
+    .shop-page {
+      max-width: 1200px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
     }
 
-    .form-check {
-        margin-top: 10px;
+    /* ── PAGE TITLE ── */
+    .shop-title {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 2.2rem !important;
+      color: #1a3c2e !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      margin-bottom: 32px !important;
     }
-}
+    .shop-title i { color: #52b788 !important; }
 
-</style>
+    .shop-layout {
+      display: grid !important;
+      grid-template-columns: 260px 1fr !important;
+      gap: 28px !important;
+      align-items: start !important;
+    }
 
-<div class="container mt-5">
-    <h1 class="mb-4 text-center display-4" style="color: green;">SHOP</h1>
+    /* ── SIDEBAR ── */
+    .filter-sidebar {
+      background: #fff !important;
+      border-radius: 16px !important;
+      border: 1px solid #e0ece5 !important;
+      box-shadow: 0 4px 24px rgba(26,60,46,0.08) !important;
+      overflow: hidden !important;
+      position: sticky !important;
+      top: 90px !important;
+    }
+    .filter-header {
+      background: linear-gradient(135deg, #1a3c2e, #2d6a4f) !important;
+      padding: 14px 20px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+    .filter-header h4 {
+      font-family: 'Playfair Display', serif !important;
+      color: #fff !important;
+      font-size: 1rem !important;
+      margin: 0 !important;
+      font-weight: 600 !important;
+    }
+    .filter-header i { color: #52b788 !important; font-size: 13px !important; }
+    .filter-body { padding: 20px !important; }
 
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="sidebar p-4 shadow-sm rounded">
-                <h4 class="text-center">Filter Products</h4>
-                <!-- Search and Filter Form -->
-                <form id="search-form" method="GET" action="/products">
-                    <div class="mb-3" style="height: 100px;">
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            name="search" 
-                            placeholder="Search products..." 
-                            value="<%= search %>" <!-- Set the current search value -->
-                        
-                    </div>
-                    
-                    <div class="mb-3" style="height: 100px;">
-                        <select name="category" class="form-select">
-                            <option value="">All Categories</option>
-                            <option value="Juices" <%= category === 'Juices' ? 'selected' : '' %>>Juices</option>
-                            <option value="Freshfruits" <%= category === 'Freshfruits' ? 'selected' : '' %>>Freshfruits</option>
-                            <option value="Fruits" <%= category === 'Fruits' ? 'selected' : '' %>>Fruit</option>
-                            <option value="freshVegetables" <%= category === 'freshVegetables' ? 'selected' : '' %>>Fresh Vegetables</option>
-                            <option value="Groceriess" <%= category === 'Groceriess' ? 'selected' : '' %>>Groceries</option>
-                            <option value="organic juice" <%= category === 'organic juice' ? 'selected' : '' %>>Organic Juice</option>
-                            <option value="Vegetables" <%= category === 'Vegetables' ? 'selected' : '' %>>Vegetables</option>
-                            <option value="Others" <%= category === 'Others' ? 'selected' : '' %>>Others</option>
-                        </select>
-                    </div>
-                    
-                    <div class="mb-3" style="height: 100px;">
-                        <select name="sort" class="form-select">
-                            <option value="popularity" <%= sort === 'popularity' ? 'selected' : '' %>>Sort by Popularity</option>
-                            <option value="priceLowToHigh" <%= sort === 'priceLowToHigh' ? 'selected' : '' %>>Price: Low to High</option>
-                            <option value="priceHighToLow" <%= sort === 'priceHighToLow' ? 'selected' : '' %>>Price: High to Low</option>
-                            <option value="averageRatings" <%= sort === 'averageRatings' ? 'selected' : '' %>>Average Ratings</option>
-                            <option value="newArrivals" <%= sort === 'newArrivals' ? 'selected' : '' %>>New Arrivals</option>
-                            <option value="aToZ" <%= sort === 'aToZ' ? 'selected' : '' %>>A - Z</option>
-                            <option value="zToA" <%= sort === 'zToA' ? 'selected' : '' %>>Z - A</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-check mb-3 green-checkbox" style="height: 100px;">
-                        <input 
-                            type="checkbox" 
-                            class="form-check-input" 
-                            name="showOutOfStock" 
-                            value="true" 
-                            <%= showOutOfStock ? 'checked' : '' %> 
-                        />
-                        <label class="form-check-label">Show Out of Stock</label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-success w-100">Apply Filters</button>
-                </form>
-                
-            </div>
-        </div>
+    .filter-label {
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      letter-spacing: 1.2px !important;
+      text-transform: uppercase !important;
+      color: #2d6a4f !important;
+      margin-bottom: 7px !important;
+      display: block !important;
+    }
+    .filter-input {
+      width: 100% !important;
+      border: 1.5px solid #d0e6d8 !important;
+      border-radius: 10px !important;
+      padding: 9px 14px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 13.5px !important;
+      color: #1a3c2e !important;
+      background: #fff !important;
+      outline: none !important;
+      margin-bottom: 14px !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      transition: border-color 0.2s !important;
+    }
+    .filter-input:focus { border-color: #52b788 !important; box-shadow: 0 0 0 3px rgba(82,183,136,0.12) !important; }
 
-        <!-- Products Grid -->
-        <div class="col-md-9" style="margin-top: 200px;">
-            <div class="row">
-                <% products.forEach(product => { %>
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="/uploads/product-images/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>" style="width: 100%; height: 200px; object-fit: cover;">
-                            <div class="card-body text-center">
-                                <h5 class="card-title"><%= product.productName %></h5>
-                                <p class="card-text text-muted">Price:&#8377;<%= product.salePrice %></p>
-                                <p class="card-text">
-                                    Stock: <span class="<%= product.quantity > 0 ? 'text-success' : 'text-danger' %>">
-                                        <%= product.quantity > 0 ? product.quantity : 'Out of stock' %>
-                                    </span>
-                                </p>
-                                <% if (product.quantity > 0) { %>
-                                    <form method="POST" action="/cart/add/<%= product._id %>">
-                                        <input type="hidden" name="productId" value="<%= product._id %>">
-                                        <input type="hidden" name="quantity" class="form-control mb-2" min="1" max="5" value="1" required>
-                                        <button type="submit" class="btn btn-outline-success">Add to Cart</button>
-                                    </form>
-                                <% } %>
-                            </div>
-                        </div>
-                    </div>
-                <% }) %>
-            </div>
+    .filter-select-wrap {
+      position: relative !important;
+      margin-bottom: 14px !important;
+    }
+    .filter-select-wrap::after {
+      content: '\\f107' !important;
+      font-family: 'Font Awesome 6 Free' !important;
+      font-weight: 900 !important;
+      position: absolute !important;
+      right: 12px !important; top: 50% !important;
+      transform: translateY(-50%) !important;
+      color: #2d6a4f !important;
+      pointer-events: none !important;
+      font-size: 12px !important;
+    }
+    .filter-select-wrap .filter-input { margin-bottom: 0 !important; }
 
-           <div class="pagination">
-    <% if (currentPage > 1) { %>
-        <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination">Previous</a>
-    <% } %>
-    
-    <% for (let i = 1; i <= totalPages; i++) { %>
-        <a href="?page=<%= i %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination <%= i === currentPage ? 'active' : '' %>">
-            <%= i %>
-        </a>
-    <% } %>
+    .stock-check-wrap {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 10px 14px !important;
+      background: #f0f9f3 !important;
+      border-radius: 10px !important;
+      border: 1.5px solid #d0e6d8 !important;
+      margin-bottom: 16px !important;
+      cursor: pointer !important;
+    }
+    .stock-check-wrap input[type="checkbox"] {
+      width: 17px !important; height: 17px !important;
+      accent-color: #2d6a4f !important;
+      cursor: pointer !important;
+      flex-shrink: 0 !important;
+    }
+    .stock-check-wrap label {
+      font-size: 13.5px !important;
+      color: #2d6a4f !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      margin: 0 !important;
+    }
 
-    <% if (currentPage < totalPages) { %>
-        <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>" class="btn-pagination">Next</a>
-    <% } %>
-</div>
- 
-            
-        </div>
+    .btn-filter {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      width: 100% !important;
+      background: linear-gradient(135deg, #52b788, #2d6a4f) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 10px !important;
+      padding: 11px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      box-shadow: 0 4px 14px rgba(45,106,79,0.25) !important;
+      transition: opacity 0.18s !important;
+    }
+    .btn-filter:hover { opacity: 0.88 !important; }
+
+    /* ── PRODUCTS GRID ── */
+    .products-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+      gap: 22px !important;
+    }
+
+    .product-card {
+      background: #fff !important;
+      border-radius: 16px !important;
+      border: 1px solid #e0ece5 !important;
+      box-shadow: 0 4px 24px rgba(26,60,46,0.07) !important;
+      overflow: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      transition: transform 0.28s ease, box-shadow 0.28s ease !important;
+    }
+    .product-card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 16px 40px rgba(26,60,46,0.13) !important;
+    }
+
+    .product-img-wrap {
+      background: #d8f3dc !important;
+      height: 190px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      position: relative !important;
+    }
+    .product-img-wrap img {
+      max-height: 160px !important;
+      max-width: 80% !important;
+      width: auto !important;
+      height: auto !important;
+      object-fit: contain !important;
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      transition: transform 0.35s ease !important;
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.06) !important; }
+
+    .out-of-stock-overlay {
+      position: absolute !important;
+      inset: 0 !important;
+      background: rgba(255,255,255,0.7) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    .out-of-stock-tag {
+      background: #fdecea !important;
+      color: #b71c1c !important;
+      border: 1px solid #ef9a9a !important;
+      border-radius: 100px !important;
+      padding: 5px 14px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+    }
+
+    .product-body {
+      padding: 14px 16px 18px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+    }
+    .product-name {
+      font-weight: 600 !important;
+      font-size: 14.5px !important;
+      color: #1a3c2e !important;
+      margin-bottom: 5px !important;
+      line-height: 1.4 !important;
+    }
+    .product-price {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 1.1rem !important;
+      font-weight: 700 !important;
+      color: #2d6a4f !important;
+      margin-bottom: 6px !important;
+    }
+    .product-stock {
+      font-size: 12px !important;
+      font-weight: 500 !important;
+      margin-bottom: 12px !important;
+    }
+    .stock-in  { color: #2e7d32 !important; }
+    .stock-out { color: #b71c1c !important; }
+
+    .btn-add-cart {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      width: 100% !important;
+      padding: 9px 0 !important;
+      background: linear-gradient(135deg, #2d6a4f, #1a3c2e) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 10px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      margin-top: auto !important;
+      transition: opacity 0.18s, transform 0.18s !important;
+      box-sizing: border-box !important;
+    }
+    .btn-add-cart:hover { opacity: 0.88 !important; transform: scale(1.02) !important; }
+
+    /* ── PAGINATION ── */
+    .pagination-wrap {
+      display: flex !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      padding: 36px 0 10px !important;
+      flex-wrap: wrap !important;
+    }
+    .page-pill {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 40px !important; height: 40px !important;
+      padding: 0 14px !important;
+      border-radius: 10px !important;
+      font-size: 14px !important; font-weight: 500 !important;
+      color: #2d6a4f !important;
+      background: #fff !important;
+      border: 1.5px solid #e0ece5 !important;
+      text-decoration: none !important;
+      transition: all 0.18s !important;
+      font-family: 'DM Sans', sans-serif !important;
+    }
+    .page-pill:hover { background: #d8f3dc !important; color: #1a3c2e !important; text-decoration: none !important; }
+    .page-pill.active {
+      background: #2d6a4f !important;
+      color: #fff !important;
+      border-color: #2d6a4f !important;
+      box-shadow: 0 4px 14px rgba(45,106,79,0.30) !important;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .shop-layout { grid-template-columns: 1fr !important; }
+      .filter-sidebar { position: static !important; }
+    }
+    @media (max-width: 600px) {
+      .shop-page { padding: 0 14px !important; margin-top: 80px !important; }
+      .products-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 14px !important; }
+    }
+  `;
+  document.head.appendChild(s);
+</script>
+
+<div class="shop-page">
+
+  <h1 class="shop-title"><i class="fas fa-shopping-bag"></i> Shop</h1>
+
+  <div class="shop-layout">
+
+    <!-- ── SIDEBAR FILTER ── -->
+    <div class="filter-sidebar">
+      <div class="filter-header">
+        <i class="fas fa-sliders-h"></i>
+        <h4>Filter Products</h4>
+      </div>
+      <div class="filter-body">
+        <form id="search-form" method="GET" action="/products">
+
+          <span class="filter-label">Search</span>
+          <input type="text" class="filter-input" name="search"
+                 placeholder="Search products..." value="<%= search %>">
+
+          <span class="filter-label">Category</span>
+          <div class="filter-select-wrap">
+            <select name="category" class="filter-input">
+              <option value="">All Categories</option>
+              <option value="Juices"          <%= category === 'Juices'          ? 'selected' : '' %>>Juices</option>
+              <option value="Freshfruits"     <%= category === 'Freshfruits'     ? 'selected' : '' %>>Fresh Fruits</option>
+              <option value="Fruits"          <%= category === 'Fruits'          ? 'selected' : '' %>>Fruit</option>
+              <option value="freshVegetables" <%= category === 'freshVegetables' ? 'selected' : '' %>>Fresh Vegetables</option>
+              <option value="Groceriess"      <%= category === 'Groceriess'      ? 'selected' : '' %>>Groceries</option>
+              <option value="organic juice"   <%= category === 'organic juice'   ? 'selected' : '' %>>Organic Juice</option>
+              <option value="Vegetables"      <%= category === 'Vegetables'      ? 'selected' : '' %>>Vegetables</option>
+              <option value="Others"          <%= category === 'Others'          ? 'selected' : '' %>>Others</option>
+            </select>
+          </div>
+
+          <span class="filter-label">Sort By</span>
+          <div class="filter-select-wrap">
+            <select name="sort" class="filter-input">
+              <option value="popularity"    <%= sort === 'popularity'    ? 'selected' : '' %>>Popularity</option>
+              <option value="priceLowToHigh" <%= sort === 'priceLowToHigh' ? 'selected' : '' %>>Price: Low to High</option>
+              <option value="priceHighToLow" <%= sort === 'priceHighToLow' ? 'selected' : '' %>>Price: High to Low</option>
+              <option value="averageRatings" <%= sort === 'averageRatings' ? 'selected' : '' %>>Average Ratings</option>
+              <option value="newArrivals"   <%= sort === 'newArrivals'   ? 'selected' : '' %>>New Arrivals</option>
+              <option value="aToZ"          <%= sort === 'aToZ'          ? 'selected' : '' %>>A → Z</option>
+              <option value="zToA"          <%= sort === 'zToA'          ? 'selected' : '' %>>Z → A</option>
+            </select>
+          </div>
+
+          <label class="stock-check-wrap">
+            <input type="checkbox" name="showOutOfStock" value="true"
+                   <%= showOutOfStock ? 'checked' : '' %>>
+            <label style="margin:0; cursor:pointer;">Show Out of Stock</label>
+          </label>
+
+          <button type="submit" class="btn-filter">
+            <i class="fas fa-check"></i> Apply Filters
+          </button>
+
+        </form>
+      </div>
     </div>
-    
-    
+
+    <!-- ── PRODUCTS ── -->
+    <div>
+      <div class="products-grid">
+        <% products.forEach(product => { %>
+          <div class="product-card">
+
+            <div class="product-img-wrap">
+              <img src="/uploads/product-images/<%= product.productImage[0] %>"
+                   alt="<%= product.productName %>">
+              <% if (product.quantity <= 0) { %>
+                <div class="out-of-stock-overlay">
+                  <span class="out-of-stock-tag"><i class="fas fa-times-circle" style="margin-right:4px;"></i>Out of Stock</span>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="product-body">
+              <div class="product-name"><%= product.productName %></div>
+              <div class="product-price">&#8377;<%= product.salePrice %></div>
+              <div class="product-stock">
+                <% if (product.quantity > 0) { %>
+                  <span class="stock-in"><i class="fas fa-check-circle" style="margin-right:4px;font-size:11px;"></i><%= product.quantity %> in stock</span>
+                <% } else { %>
+                  <span class="stock-out"><i class="fas fa-times-circle" style="margin-right:4px;font-size:11px;"></i>Out of stock</span>
+                <% } %>
+              </div>
+
+              <% if (product.quantity > 0) { %>
+                <form method="POST" action="/cart/add/<%= product._id %>">
+                  <input type="hidden" name="productId" value="<%= product._id %>">
+                  <input type="hidden" name="quantity" value="1" min="1" max="5" required>
+                  <button type="submit" class="btn-add-cart">
+                    <i class="fas fa-shopping-cart" style="font-size:12px;"></i> Add to Cart
+                  </button>
+                </form>
+              <% } %>
+            </div>
+
+          </div>
+        <% }) %>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrap">
+        <% if (currentPage > 1) { %>
+          <a class="page-pill" href="?page=<%= currentPage-1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>">
+            <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+          </a>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a class="page-pill <%= i === currentPage ? 'active' : '' %>"
+             href="?page=<%= i %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>">
+            <%= i %>
+          </a>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <a class="page-pill" href="?page=<%= currentPage+1 %>&limit=<%= limit %>&search=<%= search %>&sort=<%= sort %>&category=<%= category %>&showOutOfStock=<%= showOutOfStock %>">
+            <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+          </a>
+        <% } %>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <%- include("../../views/partials/user/footer") %>
-

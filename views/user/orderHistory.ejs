@@ -5,176 +5,402 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order History</title>
-  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
   <style>
+    :root {
+      --green-dark:  #1a3c2e;
+      --green-mid:   #2d6a4f;
+      --green-light: #52b788;
+      --green-pale:  #d8f3dc;
+      --cream:       #faf7f0;
+      --gold:        #c9a84c;
+      --radius:      14px;
+      --shadow:      0 4px 24px rgba(26,60,46,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: #1c2b1e; margin: 0; }
+
+    /* ── PAGE ── */
+    .orders-page {
+      max-width: 860px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--green-dark);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-title i { color: var(--green-light); }
+
+    /* ── ORDER CARD ── */
     .order-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid #e0ece5;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .order-card:hover { box-shadow: 0 10px 36px rgba(26,60,46,0.13); }
+
+    /* order header bar */
+    .order-header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .order-id {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .order-id i { color: var(--green-light); font-size: 11px; }
+    .order-date {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .order-method {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ── ITEM ROW ── */
+    .order-item {
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      border-bottom: 1px solid #f0f5f2;
+      align-items: flex-start;
+    }
+    .order-item:last-child { border-bottom: none; }
+
+    .item-img-wrap {
+      width: 90px; height: 90px;
+      border-radius: 10px;
+      background: var(--green-pale);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .item-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+
+    .item-details { flex: 1; min-width: 0; }
+
+    .item-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-desc {
+      font-size: 12.5px;
+      color: #6b8c78;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .item-meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--green-pale);
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s;
-      max-width: 80%;
-      margin: 0 auto;
+      padding: 4px 10px;
+      font-size: 12.5px;
+      color: var(--green-dark);
+      font-weight: 500;
     }
-    .order-card:hover {
-      transform: scale(1.02);
+    .meta-tag i { color: var(--green-mid); font-size: 11px; }
+    .meta-tag.price { background: #f0faf4; }
+    .meta-tag.discount { background: #fff8e6; color: #7a5500; }
+    .meta-tag.free { background: #e8f5e9; color: #2e7d32; }
+
+    /* status badges */
+    .badge-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 100px; padding: 4px 12px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
     }
-    .order-card img {
-      border-radius: 8px;
+    .badge-status i { font-size: 8px; }
+    .badge-delivered  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-pending    { background: #fff8e6; color: #8a6200; border: 1px solid #ffe082; }
+    .badge-cancelled  { background: #fdecea; color: #b71c1c; border: 1px solid #ef9a9a; }
+    .badge-shipped    { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+    .badge-return     { background: #f3e5f5; color: #6a1b9a; border: 1px solid #ce93d8; }
+    .badge-default    { background: #f5f5f5; color: #555;    border: 1px solid #ddd; }
+
+    .badge-paid       { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .badge-unpaid     { background: #fdecea; color: #b71c1c; border: 1px solid #ef9a9a; }
+
+    .status-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
     }
-    .btn-cancel, .btn-return {
-      margin-top: 10px;
-      width: 30%;
+
+    /* action buttons */
+    .item-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .btn-action {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      border: none; text-decoration: none;
+      transition: opacity 0.18s, transform 0.18s;
     }
-    .btn-details{
-      width:30%
+    .btn-action:hover { opacity: 0.88; transform: translateY(-1px); text-decoration: none; }
+
+    .btn-cancel-order {
+      background: #fdecea; color: #b71c1c; border: 1.5px solid #ef9a9a;
     }
-    .no-orders {
-      text-align: center;
-      color: #777;
-      font-size: 1.2em;
-      padding: 50px;
+    .btn-return-order {
+      background: #e3f2fd; color: #1565c0; border: 1.5px solid #90caf9;
     }
-    .container {
-      max-width: 70%; /* Set the width to 80% of the screen */
+    .btn-view-details {
+      background: var(--green-pale); color: var(--green-dark); border: 1.5px solid #b7e4c7;
     }
-    .btn-top-right {
-      position: absolute;
-      top: 10px;
-      right: 10px;
+    .btn-complete-payment {
+      background: linear-gradient(135deg, var(--gold), #a07820);
+      color: #fff; border: none;
     }
-    
-    
-    
+
+    .cannot-cancel {
+      font-size: 12.5px; color: #b71c1c;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-orders {
+      text-align: center; padding: 80px 20px;
+      background: #fff; border-radius: var(--radius);
+      border: 1px solid #e0ece5; box-shadow: var(--shadow);
+    }
+    .empty-orders i { font-size: 3.5rem; color: #c8ddd0; margin-bottom: 16px; display: block; }
+    .empty-orders p { font-size: 15px; color: #6b8c78; }
+
+    /* ── PAGINATION ── */
+    .pagination-wrap {
+      display: flex; justify-content: center;
+      gap: 8px; padding: 32px 0 20px;
+    }
+    .page-pill {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 40px; height: 40px; padding: 0 14px;
+      border-radius: 10px; font-size: 14px; font-weight: 500;
+      color: var(--green-mid); background: #fff;
+      border: 1.5px solid #e0ece5; text-decoration: none;
+      transition: all 0.18s;
+    }
+    .page-pill:hover { background: var(--green-pale); color: var(--green-dark); text-decoration: none; }
+    .page-pill.active {
+      background: var(--green-mid); color: #fff;
+      border-color: var(--green-mid);
+      box-shadow: 0 4px 14px rgba(45,106,79,0.30);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .orders-page { padding: 0 12px; margin-top: 80px; }
+      .order-item { flex-direction: column; }
+      .item-img-wrap { width: 100%; height: 160px; }
+    }
   </style>
 </head>
 <body>
-    <%- include("../partials/user/header") %> 
+  <%- include("../partials/user/header") %>
 
-<div class="container container mt-5">
-  <h2 class="mb-4 text-center">Track Your Orders</h2>
+  <div class="orders-page">
+    <h1 class="page-title"><i class="fas fa-box"></i> Your Orders</h1>
 
-  <% if (user.orderHistory && user.orderHistory.length > 0) { %>
-    <% orderHistory.forEach(order => { %>
-      <div class="card mb-4 order-card">
-        <div class="card-body position-relative">
-          
-          
-          <% order.orderedItems.forEach(item => { %>
-            <div class="row mb-3">
-              <div class="col-md-3">
-               
-                
-                <img src="/uploads/product-images/<%= item.product.productImage[0] %>" 
-                     alt="<%= item.product.productName %>" width="100%" height="auto">
+    <% if (user.orderHistory && user.orderHistory.length > 0) { %>
+      <% orderHistory.forEach(order => { %>
+
+        <div class="order-card">
+
+          <!-- Order Header Bar -->
+          <div class="order-header">
+            <div class="order-header-left">
+              <div class="order-id">
+                <i class="fas fa-hashtag"></i> <%= order.orderId %>
               </div>
-              <div class="col-md-6">
-                <p><strong>Order ID:</strong> <%= order.orderId %></p>
-                <p><strong>Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-                <strong>Product:</strong> <%= item.product.productName %><br>
-                <strong>Description:</strong> <%= item.product.description %><br>
-                <strong>Quantity:</strong> <%= item.quantity %><br>
-                <strong>Original Price:</strong> <%=( item.quantity*item.price) %><br>
-                <%if(order.discount>0){%>
-                 <% if((order.discount / order.orderedItems.length) >(item.quantity * item.price)){%>
-                  <strong>Discounted Price:</strong> Rs 0<br>
-                  <%}else{%>
-                  <strong>Discounted Price:</strong> Rs <%= (item.quantity * item.price) - (order.discount / order.orderedItems.length) %><br>
-                  <%}%>
-                <%}%>
-                
-                <p><strong>Status:</strong> <%= item.status %></p>
-                <p><strong>Payment Status:</strong> 
-                  <span class="<%= item.paymentStatus === 'paid' ? 'text-success' : 'text-danger' %>">
-                    <%= item.paymentStatus %>
-                  </span>
-                </p>
-                <%if(item.status!=='Return Request'&& item.status!=='Cancelled'){%>
-                <p><strong>Delivery Status:</strong> 
-                  <span class="<%= item.deliveryStatus === 'Delivered' ? 'text-success' : 
-                                  item.deliveryStatus === 'Pending' ? 'text-warning' : 'text-secondary' %>">
-                    <%= item.deliveryStatus %>
-                  </span>
-                </p>
-                <%}%>
-                
-                  <p><strong>Payment Method used:</strong> <%=order.paymentMethod%></p>
-                
-                  
-               
-  
-                <!-- Action buttons for each item -->
-                <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(item.status)) { %>
-                  <form action="/order/order-cancel/<%= order._id %>/<%= item.product._id %>" method="GET">
-                    <button type="submit" class="btn btn-warning btn-cancel">Cancel Order</button>
-                  </form>
-                <% } else { %>
-                  <p class="text-danger">Order cannot be cancelled.</p>
-                <% } %>
-  
-                <% if (['Shipped', 'Delivered'].includes(item.status)) { %>
-                  <form action="/userprofile/return/<%= order._id %>/<%= item.product._id %>" method="GET">
-                    <button type="submit" class="btn btn-info btn-return">Return</button>
-                  </form>
-                <% } %>
-  
-                <a href="/order/orderDetails/<%= order._id %>/<%= item._id %>" class="btn btn-outline-success mt-3 btn-details">View Details</a>
+              <div class="order-date">
+                <i class="fas fa-calendar-alt"></i>
+                <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %>
               </div>
-              <div class="col-md-3">
-                <form action="/order/orderDetails/<%= order._id %>/<%= item._id %>">
-                  <%if((item.paymentStatus==='pending')&&(item.status!=='Cancelled'&&item.status!=='Return Request')){%>
-                    <button id="rzp-button1" class="btn btn-outline-success">Complete Your Order Here</button>
-                  <%}%>
-
-                </form>
+              <div class="order-method">
+                <i class="fas fa-credit-card"></i> <%= order.paymentMethod %>
               </div>
             </div>
-            <hr>
+          </div>
+
+          <!-- Items -->
+          <% order.orderedItems.forEach(item => { %>
+          <div class="order-item">
+
+            <!-- Image -->
+            <div class="item-img-wrap">
+              <img src="/uploads/product-images/<%= item.product.productImage[0] %>"
+                   alt="<%= item.product.productName %>">
+            </div>
+
+            <!-- Details -->
+            <div class="item-details">
+              <div class="item-name"><%= item.product.productName %></div>
+              <div class="item-desc"><%= item.product.description %></div>
+
+              <!-- Price meta tags -->
+              <div class="item-meta-grid">
+                <span class="meta-tag"><i class="fas fa-times"></i> <%= item.quantity %> qty</span>
+                <span class="meta-tag price"><i class="fas fa-tag"></i> &#8377;<%= item.quantity * item.price %></span>
+                <% if (order.discount > 0) { %>
+                  <% const itemDiscount = order.discount / order.orderedItems.length; %>
+                  <% if (itemDiscount >= item.quantity * item.price) { %>
+                    <span class="meta-tag free"><i class="fas fa-gift"></i> Free after discount</span>
+                  <% } else { %>
+                    <span class="meta-tag discount">
+                      <i class="fas fa-scissors"></i> &#8377;<%= ((item.quantity * item.price) - itemDiscount).toFixed(2) %> after discount
+                    </span>
+                  <% } %>
+                <% } %>
+              </div>
+
+              <!-- Status badges -->
+              <div class="status-row">
+                <%
+                  let statusClass = 'badge-default';
+                  if (item.status === 'Delivered')      statusClass = 'badge-delivered';
+                  else if (item.status === 'Cancelled') statusClass = 'badge-cancelled';
+                  else if (item.status === 'Shipped')   statusClass = 'badge-shipped';
+                  else if (item.status === 'Return Request') statusClass = 'badge-return';
+                  else if (item.status === 'Pending')   statusClass = 'badge-pending';
+                %>
+                <span class="badge-status <%= statusClass %>">
+                  <i class="fas fa-circle"></i> <%= item.status %>
+                </span>
+
+                <span class="badge-status <%= item.paymentStatus === 'paid' ? 'badge-paid' : 'badge-unpaid' %>">
+                  <i class="fas fa-<%= item.paymentStatus === 'paid' ? 'check-circle' : 'clock' %>"></i>
+                  <%= item.paymentStatus %>
+                </span>
+
+                <% if (item.status !== 'Return Request' && item.status !== 'Cancelled') { %>
+                  <%
+                    let deliveryClass = 'badge-default';
+                    if (item.deliveryStatus === 'Delivered') deliveryClass = 'badge-delivered';
+                    else if (item.deliveryStatus === 'Pending') deliveryClass = 'badge-pending';
+                  %>
+                  <span class="badge-status <%= deliveryClass %>">
+                    <i class="fas fa-truck"></i> <%= item.deliveryStatus %>
+                  </span>
+                <% } %>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="item-actions">
+
+                <% if (!['Shipped', 'Delivered', 'Cancelled', 'Return Request'].includes(item.status)) { %>
+                  <form action="/order/order-cancel/<%= order._id %>/<%= item.product._id %>" method="GET">
+                    <button type="submit" class="btn-action btn-cancel-order">
+                      <i class="fas fa-times-circle"></i> Cancel Order
+                    </button>
+                  </form>
+                <% } else { %>
+                  <span class="cannot-cancel"><i class="fas fa-ban"></i> Cannot be cancelled</span>
+                <% } %>
+
+                <% if (['Shipped', 'Delivered'].includes(item.status)) { %>
+                  <form action="/userprofile/return/<%= order._id %>/<%= item.product._id %>" method="GET">
+                    <button type="submit" class="btn-action btn-return-order">
+                      <i class="fas fa-undo-alt"></i> Return
+                    </button>
+                  </form>
+                <% } %>
+
+                <a href="/order/orderDetails/<%= order._id %>/<%= item._id %>" class="btn-action btn-view-details">
+                  <i class="fas fa-eye"></i> View Details
+                </a>
+
+                <% if (item.paymentStatus === 'pending' && item.status !== 'Cancelled' && item.status !== 'Return Request') { %>
+                  <form action="/order/orderDetails/<%= order._id %>/<%= item._id %>">
+                    <button id="rzp-button1" class="btn-action btn-complete-payment">
+                      <i class="fas fa-bolt"></i> Complete Payment
+                    </button>
+                  </form>
+                <% } %>
+
+              </div>
+            </div>
+
+          </div>
           <% }) %>
-  
-          
-         
+
         </div>
+
+      <% }) %>
+    <% } else { %>
+      <div class="empty-orders">
+        <i class="fas fa-box-open"></i>
+        <p>No order history available yet.</p>
       </div>
-    <% }) %>
-  <% } else { %>
-    <div class="no-orders">
-      <p>No order history available.</p>
-    </div>
-  <% } %>
-  
-
-</div>
-<div class="pagination mt-4 d-flex justify-content-center">
-    <% if (totalPages > 1) { %>
-      <nav>
-        <ul class="pagination">
-          <% if (currentPage > 1) { %>
-            <li class="page-item">
-              <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
-            </li>
-          <% } %>
-  
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-              <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-            </li>
-          <% } %>
-  
-          <% if (currentPage < totalPages) { %>
-            <li class="page-item">
-              <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
-            </li>
-          <% } %>
-        </ul>
-      </nav>
     <% } %>
-  </div>
-  
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<%- include("../partials/user/footer") %>
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination-wrap">
+      <% if (currentPage > 1) { %>
+        <a class="page-pill" href="?page=<%= currentPage - 1 %>">
+          <i class="fas fa-chevron-left" style="font-size:12px;"></i>
+        </a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a class="page-pill <%= i === currentPage ? 'active' : '' %>" href="?page=<%= i %>"><%= i %></a>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a class="page-pill" href="?page=<%= currentPage + 1 %>">
+          <i class="fas fa-chevron-right" style="font-size:12px;"></i>
+        </a>
+      <% } %>
+    </div>
+    <% } %>
+
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <%- include("../partials/user/footer") %>
 </body>
-</html> 
+</html>

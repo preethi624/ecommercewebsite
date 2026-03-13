@@ -1,65 +1,163 @@
+</div> <!-- closes .admin-main -->
+
 <style>
-    footer {
-        clear: both;
-        padding: 20px 0;
-        background-color:white;
-        color: black;
-        z-index: 1500;
-        bottom: 0;
-        width: 100%;
-        border-top: 2px solid rgb(243, 237, 237);
+    .admin-footer {
+        margin-left: 260px;
+        background: linear-gradient(135deg, #1a3c2e, #2d6a4f);
+        color: rgba(255,255,255,0.85);
+        font-family: 'DM Sans', sans-serif;
     }
-
-    .footer-icons a {
-        margin-right: 10px;
-        font-size: 20px;
-        color: black;
-        text-decoration: none;
+    .admin-footer .footer-inner {
+        max-width: 100%;
+        padding: 40px 48px 20px;
     }
-
-    .footer-icons a:hover {
-        color: green; /* Adds a hover effect */
+    .admin-footer .footer-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+        margin-bottom: 28px;
     }
+    .admin-footer .footer-col h5 {
+        font-family: 'Playfair Display', serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 14px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid rgba(82,183,136,0.35);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .admin-footer .footer-col h5 i { color: #52b788; font-size: 12px; }
 
-    /* Responsive design */
-    @media (max-width: 767px) {
-        .col-md-4 {
-            text-align: center; /* Center text on small screens */
-            margin-bottom: 15px;
-        }
+    .admin-footer .footer-contact-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 9px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.65);
+        line-height: 1.5;
+    }
+    .admin-footer .footer-contact-item i {
+        color: #52b788;
+        font-size: 12px;
+        margin-top: 2px;
+        flex-shrink: 0;
+        width: 15px;
+    }
+    .admin-footer .footer-links {
+        list-style: none;
+        padding: 0; margin: 0;
+    }
+    .admin-footer .footer-links li { margin-bottom: 8px; }
+    .admin-footer .footer-links li a {
+        color: rgba(255,255,255,0.65) !important;
+        text-decoration: none !important;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        transition: color 0.18s, gap 0.18s;
+    }
+    .admin-footer .footer-links li a i { font-size: 9px; color: #52b788; }
+    .admin-footer .footer-links li a:hover { color: #fff !important; gap: 10px; }
 
-        .footer-icons a {
-            display: inline-block;
-            margin: 0 5px;
-        }
+    .admin-footer .footer-social-icons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .admin-footer .footer-social-icons a {
+        width: 36px; height: 36px;
+        border-radius: 9px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.14);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.72) !important;
+        font-size: 14px;
+        text-decoration: none !important;
+        transition: background 0.2s, transform 0.2s;
+    }
+    .admin-footer .footer-social-icons a:hover {
+        background: #52b788;
+        color: #fff !important;
+        transform: translateY(-2px);
+    }
+    .admin-footer .footer-social-tagline {
+        font-size: 12px;
+        color: rgba(255,255,255,0.4);
+        margin-top: 10px;
+        line-height: 1.5;
+    }
+    .admin-footer .footer-bottom {
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .admin-footer .footer-bottom p {
+        margin: 0;
+        font-size: 12px;
+        color: rgba(255,255,255,0.38);
+    }
+    .admin-footer .footer-bottom p span { color: #52b788; }
+    .admin-footer .footer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(82,183,136,0.12);
+        border: 1px solid rgba(82,183,136,0.25);
+        border-radius: 100px;
+        padding: 4px 12px;
+        font-size: 11px;
+        color: #52b788;
+    }
+    @media (max-width: 900px) {
+        .admin-footer { margin-left: 0; }
+        .admin-footer .footer-grid { grid-template-columns: 1fr; gap: 24px; }
     }
 </style>
 
-<footer>
-    <div class="container">
-        <div class="row" style="padding-left: 50px;">
-            <div class="col-md-4">
-                <h5>Contact Us</h5>
-                <p>123 Organic St, Food City, EC1A 1BB</p>
-                <p>Email: contact@organicstore.com</p>
-                <p>Phone: (123) 456-7890</p>
+<footer class="admin-footer">
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h5><i class="fas fa-leaf"></i> Contact Us</h5>
+                <div class="footer-contact-item"><i class="fas fa-map-marker-alt"></i><span>123 Organic St, Food City, EC1A 1BB</span></div>
+                <div class="footer-contact-item"><i class="fas fa-envelope"></i><span>contact@organicstore.com</span></div>
+                <div class="footer-contact-item"><i class="fas fa-phone-alt"></i><span>(123) 456-7890</span></div>
             </div>
-            <div class="col-md-4">
-                <h5>Quick Links</h5>
-                <ul style="list-style-type: none; padding: 0;">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Products</a></li>
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Contact</a></li>
+            <div class="footer-col">
+                <h5><i class="fas fa-link"></i> Quick Links</h5>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Products</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                    <li><a href="#"><i class="fas fa-chevron-right"></i> Contact</a></li>
                 </ul>
             </div>
-            <div class="col-md-4 footer-icons">
-                <h5>Follow Us</h5>
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-linkedin"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
+            <div class="footer-col">
+                <h5><i class="fas fa-share-alt"></i> Follow Us</h5>
+                <div class="footer-social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p class="footer-social-tagline">Fresh updates, organic tips<br>& exclusive admin insights.</p>
             </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 <span>Organic Store</span>. Admin Panel. All rights reserved.</p>
+            <div class="footer-badge"><i class="fas fa-leaf"></i> 100% Organic & Natural</div>
         </div>
     </div>
 </footer>
+
+</body>
+</html>

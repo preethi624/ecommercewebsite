@@ -1,129 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Wishlist</title>
-  <link rel="stylesheet" href="/css/styles.css"> <!-- Link your custom CSS here -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-     
-      padding: 20px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #333;
-      font-size: 2.5rem;
-      margin-bottom: 40px;
-    }
-
-    .wishlist-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .wishlist-item {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 280px;
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-
-    .wishlist-item:hover {
-      transform: scale(1.05);
-    }
-
-    .wishlist-item img {
-      width: 100%;
-      max-width: 250px;
-      height: auto;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-
-    .wishlist-item h2 {
-      font-size: 1.5rem;
-      color: #555;
-      margin-bottom: 10px;
-    }
-
-    .wishlist-item p {
-      font-size: 1.2rem;
-      color: #666;
-      margin-bottom: 20px;
-    }
-
-    .wishlist-item a {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #28a745;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      transition: background-color 0.3s ease;
-    }
-
-    .wishlist-item a:hover {
-      background-color: #218838;
-    }
-
-    .wishlist-item button {
-      display: inline-block;
-      padding: 8px 16px;
-      background-color: #dc3545;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .wishlist-item button:hover {
-      background-color: #c82333;
-    }
-  </style>
-</head>
 <%- include("../../views/partials/user/header") %>
-<body>
-  
-  <h1>My Wishlist</h1>
-  
-  <% if (wishlistProducts.length > 0) { %>
-    <div class="wishlist-container">
-      <% wishlistProducts.forEach(function(product) { %>
-        <div class="wishlist-item">
-          <img src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
-          <h2><%= product.productName %></h2>
-          <p>Price: Rs <%= product.salePrice %></p>
-         
-          <!-- Remove from wishlist button -->
-          <form action="/wishlist/remove/<%=product._id%>" method="POST" class="remove-wishlist-form">
-            <input type="hidden" name="productId" value="<%= product._id %>">
-            <button type="button"onclick="confirmRemove(this)" >Remove from Wishlist</button>
-          </form>
-        </div>
-      <% }) %>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  // Inject styles into <head> so they load BEFORE home.css can override them
+  const s = document.createElement('style');
+  s.textContent = `
+    #wishlist-root {
+      background: #faf7f0 !important;
+      min-height: 60vh !important;
+      padding: 100px 24px 60px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      display: block !important;
+    }
+    #wishlist-root .wp-inner { max-width: 1100px !important; margin: 0 auto !important; }
+    #wishlist-root .w-header { display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 36px !important; flex-wrap: wrap !important; gap: 12px !important; }
+    #wishlist-root .w-title { font-family: 'Playfair Display', serif !important; font-size: 2rem !important; font-weight: 700 !important; color: #1a3c2e !important; display: flex !important; align-items: center !important; gap: 12px !important; margin: 0 !important; }
+    #wishlist-root .w-title i { color: #e74c3c !important; font-size: 1.6rem !important; }
+    #wishlist-root .w-count { background: #d8f3dc !important; color: #1a3c2e !important; border-radius: 100px !important; padding: 6px 16px !important; font-size: 13px !important; font-weight: 600 !important; border: 1px solid #b7e4c7 !important; }
+    #wishlist-root .w-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; gap: 24px !important; }
+    #wishlist-root .w-card { background: #fff !important; border-radius: 16px !important; border: 1px solid #e0ece5 !important; box-shadow: 0 4px 24px rgba(26,60,46,0.08) !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; transition: transform 0.28s ease, box-shadow 0.28s ease !important; }
+    #wishlist-root .w-card:hover { transform: translateY(-6px) !important; box-shadow: 0 18px 44px rgba(26,60,46,0.13) !important; }
+    #wishlist-root .w-img-wrap { position: relative !important; background: #d8f3dc !important; height: 200px !important; display: flex !important; align-items: center !important; justify-content: center !important; overflow: hidden !important; flex-shrink: 0 !important; }
+    #wishlist-root .w-img-wrap img { display: block !important; max-height: 170px !important; max-width: 80% !important; width: auto !important; height: auto !important; object-fit: contain !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; transition: transform 0.35s ease !important; }
+    #wishlist-root .w-card:hover .w-img-wrap img { transform: scale(1.06) !important; }
+    #wishlist-root .w-heart-badge { position: absolute !important; top: 12px !important; right: 12px !important; width: 34px !important; height: 34px !important; background: #fff !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important; color: #e74c3c !important; font-size: 14px !important; }
+    #wishlist-root .w-body { padding: 16px 18px 20px !important; display: flex !important; flex-direction: column !important; flex: 1 !important; background: #fff !important; }
+    #wishlist-root .w-name { font-family: 'DM Sans', sans-serif !important; font-weight: 600 !important; font-size: 15px !important; color: #1a3c2e !important; margin: 0 0 6px 0 !important; line-height: 1.4 !important; }
+    #wishlist-root .w-price { font-family: 'Playfair Display', serif !important; font-size: 1.2rem !important; font-weight: 700 !important; color: #2d6a4f !important; margin: 0 0 16px 0 !important; }
+    #wishlist-root .w-price span { font-family: 'DM Sans', sans-serif !important; font-size: 12px !important; font-weight: 400 !important; color: #8aab96 !important; margin-left: 4px !important; }
+    #wishlist-root .w-actions { margin-top: auto !important; }
+    #wishlist-root .w-actions form { margin: 0 !important; padding: 0 !important; }
+    #wishlist-root .btn-remove { display: flex !important; align-items: center !important; justify-content: center !important; gap: 7px !important; width: 100% !important; padding: 9px 0 !important; background: #fdecea !important; color: #b71c1c !important; border: 1.5px solid #ef9a9a !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-size: 13.5px !important; font-weight: 500 !important; cursor: pointer !important; box-sizing: border-box !important; }
+    #wishlist-root .btn-remove:hover { background: #f5c6c6 !important; transform: scale(1.02) !important; }
+
+    #wishlist-root .w-empty { display: flex !important; align-items: center !important; justify-content: center !important; min-height: 55vh !important; }
+    #wishlist-root .w-empty-box { text-align: center !important; padding: 60px 40px !important; background: #fff !important; border-radius: 16px !important; border: 1px solid #e0ece5 !important; box-shadow: 0 4px 24px rgba(26,60,46,0.08) !important; max-width: 420px !important; width: 100% !important; margin: 0 auto !important; }
+    #wishlist-root .w-empty-icon { font-size: 4rem !important; color: #e74c3c !important; opacity: 0.3 !important; display: block !important; margin-bottom: 20px !important; }
+    #wishlist-root .w-empty-box h3 { font-family: 'Playfair Display', serif !important; font-size: 1.5rem !important; font-weight: 700 !important; color: #1a3c2e !important; margin: 0 0 10px 0 !important; display: block !important; font-style: normal !important; line-height: 1.3 !important; }
+    #wishlist-root .w-empty-box p { font-family: 'DM Sans', sans-serif !important; font-size: 14px !important; color: #6b8c78 !important; margin: 0 0 28px 0 !important; line-height: 1.6 !important; font-style: normal !important; display: block !important; text-align: center !important; }
+    #wishlist-root .btn-explore { display: inline-flex !important; align-items: center !important; gap: 8px !important; background: linear-gradient(135deg, #52b788, #2d6a4f) !important; color: #fff !important; border-radius: 100px !important; padding: 11px 30px !important; font-family: 'DM Sans', sans-serif !important; font-size: 14px !important; font-weight: 500 !important; text-decoration: none !important; box-shadow: 0 6px 18px rgba(45,106,79,0.28) !important; cursor: pointer !important; border: none !important; }
+    #wishlist-root .btn-explore:hover { opacity: 0.88 !important; color: #fff !important; }
+
+    @media (max-width: 600px) {
+      #wishlist-root { padding: 80px 14px 40px !important; }
+      #wishlist-root .w-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 14px !important; }
+    }
+  `;
+  document.head.appendChild(s);
+</script>
+
+<div id="wishlist-root">
+  <div class="wp-inner">
+
+    <div class="w-header">
+      <h1 class="w-title">
+        <i class="fas fa-heart"></i> My Wishlist
+      </h1>
+      <% if (wishlistProducts.length > 0) { %>
+        <span class="w-count">
+          <i class="fas fa-layer-group" style="margin-right:5px; font-size:11px;"></i>
+          <%= wishlistProducts.length %> item<%= wishlistProducts.length !== 1 ? 's' : '' %>
+        </span>
+      <% } %>
     </div>
-  <% } else { %>
-    <p style="text-align:center;">Your wishlist is empty.</p>
-  <% } %>
 
+    <% if (wishlistProducts.length > 0) { %>
 
-</body>
+      <div class="w-grid">
+        <% wishlistProducts.forEach(function(product) { %>
+          <div class="w-card">
+            <div class="w-img-wrap">
+              <img src="/uploads/product-images/<%= product.productImage[0] %>"
+                   alt="<%= product.productName %>">
+              <div class="w-heart-badge"><i class="fas fa-heart"></i></div>
+            </div>
+            <div class="w-body">
+              <div class="w-name"><%= product.productName %></div>
+              <div class="w-price">&#8377;<%= product.salePrice %><span>Sale Price</span></div>
+              <div class="w-actions">
+                <form action="/wishlist/remove/<%= product._id %>" method="POST" class="remove-wishlist-form">
+                  <input type="hidden" name="productId" value="<%= product._id %>">
+                  <button type="button" class="btn-remove" onclick="confirmRemove(this)">
+                    <i class="fas fa-heart-broken"></i> Remove from Wishlist
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
 
+    <% } else { %>
 
-</html>
+      <div class="w-empty">
+        <div class="w-empty-box">
+          <i class="fas fa-heart w-empty-icon"></i>
+          <h3>Your wishlist is empty</h3>
+          <p>Browse our products and save the ones you love — they'll appear right here.</p>
+          <a href="/products" class="btn-explore">
+            <i class="fas fa-shopping-bag"></i> Explore Products
+          </a>
+        </div>
+      </div>
+
+    <% } %>
+
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   function confirmRemove(button) {
@@ -137,7 +123,6 @@
       confirmButtonText: "Yes, remove it!"
     }).then((result) => {
       if (result.isConfirmed) {
-        // Find the closest form element and submit it
         button.closest("form").submit();
       }
     });

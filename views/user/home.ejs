@@ -1,265 +1,632 @@
 
 
-    <!-- Navigation -->
-    <%-include("../../views/partials/user/header")%>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .btn-disabled {
-            background-color: gray;
-            color: white;
-            cursor: not-allowed;
-        }
-        .hero {
-            background-color: white; /* Set the background color to white */
-            padding: 20px; /* Optional: Add some padding for spacing */
-            text-align: center; /* Optional: Center-align text */
-        }
-        .hero img {
-            max-width: 100%; /* Ensure the image is responsive */
-            height: auto; 
-            margin-left: 100px;/* Maintain aspect ratio */
-        }
-        .hero-content {
-            position: relative; /* Position relative to allow absolute positioning if needed */
-            z-index: 1; 
-            margin-right: 50px;/* Ensure content appears above background elements */
-        }
-        .shop-btn {
-            background-color: #28a745; /* Green button */
-            color: white; /* Button text color */
-            border: none; /* Remove border */
-            padding: 10px 20px; /* Button padding */
-            font-size: 16px; /* Button font size */
-            cursor: pointer; /* Pointer cursor on hover */
-        }
-        .shop-btn:hover {
-            background-color: #218838; /* Darker green on hover */
-        }
-        .pagination .page-item .page-link {
-            color: #007bff; /* Default text color for links */
-        }
-        
-        .pagination .page-item.active .page-link {
-            background-color: #007bff; /* Background color for active page */
-            color: white; /* Text color for active page */
-            border-color: #007bff; /* Border color for active page */
-        }
-        
-        .pagination .page-item .page-link:hover {
-            color: #0056b3; /* Hover color */
-           
-        }
-        .pagination {
-            display: flex;
-            justify-content: center; /* Centers the pagination */
-            padding-top: 20px; /* Optional: Adds some space above the pagination */
-        }
-        .product-img-action-wrap {
-            position: relative; /* Makes the wrapper a reference point for absolute positioning */
-        }
-        .wishlist-btn-wrapper {
-            position: absolute;
-            top: 10px;
-            left: 30px;
-            background-color: white; /* White background */
-            padding: 5px; /* Adds padding around the heart icon */
-            border-radius: 4px; /* Optional: adds rounded corners */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: small shadow for effect */
-        }
-          
+   <!-- Navigation -->
+<%-include("../../views/partials/user/header")%>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-.wishlist-btn {
+<style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+        --green-dark: #1a3c2e;
+        --green-mid: #2d6a4f;
+        --green-light: #52b788;
+        --green-pale: #d8f3dc;
+        --cream: #faf7f0;
+        --warm-white: #fffef9;
+        --gold: #c9a84c;
+        --text-dark: #1c2b1e;
+        --text-muted: #6b7c6e;
+        --shadow-soft: 0 8px 40px rgba(26,60,46,0.10);
+        --shadow-card: 0 4px 24px rgba(26,60,46,0.08);
+        --radius: 16px;
+    }
+
+    body {
+        background-color: var(--cream);
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-dark);
+    }
+
+    /* ── HERO ────────────────────────────────── */
+    .hero {
+        position: relative;
+        min-height: 88vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(135deg, #0d2818 0%, #1a3c2e 40%, #2d6a4f 100%);
+        padding: 80px 40px 60px;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse 60% 50% at 80% 50%, rgba(82,183,136,0.18) 0%, transparent 70%),
+            radial-gradient(ellipse 40% 60% at 20% 80%, rgba(201,168,76,0.10) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .hero-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        pointer-events: none;
+    }
+    .hero-blob-1 { width: 400px; height: 400px; background: rgba(82,183,136,0.15); top: -80px; right: 10%; }
+    .hero-blob-2 { width: 250px; height: 250px; background: rgba(201,168,76,0.12); bottom: 40px; left: 5%; }
+
+    .hero-inner {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 60px;
+        max-width: 1200px;
+        width: 100%;
+    }
+
+    .hero-text { flex: 1; color: #fff; }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(82,183,136,0.2);
+        border: 1px solid rgba(82,183,136,0.4);
+        color: var(--green-light);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 6px 16px;
+        border-radius: 100px;
+        margin-bottom: 24px;
+    }
+
+    .hero-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2.8rem, 5vw, 4.5rem);
+        line-height: 1.12;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #fff;
+    }
+
+    .hero-title em {
+        font-style: italic;
+        color: var(--green-light);
+    }
+
+    .hero-desc {
+        font-size: 1.05rem;
+        line-height: 1.75;
+        color: rgba(255,255,255,0.72);
+        max-width: 460px;
+        margin-bottom: 36px;
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 32px;
+        border-radius: 100px;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 8px 28px rgba(82,183,136,0.35);
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(82,183,136,0.45); color: #fff; }
+
+    .hero-image { flex: 1; display: flex; justify-content: center; }
+    .hero-image img {
+        max-width: 480px;
+        width: 100%;
+        height: auto;
+        filter: drop-shadow(0 20px 50px rgba(0,0,0,0.35));
+        animation: floatImg 5s ease-in-out infinite;
+    }
+    @keyframes floatImg {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-14px); }
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 40px;
+        margin-top: 40px;
+    }
+    .stat-item { color: rgba(255,255,255,0.85); }
+    .stat-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--green-light);
+        display: block;
+    }
+    .stat-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.65; }
+
+    /* ── SECTION HEADER ──────────────────────── */
+    .section-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+    .section-tag {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--green-mid);
+        margin-bottom: 12px;
+    }
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(2rem, 3.5vw, 2.8rem);
+        font-weight: 700;
+        color: var(--green-dark);
+        line-height: 1.2;
+    }
+    .section-divider {
+        width: 48px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--green-light), var(--gold));
+        border-radius: 2px;
+        margin: 16px auto 0;
+    }
+
+    /* ── PRODUCTS SECTION ────────────────────── */
+    .products-section {
+        padding: 90px 0 60px;
+        background: var(--warm-white);
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 28px;
+        padding: 0 20px;
+    }
+
+    .product-card {
+        background: #fff;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+        transition: transform 0.3s cubic-bezier(.25,.8,.25,1), box-shadow 0.3s;
+        position: relative;
+    }
+    .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 48px rgba(26,60,46,0.14);
+    }
+
+    .product-img-wrap {
+        position: relative;
+        background: var(--green-pale);
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .product-img-wrap img {
+        max-height: 180px;
+        max-width: 80%;
+        object-fit: contain;
+        transition: transform 0.4s ease;
+    }
+    .product-card:hover .product-img-wrap img { transform: scale(1.07); }
+
+    .wishlist-btn-wrapper {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+    }
+    .wishlist-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.12);
         cursor: pointer;
-        font-size: 24px;
-        color: #d1d1d1; /* Grey for inactive */
-        transition: color 0.3s ease;
-       
-      }
-      
-      .wishlist-btn.active i {
-        color: #e74c3c; /* Red for active */
-      }
-
-      .product-img img {
-        width: 100%; /* Ensures the image fits within the container */
-        height: auto; /* Maintains aspect ratio */
-        max-width: 250px; /* Set a maximum width if you want */
+        transition: transform 0.2s, box-shadow 0.2s;
+        font-size: 15px;
+        color: #ccc;
     }
-    .product-cart-wrap:hover .product-img img {
-        transform: scale(1.05); /* Scales up the image slightly */
-        transition: transform 0.3s ease; /* Smooth transition */
+    .wishlist-btn:hover { transform: scale(1.15); box-shadow: 0 4px 16px rgba(0,0,0,0.16); }
+    .wishlist-btn.active { color: #e74c3c; }
+    .wishlist-btn.active i { color: #e74c3c; }
+
+    .product-body {
+        padding: 18px 20px 20px;
     }
-    
-    /* Optional: Add a shadow to make it stand out */
-    .product-cart-wrap:hover {
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    .product-name {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 6px;
+        line-height: 1.4;
     }
-    </style>
-    
+    .product-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--green-mid);
+        margin-bottom: 14px;
+    }
 
-    
+    .btn-cart {
+        width: 100%;
+        padding: 10px 0;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--green-mid), var(--green-dark));
+        color: #fff;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.2s;
+        letter-spacing: 0.3px;
+    }
+    .btn-cart:hover:not(:disabled) { opacity: 0.9; transform: scale(1.02); }
+    .btn-cart:disabled {
+        background: #d1d9d4;
+        color: #8a9e91;
+        cursor: not-allowed;
+    }
 
-    
+    /* ── PAGINATION ──────────────────────────── */
+    .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        padding: 40px 0 20px;
+        gap: 8px;
+    }
+    .page-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--green-mid);
+        background: #fff;
+        border: 1.5px solid #e0ece5;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .page-pill:hover { background: var(--green-pale); color: var(--green-dark); }
+    .page-pill.active {
+        background: var(--green-mid);
+        color: #fff;
+        border-color: var(--green-mid);
+        box-shadow: 0 4px 14px rgba(45,106,79,0.35);
+    }
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <img style="margin-top: 50px;" src="images/organic.png" alt="Organic Products">
-        <div class="hero-content">
-            <h5>Premium Organic Quality</h5>
-            <h2>Join The Organic Movement!</h2>
-            <p>Our mission is to provide fresh, organic, and sustainable products that promote a healthy lifestyle and protect the environment.</p>
-           
-        </div>
-    </section>
-    <!--products-->
-    <section class="product spad">
-        <div class="container" >
-            <div class="row">
-                <div class="col-lg-12">
-                    <ul class="filter__controls">
-                        <h2 style="color: green;">Our Products</h2>
-                    </ul>
+    /* ── TRENDING ────────────────────────────── */
+    .trending-section {
+        background: linear-gradient(180deg, var(--cream) 0%, var(--green-pale) 100%);
+        padding: 80px 0;
+    }
+
+    .trending-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 24px;
+        padding: 0 20px;
+    }
+
+    .trending-card {
+        background: #fff;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-card);
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .trending-card:hover { transform: translateY(-5px); box-shadow: 0 16px 40px rgba(26,60,46,0.13); }
+
+    .trending-img-wrap {
+        background: var(--green-pale);
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .trending-img-wrap img {
+        max-height: 160px;
+        max-width: 75%;
+        object-fit: contain;
+        transition: transform 0.35s;
+    }
+    .trending-card:hover .trending-img-wrap img { transform: scale(1.06); }
+
+    .trending-body { padding: 16px 18px 20px; }
+    .trending-name {
+        font-weight: 500;
+        font-size: 14.5px;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+    .trending-price {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.1rem;
+        color: var(--green-mid);
+        font-weight: 700;
+    }
+
+    .trending-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: var(--gold);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        border-radius: 100px;
+    }
+
+    /* ── REVIEWS ─────────────────────────────── */
+    .reviews-section {
+        padding: 90px 0;
+        background: var(--green-dark);
+    }
+    .reviews-section .section-title { color: #fff; }
+    .reviews-section .section-tag { color: var(--green-light); }
+    .reviews-section .section-divider { background: linear-gradient(90deg, var(--green-light), var(--gold)); }
+
+    .reviews-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .review-card {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: var(--radius);
+        padding: 32px 28px;
+        backdrop-filter: blur(8px);
+        transition: background 0.2s;
+    }
+    .review-card:hover { background: rgba(255,255,255,0.10); }
+
+    .review-stars { color: var(--gold); font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; }
+    .review-quote {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem;
+        font-style: italic;
+        color: rgba(255,255,255,0.88);
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+    .review-author { display: flex; align-items: center; gap: 12px; }
+    .review-author img {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--green-light);
+    }
+    .review-name { font-weight: 500; color: #fff; font-size: 14px; }
+    .review-role { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 768px) {
+        .hero-inner { flex-direction: column; text-align: center; gap: 36px; }
+        .hero-desc { margin: 0 auto 32px; }
+        .hero-stats { justify-content: center; }
+        .hero-image { order: -1; }
+        .hero-image img { max-width: 280px; }
+    }
+</style>
+
+<!-- ════════════════ HERO ════════════════ -->
+<section class="hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+    <div class="hero-inner">
+        <div class="hero-text">
+            <div class="hero-badge"><i class="fas fa-leaf"></i> 100% Certified Organic</div>
+            <h1 class="hero-title">
+                Join The <em>Organic</em><br>Movement Today
+            </h1>
+            <p class="hero-desc">
+                Fresh, organic, and sustainable products that promote a healthy lifestyle and protect the environment — straight from nature to your door.
+            </p>
+            <a href="#products" class="hero-cta">
+                Shop Now <i class="fas fa-arrow-right"></i>
+            </a>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Products</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10K+</span>
+                    <span class="stat-label">Customers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100%</span>
+                    <span class="stat-label">Organic</span>
                 </div>
             </div>
-            <div class="row product__filter">
-                <%for(let i=0;i<products.length;i++){%>
-                    <div class="col-lg-3 col-md-4 col-12 col-sm-6">
-                        <div class="product-cart-wrap mb-30">
-                            <div class="product-img-action-wrap">
-                                <div class="product-img product-img-zoom" style="margin-top: 100px;">
-
-                                    <a href="/productDetails?id=<%=products[i]._id%>">
-                                        <img class="default-img" src="/uploads/product-images/<%=products[i].productImage[0]%>" alt="<%=products[i].productName%>">
-                                       
-                                     
-                                    </a>
-
-        
-                              
-                                </div>
-                                <div class="wishlist-btn-wrapper">
-                                    <span class="wishlist-btn <%= products[i].isInWishlist ? 'active' : '' %>" onclick="toggleWishlist(this, '<%= products[i]._id %>')">
-                                        <i class="<%= products[i].isInWishlist ? 'fas fa-heart' : 'far fa-heart' %>"></i>
-                                    </span> 
-                                
-                                </div>
-                               
-                            </div>
-                           
-                            <form action="/cart/add/<%=products[i]._id%>" method="POST">
-                                <div class="product-content-wrap">
-                                    <h6><%=products[i].productName%></h6>
-                                   
-                                    
-                                        <h5>&#8377;<%= products[i].salePrice.toFixed(2) %></h5>
-                                        
-                                            
-                                      
-                                  
-
-                                    
-                                   
-                            <input type="hidden" name="quantity" id="quantity" min="1" max="<%= Math.min(products[i].quantity, products[i].maxQuantity) %>" required  value="1">
-                           
-                                    <button type="submit" class="btn btn-success" <% if (products[i].quantity <= 0) { %> disabled <% } %>><%= products[i].quantity > 0 ? 'Add to Cart' : 'Out of Stock' %></button>
-                                </div> 
-
-                            </form>
-                           
-      
-      
-                            
-                        </div>
-                    </div>
-                    <%}%>
-            </div>
         </div>
-      </section>
-
-      
-      <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            <% for (let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                    <a class="page-link" href="/?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>   
-      
-      
-      
-      
-    
-    <!-- Trending Products Section -->
-    <!-- Trending Products Section -->
-<section class="product-section container">
-    <h2>Trending Products</h2>
-    <div class="row">
-        <% for (let i = 0; i < trendingProducts.length; i++) { %>
-            <div class="col-md-4 product">
-                <a href="/productDetails?id=<%= trendingProducts[i]._id %>">
-                    <img src="/uploads/product-images/<%= trendingProducts[i].productImage[0] %>" alt="<%= trendingProducts[i].productName %>">
-                </a>
-                <h5><%= trendingProducts[i].productName %></h5>
-                <p>Price: Rs <%= trendingProducts[i].salePrice.toFixed(2) %></p>
-                
-
-            </div>
-        <% } %>
+        <div class="hero-image">
+            <img src="images/organic.png" alt="Organic Products">
+        </div>
     </div>
 </section>
 
+<!-- ════════════════ PRODUCTS ════════════════ -->
+<section class="products-section" id="products">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Fresh &amp; Natural</span>
+            <h2 class="section-title">Our Products</h2>
+            <div class="section-divider"></div>
+        </div>
 
-    <!-- Reviews Section -->
-    <section class="reviews">
-        <h2>What Our Customers Say</h2>
-        <div class="review-item">
-            <img class="review-img" src="images/client1.png" alt="User 1">
-            <div>
-                <p>"Great products, excellent quality! Will definitely shop again."</p>
-                <p><strong>John Doe</strong></p>
+        <div class="product-grid">
+            <% for(let i = 0; i < products.length; i++) { %>
+            <div class="product-card">
+                <div class="product-img-wrap">
+                    <a href="/productDetails?id=<%= products[i]._id %>">
+                        <img src="/uploads/product-images/<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                    </a>
+                    <div class="wishlist-btn-wrapper">
+                        <span class="wishlist-btn <%= products[i].isInWishlist ? 'active' : '' %>"
+                              onclick="toggleWishlist(this, '<%= products[i]._id %>')">
+                            <i class="<%= products[i].isInWishlist ? 'fas fa-heart' : 'far fa-heart' %>"></i>
+                        </span>
+                    </div>
+                </div>
+                <form action="/cart/add/<%= products[i]._id %>" method="POST">
+                    <div class="product-body">
+                        <div class="product-name"><%= products[i].productName %></div>
+                        <div class="product-price">&#8377;<%= products[i].salePrice.toFixed(2) %></div>
+                        <input type="hidden" name="quantity" id="quantity" min="1"
+                               max="<%= Math.min(products[i].quantity, products[i].maxQuantity) %>"
+                               required value="1">
+                        <button type="submit" class="btn-cart"
+                                <% if (products[i].quantity <= 0) { %> disabled <% } %>>
+                            <% if (products[i].quantity > 0) { %>
+                                <i class="fas fa-shopping-cart" style="margin-right:6px;font-size:12px;"></i>Add to Cart
+                            <% } else { %>
+                                Out of Stock
+                            <% } %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════ PAGINATION ════════════════ -->
+<div class="pagination-wrap">
+    <% for (let i = 1; i <= totalPages; i++) { %>
+    <a class="page-pill <%= i === currentPage ? 'active' : '' %>" href="/?page=<%= i %>"><%= i %></a>
+    <% } %>
+</div>
+
+<!-- ════════════════ TRENDING ════════════════ -->
+<section class="trending-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">What's Hot</span>
+            <h2 class="section-title">Trending Products</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="trending-grid">
+            <% for (let i = 0; i < trendingProducts.length; i++) { %>
+            <a class="trending-card" href="/productDetails?id=<%= trendingProducts[i]._id %>">
+                <span class="trending-badge"><i class="fas fa-fire-alt"></i> Trending</span>
+                <div class="trending-img-wrap">
+                    <img src="/uploads/product-images/<%= trendingProducts[i].productImage[0] %>"
+                         alt="<%= trendingProducts[i].productName %>">
+                </div>
+                <div class="trending-body">
+                    <div class="trending-name"><%= trendingProducts[i].productName %></div>
+                    <div class="trending-price">&#8377;<%= trendingProducts[i].salePrice.toFixed(2) %></div>
+                </div>
+            </a>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════ REVIEWS ════════════════ -->
+<section class="reviews-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Testimonials</span>
+            <h2 class="section-title">What Our Customers Say</h2>
+            <div class="section-divider"></div>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-quote">"Great products, excellent quality! Will definitely shop again."</p>
+                <div class="review-author">
+                    <img src="images/client1.png" alt="John Doe">
+                    <div>
+                        <div class="review-name">John Doe</div>
+                        <div class="review-role">Verified Buyer</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-quote">"Amazing customer service and fast delivery. Highly recommended."</p>
+                <div class="review-author">
+                    <img src="images/client2.png" alt="Jane Smith">
+                    <div>
+                        <div class="review-name">Jane Smith</div>
+                        <div class="review-role">Verified Buyer</div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="review-item">
-            <img class="review-img" src="images/client2.png" alt="User 2">
-            <div>
-                <p>"Amazing customer service and fast delivery. Highly recommended."</p>
-                <p><strong>Jane Smith</strong></p>
-            </div>
-        </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Footer -->
-     <%-include("../../views/partials/user/footer")%>
-     <script>
-        async function toggleWishlist(element,productId){
-            const isInWishlist=element.classList.contains('active')
-            if(isInWishlist){
-                const response=await fetch(`/wishlist/remove/${productId}`,{
-                    method:'POST',
-                    headers:{ 'Content-Type': 'application/json' },
-                    body:JSON.stringify({productId})
+<!-- Footer -->
+<%-include("../../views/partials/user/footer")%>
 
-
-                })
-                if(response.ok){
-                    element.classList.remove('active')
-                    element.innerHTML = '<i class="far fa-heart"></i>';
-                }
-            }else{
-                const response=await fetch('/wishlist/add',{
-                    method:'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:JSON.stringify({productId})
-
-                })
-                if(response.ok){
-                    element.classList.add('active');
-                    element.innerHTML='<i class="fas fa-heart" style="color: red;" ></i>';
-                }
+<script>
+    async function toggleWishlist(element, productId) {
+        const isInWishlist = element.classList.contains('active');
+        if (isInWishlist) {
+            const response = await fetch(`/wishlist/remove/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+            if (response.ok) {
+                element.classList.remove('active');
+                element.innerHTML = '<i class="far fa-heart"></i>';
+            }
+        } else {
+            const response = await fetch('/wishlist/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+            if (response.ok) {
+                element.classList.add('active');
+                element.innerHTML = '<i class="fas fa-heart" style="color:#e74c3c;"></i>';
             }
         }
-
-     </script>
-    
+    }
+</script>

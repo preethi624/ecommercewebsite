@@ -4,263 +4,467 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Billing Information</title>
-  
-  <!-- Modernized CSS Styling -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      padding: 0;
-      color: #333;
+    :root {
+      --green-dark:  #1a3c2e;
+      --green-mid:   #2d6a4f;
+      --green-light: #52b788;
+      --green-pale:  #d8f3dc;
+      --cream:       #faf7f0;
+      --gold:        #c9a84c;
+      --radius:      14px;
+      --shadow:      0 4px 24px rgba(26,60,46,0.08);
     }
-  
-    header {
-      background-color: #007bff;
-      padding: 1.5em;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: #1c2b1e; }
+
+    /* ── PAGE LAYOUT ── */
+    .billing-page {
+      max-width: 1100px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 32px;
+      align-items: start;
     }
-  
-    header nav ul {
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      justify-content: space-around;
-    }
-  
-    header nav ul li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.5em 1.5em;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-  
-    header nav ul li a:hover {
-      background-color: #0056b3;
-    }
-  
-    main {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 30px;
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    }
-  
-    h1 {
-      text-align: center;
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      color: #007bff;
-    }
-  
-    .billing-details, .billing-address, .billed-items {
-      margin-bottom: 30px;
-      border-bottom: 2px solid #e0e0e0;
-      padding-bottom: 20px;
-    }
-  
-    h2, h3, h4 {
-      margin-bottom: 10px;
-      font-weight: 600;
-      color: #555;
-    }
-  
-    .card {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-    }
-  
-    .card p {
-      margin: 0;
-      font-size: 1rem;
-    }
-  
-    ul.billed-items {
-      list-style: none;
-      padding: 0;
-    }
-  
-    ul.billed-items li {
+
+    /* ── PAGE TITLE ── */
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--green-dark);
+      margin-bottom: 28px;
       display: flex;
       align-items: center;
-      padding: 15px;
-      border: 1px solid #e0e0e0;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      background-color: #ffffff;
-      transition: box-shadow 0.3s;
+      gap: 12px;
+      grid-column: 1 / -1;
     }
-  
-    ul.billed-items li:hover {
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    .page-title i { color: var(--green-light); }
+
+    /* ── CARDS ── */
+    .co-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid #e0ece5;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 24px;
     }
-  
-    ul.billed-items li img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      margin-right: 20px;
-      border-radius: 5px;
+    .co-card-header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-  
-    ul.billed-items li strong {
+    .co-card-header h4 {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1rem;
+      margin: 0;
       font-weight: 600;
-      margin-right: 5px;
     }
-  
-    p {
-      font-size: 1rem;
-      margin-bottom: 10px;
+    .co-card-header i { color: var(--green-light); font-size: 14px; }
+    .co-card-body { padding: 22px; }
+
+    /* ── ORDER META ── */
+    .order-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
-  
-    .billing-summary {
-      margin-top: 30px;
-      padding: 20px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      background-color: #f7f7f7;
+    .meta-pill {
+      background: var(--green-pale);
+      border-radius: 10px;
+      padding: 14px 16px;
     }
-  
-    button, .cod-btn button {
-    
-      background-color: #ffffff; /* Keep Bootstrap styling */
-      color: #198754; /* Success green color */
-      border: 1px solid #198754;
-      padding: 12px 24px;
-      
-      border-radius: 5px;
+    .meta-pill .pill-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--green-mid);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .meta-pill .pill-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+
+    /* status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #fff8e6;
+      border: 1px solid var(--gold);
+      color: #8a6200;
+      border-radius: 100px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ── ADDRESS ── */
+    .address-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .address-icon {
+      width: 42px; height: 42px;
+      background: var(--green-pale);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--green-mid); font-size: 17px;
+      flex-shrink: 0;
+    }
+    .address-name { font-weight: 600; font-size: 15px; color: var(--green-dark); margin-bottom: 4px; }
+    .address-detail { font-size: 13.5px; color: #4a6355; line-height: 1.6; }
+    .address-detail a { color: var(--green-mid); font-weight: 500; }
+
+    /* ── BILLED ITEMS ── */
+    .billed-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f5f2;
+    }
+    .billed-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .billed-item-img {
+      width: 72px; height: 72px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: var(--green-pale);
+      padding: 4px;
+      flex-shrink: 0;
+    }
+    .billed-item-info { flex: 1; }
+    .billed-item-name { font-weight: 600; font-size: 14.5px; color: var(--green-dark); margin-bottom: 5px; }
+    .billed-item-meta { display: flex; gap: 16px; font-size: 13px; color: #6b8c78; }
+    .billed-item-meta span { display: flex; align-items: center; gap: 4px; }
+    .billed-item-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-mid);
+      white-space: nowrap;
+    }
+
+    /* ── PAYMENT METHOD ── */
+    .payment-options { display: flex; flex-direction: column; gap: 12px; }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 2px solid #e0ece5;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background-color 0.3s;
-      display: block;
-      margin-left: 300px;
-      margin-bottom: 50px;
-     
-     
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
     }
-  
-   
-  
-    footer {
+    .payment-option:has(input:checked) {
+      border-color: var(--green-light);
+      background: #f2fbf5;
+    }
+    .payment-option input[type="radio"] { accent-color: var(--green-mid); width: 18px; height: 18px; flex-shrink: 0; }
+    .payment-option-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .icon-razorpay { background: #e8f4ff; color: #005bbb; }
+    .icon-cod      { background: #fff8e6; color: #8a6200; }
+    .icon-wallet   { background: var(--green-pale); color: var(--green-mid); }
+    .payment-option-label { font-weight: 500; font-size: 14.5px; color: var(--green-dark); }
+    .payment-option-sub   { font-size: 12px; color: #8aab96; margin-top: 2px; }
+
+    /* ── RIGHT: BILLING SUMMARY ── */
+    .summary-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid #e0ece5;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: sticky;
+      top: 90px;
+    }
+    .summary-header {
+      background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+      padding: 16px 22px;
+    }
+    .summary-header h4 {
+      font-family: 'Playfair Display', serif;
+      color: #fff; font-size: 1.05rem; margin: 0;
+    }
+    .summary-body { padding: 20px 22px; }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #4a6355;
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f5f2;
+    }
+    .summary-row:last-of-type { border-bottom: none; }
+    .summary-row .s-label { font-weight: 400; }
+    .summary-row .s-value { font-weight: 600; color: var(--green-dark); }
+    .summary-row.deduction .s-value { color: #e67e22; }
+
+    .summary-divider { border: none; border-top: 2px dashed #d8ead0; margin: 12px 0; }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0 4px;
+    }
+    .summary-total .t-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem; font-weight: 700; color: var(--green-dark);
+    }
+    .summary-total .t-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem; font-weight: 700; color: var(--green-mid);
+    }
+
+    .btn-pay {
+      display: block; width: 100%;
+      margin-top: 20px; padding: 13px;
+      background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+      color: #fff; border: none; border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 600; cursor: pointer;
       text-align: center;
-      margin-top: 40px;
-      padding: 20px;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 6px 20px rgba(45,106,79,0.28);
+      letter-spacing: 0.3px;
     }
-  
-    footer a {
-      text-decoration: none;
-      color: #007bff;
-      font-weight: 500;
+    .btn-pay:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .secure-note {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; font-size: 12px; color: #8aab96; margin-top: 12px;
     }
-  
-    footer a:hover {
-      text-decoration: underline;
+
+    /* ── FOOTER ── */
+    .billing-footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 14px;
+    }
+    .billing-footer a {
+      color: var(--green-mid); font-weight: 500; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .billing-footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .billing-page { grid-template-columns: 1fr; }
+      .summary-card { position: static; }
+      .page-title { grid-column: 1; }
+    }
+    @media (max-width: 560px) {
+      .order-meta-grid { grid-template-columns: 1fr 1fr; }
+      .billing-page { padding: 0 14px; margin-top: 80px; }
     }
   </style>
-  
 </head>
 <body>
-  
-  <!-- Include the header -->
-  <%- include("../partials/user/header") %>
 
-  <main>
-    <h1>Billing Information</h1>
-    
-    <div class="billing-details">
-      <h2>Billing ID: <%= order.orderId %></h2>
-      <p>Payment Status: <%= order.status %></p>
-      <p>Billing Date: <%= new Date(order.invoiceDate).toLocaleDateString() %></p>
+<%- include("../partials/user/header") %>
+
+<div class="billing-page">
+
+  <h1 class="page-title"><i class="fas fa-file-invoice"></i> Billing Information</h1>
+
+  <!-- ── LEFT COLUMN ── -->
+  <div>
+
+    <!-- Order Meta -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-hashtag"></i>
+        <h4>Order Details</h4>
+      </div>
+      <div class="co-card-body">
+        <div class="order-meta-grid">
+          <div class="meta-pill">
+            <div class="pill-label">Order ID</div>
+            <div class="pill-value" style="font-size:12.5px;">#<%= order.orderId %></div>
+          </div>
+          <div class="meta-pill">
+            <div class="pill-label">Status</div>
+            <div class="pill-value">
+              <span class="status-badge"><i class="fas fa-circle" style="font-size:7px;"></i> <%= order.status %></span>
+            </div>
+          </div>
+          <div class="meta-pill">
+            <div class="pill-label">Billing Date</div>
+            <div class="pill-value"><%= new Date(order.invoiceDate).toLocaleDateString() %></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="billing-address mb-4">
-      <h4>Billing Address</h4>
-      <div class="card p-3 mb-4">
+    <!-- Billing Address -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-map-marker-alt"></i>
+        <h4>Billing Address</h4>
+      </div>
+      <div class="co-card-body">
         <% if (user.defaultAddress) { %>
           <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
           <% if (defaultAddress) { %>
-            <p>
-              <strong><%= defaultAddress.fullName %></strong><br>
-              <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
-            </p>
+          <div class="address-row">
+            <div class="address-icon"><i class="fas fa-home"></i></div>
+            <div>
+              <div class="address-name"><%= defaultAddress.fullName %></div>
+              <div class="address-detail">
+                <%= defaultAddress.address %>, <%= defaultAddress.city %>,<br>
+                <%= defaultAddress.country %> — <%= defaultAddress.postalCode %>
+              </div>
+            </div>
+          </div>
           <% } else { %>
-            <p>No default billing address set. Please <a href="/userProfile">add a billing address</a>.</p>
+            <p style="color:#6b8c78;font-size:14px;">No default address. <a href="/userProfile">Add one</a>.</p>
           <% } %>
         <% } else { %>
-          <p>No billing address set. Please <a href="/userProfile">add a billing address</a>.</p>
+          <p style="color:#6b8c78;font-size:14px;">No billing address set. <a href="/userProfile">Add one</a>.</p>
         <% } %>
       </div>
     </div>
 
-    <h3>Billed Items:</h3>
-    <ul class="billed-items">
-      <% order.orderedItems.forEach((item, index) => { %>
-        <li>
-          <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>">
-          <div>
-            <strong>Product:</strong> <%= item.product.productName %> - 
-            <strong>Quantity:</strong> <%= item.quantity %> - 
-            <strong>Price:</strong>&#8377; <%= item.price %>
+    <!-- Billed Items -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-box-open"></i>
+        <h4>Billed Items</h4>
+      </div>
+      <div class="co-card-body">
+        <% order.orderedItems.forEach((item, index) => { %>
+        <div class="billed-item">
+          <img class="billed-item-img"
+               src="/uploads/product-images/<%= item.product.productImage[0] %>"
+               alt="<%= item.product.productName %>">
+          <div class="billed-item-info">
+            <div class="billed-item-name"><%= item.product.productName %></div>
+            <div class="billed-item-meta">
+              <span><i class="fas fa-times"></i> <%= item.quantity %> qty</span>
+              <span><i class="fas fa-tag"></i> &#8377;<%= item.price %> each</span>
+            </div>
           </div>
-        </li>
-      <% }); %>
-    </ul>
-
-    <div class="billing-summary">
-      <h3>Billing Summary:</h3>
-      <p><strong>Total Amount:</strong>&#8377; <%= order.totalPrice+30 %></p>
-      <p><strong>Deduction (Including referral offer and coupon discount):</strong> &#8377;<%= order.discount %></p>
-      <p><strong>Amount to Pay:</strong> &#8377;<%= order.finalAmount+30 %></p>
-    </div>
-   
-    <h3>Select Payment Method:</h3>
-    <div class="billing-summary">
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payRazorpay" value="razorpay" checked>
-        <label class="form-check-label" for="payRazorpay">Pay Now (Razorpay)</label>
+          <div class="billed-item-price">&#8377;<%= (item.price * item.quantity).toFixed(2) %></div>
+        </div>
+        <% }); %>
       </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payCOD" value="cod">
-        <label class="form-check-label" for="payCOD">Cash on Delivery</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio" name="paymentMethod" id="payWallet" value="wallet">
-        <label class="form-check-label" for="payWallet">Pay using Wallet</label>
-      </div>
-      <button id="paymentButton" class="btn btn-outline-success mt-3">Proceed with Payment</button>
     </div>
 
-    <form id="codForm" method="POST" action="/order/codConfirmation/<%= order._id %>" style="display: none;"></form>
-    <form id="wallForm" method="POST" action="/order/paymentWallet/<%= order._id %>" style="display: none;"></form>
+    <!-- Payment Method -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-credit-card"></i>
+        <h4>Select Payment Method</h4>
+      </div>
+      <div class="co-card-body">
+        <div class="payment-options">
 
-  </main>
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" id="payRazorpay" value="razorpay" checked>
+            <div class="payment-option-icon icon-razorpay"><i class="fas fa-bolt"></i></div>
+            <div>
+              <div class="payment-option-label">Pay Now — Razorpay</div>
+              <div class="payment-option-sub">Cards, UPI, Net Banking &amp; more</div>
+            </div>
+          </label>
 
-  
-  
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" id="payCOD" value="cod">
+            <div class="payment-option-icon icon-cod"><i class="fas fa-money-bill-wave"></i></div>
+            <div>
+              <div class="payment-option-label">Cash on Delivery</div>
+              <div class="payment-option-sub">Pay when your order arrives (max ₹1000)</div>
+            </div>
+          </label>
 
+          <label class="payment-option">
+            <input type="radio" name="paymentMethod" id="payWallet" value="wallet">
+            <div class="payment-option-icon icon-wallet"><i class="fas fa-wallet"></i></div>
+            <div>
+              <div class="payment-option-label">Pay using Wallet</div>
+              <div class="payment-option-sub">Use your store wallet balance</div>
+            </div>
+          </label>
 
+        </div>
+      </div>
+    </div>
 
-  <footer>
-    <a href="/">Return to Home</a>
-  </footer>
-  
-</body>
+  </div>
+
+  <!-- ── RIGHT COLUMN: BILLING SUMMARY ── -->
+  <div class="summary-card">
+    <div class="summary-header">
+      <h4><i class="fas fa-receipt" style="margin-right:8px;"></i>Billing Summary</h4>
+    </div>
+    <div class="summary-body">
+      <div class="summary-row">
+        <span class="s-label">Total Amount</span>
+        <span class="s-value">&#8377;<%= order.totalPrice + 30 %></span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">Delivery Charge</span>
+        <span class="s-value">&#8377;30</span>
+      </div>
+      <div class="summary-row deduction">
+        <span class="s-label">Discount &amp; Offers</span>
+        <span class="s-value">− &#8377;<%= order.discount %></span>
+      </div>
+      <hr class="summary-divider">
+      <div class="summary-total">
+        <span class="t-label">Amount to Pay</span>
+        <span class="t-value">&#8377;<%= order.finalAmount + 30 %></span>
+      </div>
+
+      <button id="paymentButton" class="btn-pay">
+        <i class="fas fa-lock" style="margin-right:8px;font-size:13px;"></i>Proceed with Payment
+      </button>
+      <div class="secure-note">
+        <i class="fas fa-shield-alt"></i> 100% Secure &amp; Encrypted
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Hidden forms — unchanged -->
+<form id="codForm"  method="POST" action="/order/codConfirmation/<%= order._id %>"  style="display:none;"></form>
+<form id="wallForm" method="POST" action="/order/paymentWallet/<%= order._id %>" style="display:none;"></form>
+
+<div class="billing-footer">
+  <a href="/"><i class="fas fa-arrow-left"></i> Return to Home</a>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
   const paymentButton = document.getElementById('paymentButton');
 
-  // Define Razorpay options
   const razorpayOptions = {
     "key": "rzp_test_4MBYamMKeUifHI",
     "amount": "<%= amount %>",
@@ -269,24 +473,22 @@
     "handler": function(response) {
       window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&system_order_id=<%= order._id %>`;
     },
-    "theme": {
-      "color": "#007bff"
-    }
+    "theme": { "color": "#2d6a4f" }
   };
 
   const amount = `<%= order.finalAmount %>`;
 
-  // Payment function
-  paymentButton.onclick = function() {
+  paymentButton.onclick = function () {
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
 
     if (selectedPaymentMethod === 'razorpay') {
       Swal.fire({
-        title: 'Proceed with Razorpay Payment?',
+        title: 'Proceed with Razorpay?',
         text: 'Are you sure you want to continue with online payment?',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Yes, Pay Now'
+        confirmButtonText: 'Yes, Pay Now',
+        confirmButtonColor: '#2d6a4f'
       }).then((result) => {
         if (result.isConfirmed) {
           const rzp1 = new Razorpay(razorpayOptions);
@@ -297,20 +499,21 @@
     } else if (selectedPaymentMethod === 'cod') {
       if (amount > 1000) {
         Swal.fire({
-          title: 'Cash on Delivery is unavailable for orders over Rs 1000',
-          icon: 'warning'
+          title: 'COD Unavailable',
+          text: 'Cash on Delivery is not available for orders above ₹1000.',
+          icon: 'warning',
+          confirmButtonColor: '#2d6a4f'
         });
       } else {
         Swal.fire({
-          title: 'Confirm COD Order Placement',
+          title: 'Confirm COD Order',
           text: 'Are you sure you want to place this order?',
           icon: 'warning',
           showCancelButton: true,
-          confirmButtonText: 'Yes, place order'
+          confirmButtonText: 'Yes, place order',
+          confirmButtonColor: '#2d6a4f'
         }).then((result) => {
-          if (result.isConfirmed) {
-            document.getElementById('codForm').submit();
-          }
+          if (result.isConfirmed) document.getElementById('codForm').submit();
         });
       }
 
@@ -320,15 +523,13 @@
         text: 'Are you sure you want to pay using wallet?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, proceed'
+        confirmButtonText: 'Yes, proceed',
+        confirmButtonColor: '#2d6a4f'
       }).then((result) => {
-        if (result.isConfirmed) {
-          document.getElementById('wallForm').submit();
-        }
+        if (result.isConfirmed) document.getElementById('wallForm').submit();
       });
     }
-  }
-  
- 
+  };
 </script>
+</body>
 </html>

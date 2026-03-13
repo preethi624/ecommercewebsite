@@ -91,7 +91,7 @@ router.post("/resend-forgot-otp",profileController.resendOtp)
 router.post("/reset-password",profileController.postNewPassword)
 router.get("/productDetails",userController.productDetails)
 router.get('/demoUser',profileController.demo)
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+//router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get("/userProfile",profileController.getUserProfile)
 router.post("/profile/add-address",profileController.addAddress)
 router.post("/profile/edit-address/:addressId",profileController.editAddress)
@@ -137,13 +137,13 @@ router.get("/contact",userController.getContact)
 
 
 
-router.get('/auth/google/callback',
+/*router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
        
         res.redirect('/demoUser');
     }
-);
+);*/
 
 
 

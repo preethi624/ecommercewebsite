@@ -1,147 +1,527 @@
 
+<%- include("../../views/partials/user/header") %>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  #right-container {
-    position: absolute;
-    top: 0px;
-    right: 20px; 
-    width: 200px; 
-    padding: 20px;
-    background-color: #f8f9fa; 
-    border: 1px solid #ddd; 
-    border-radius: 5px;
-  }
+    :root {
+        --green-dark:  #1a3c2e;
+        --green-mid:   #2d6a4f;
+        --green-light: #52b788;
+        --green-pale:  #d8f3dc;
+        --cream:       #faf7f0;
+        --gold:        #c9a84c;
+        --radius:      14px;
+        --shadow:      0 4px 24px rgba(26,60,46,0.08);
+    }
+
+    body { background: var(--cream); font-family: 'DM Sans', sans-serif; }
+
+    /* ── PAGE LAYOUT ── */
+    .checkout-page {
+        max-width: 1140px;
+        margin: 100px auto 60px;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 32px;
+        align-items: start;
+    }
+
+    /* ── SECTION TITLE ── */
+    .checkout-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: var(--green-dark);
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        grid-column: 1 / -1;
+    }
+    .checkout-title i { color: var(--green-light); font-size: 1.6rem; }
+
+    /* ── CARDS ── */
+    .co-card {
+        background: #fff;
+        border-radius: var(--radius);
+        border: 1px solid #e0ece5;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .co-card-header {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+        padding: 14px 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .co-card-header h4 {
+        font-family: 'Playfair Display', serif;
+        color: #fff;
+        font-size: 1rem;
+        margin: 0;
+        font-weight: 600;
+    }
+    .co-card-header i { color: var(--green-light); font-size: 15px; }
+    .co-card-body { padding: 22px; }
+
+    /* ── COUPON ── */
+    .coupon-input-wrap {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .coupon-input {
+        flex: 1;
+        border: 1.5px solid #d0e6d8;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: var(--green-dark);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .coupon-input:focus { border-color: var(--green-light); }
+    .btn-apply {
+        background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+    }
+    .btn-apply:hover { opacity: 0.88; }
+
+    #couponMessage {
+        border-radius: 8px;
+        font-size: 13.5px;
+        padding: 9px 14px;
+        display: none;
+    }
+    .coupon-link-row {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #6b8c78;
+    }
+    .coupon-link-row a {
+        color: var(--green-mid);
+        font-weight: 500;
+        text-decoration: none;
+    }
+    .coupon-link-row a:hover { text-decoration: underline; }
+
+    /* ── ORDER ITEMS ── */
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid #f0f5f2;
+    }
+    .order-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .order-item-img {
+        width: 64px; height: 64px;
+        border-radius: 10px;
+        background: var(--green-pale);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .order-item-img i { font-size: 24px; color: var(--green-light); }
+    .order-item-info { flex: 1; }
+    .order-item-name {
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--green-dark);
+        margin-bottom: 4px;
+    }
+    .order-item-meta {
+        font-size: 13px;
+        color: #6b8c78;
+        display: flex;
+        gap: 16px;
+    }
+    .order-item-meta span { display: flex; align-items: center; gap: 4px; }
+    .order-item-total {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--green-mid);
+        white-space: nowrap;
+    }
+
+    /* single item layout */
+    .single-item-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+    .info-pill {
+        background: var(--green-pale);
+        border-radius: 10px;
+        padding: 12px 16px;
+    }
+    .info-pill .pill-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--green-mid);
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .info-pill .pill-value {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--green-dark);
+    }
+
+    /* ── ADDRESS CARD ── */
+    .address-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+    }
+    .address-left { display: flex; gap: 14px; align-items: flex-start; }
+    .address-icon {
+        width: 42px; height: 42px;
+        background: var(--green-pale);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--green-mid); font-size: 17px;
+        flex-shrink: 0;
+    }
+    .address-name { font-weight: 600; font-size: 15px; color: var(--green-dark); margin-bottom: 4px; }
+    .address-detail { font-size: 13.5px; color: #4a6355; line-height: 1.6; }
+    .address-detail a { color: var(--green-mid); font-weight: 500; }
+
+    .btn-change {
+        background: transparent;
+        border: 1.5px solid var(--green-mid);
+        color: var(--green-mid);
+        border-radius: 100px;
+        padding: 7px 18px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.18s, color 0.18s;
+        flex-shrink: 0;
+    }
+    .btn-change:hover { background: var(--green-mid); color: #fff; }
+
+    /* ── RIGHT: PRICE SUMMARY ── */
+    .summary-card {
+        background: #fff;
+        border-radius: var(--radius);
+        border: 1px solid #e0ece5;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: sticky;
+        top: 90px;
+    }
+    .summary-header {
+        background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+        padding: 16px 22px;
+    }
+    .summary-header h4 {
+        font-family: 'Playfair Display', serif;
+        color: #fff;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+    .summary-body { padding: 20px 22px; }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        color: #4a6355;
+        padding: 9px 0;
+        border-bottom: 1px solid #f0f5f2;
+    }
+    .summary-row:last-of-type { border-bottom: none; }
+    .summary-row .s-label { font-weight: 400; }
+    .summary-row .s-value { font-weight: 600; color: var(--green-dark); }
+    .summary-row.discount .s-value { color: #e67e22; }
+
+    .summary-divider { border: none; border-top: 2px dashed #d8ead0; margin: 12px 0; }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0 4px;
+    }
+    .summary-total .t-label {
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--green-dark);
+    }
+    .summary-total .t-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--green-mid);
+    }
+
+    #displayDiscountAmount {
+        font-size: 13px;
+        color: #e67e22;
+        font-weight: 600;
+        padding: 4px 0;
+        display: block;
+    }
+
+    .btn-place-order {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--green-light), var(--green-mid));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        transition: opacity 0.2s, transform 0.2s;
+        box-shadow: 0 6px 20px rgba(45,106,79,0.28);
+        letter-spacing: 0.3px;
+    }
+    .btn-place-order:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .secure-note {
+        display: flex; align-items: center; justify-content: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #8aab96;
+        margin-top: 12px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+        .checkout-page { grid-template-columns: 1fr; }
+        .summary-card { position: static; }
+        .checkout-title { grid-column: 1; }
+    }
+    @media (max-width: 560px) {
+        .single-item-grid { grid-template-columns: 1fr 1fr; }
+        .coupon-input-wrap { flex-direction: column; }
+        .address-row { flex-direction: column; }
+    }
 </style>
 
-  
-  <%- include("../../views/partials/user/header") %>
+<form action="/order/checkout" method="POST" id="checkoutForm">
+<div class="checkout-page">
 
+    <h1 class="checkout-title"><i class="fas fa-credit-card"></i> Checkout</h1>
 
+    <!-- ── LEFT COLUMN ── -->
+    <div>
 
-<div class="container mt-5">
-  
-  <h1 class="mb-4">Checkout</h1>
+        <!-- Coupon -->
+        <div class="co-card">
+            <div class="co-card-header">
+                <i class="fas fa-tag"></i>
+                <h4>Apply Coupon</h4>
+            </div>
+            <div class="co-card-body">
+                <div class="coupon-input-wrap">
+                    <input type="text" id="couponCode" name="couponCode"
+                           class="coupon-input" placeholder="Enter coupon code">
+                    <button type="button" id="applyCouponBtn" class="btn-apply">
+                        <i class="fas fa-check" style="margin-right:6px;font-size:12px;"></i>Apply
+                    </button>
+                </div>
+                <div id="couponMessage"></div>
+                <div class="coupon-link-row">
+                    <i class="fas fa-ticket-alt" style="margin-right:5px;"></i>
+                    <a href="/getCoupons">View all available coupons</a>
+                </div>
+            </div>
+        </div>
 
-  <form action="/order/checkout" method="POST" id="checkoutForm">
+        <!-- Order Summary -->
+        <div class="co-card">
+            <div class="co-card-header">
+                <i class="fas fa-box-open"></i>
+                <h4>Order Items</h4>
+            </div>
+            <div class="co-card-body">
+                <% if (order.items.length > 1) { %>
+                    <% order.items.forEach((item, index) => { %>
+                    <div class="order-item">
+                        <div class="order-item-img">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="order-item-info">
+                            <div class="order-item-name"><%= item.product.productName %></div>
+                            <div class="order-item-meta">
+                                <span><i class="fas fa-rupee-sign"></i> <%= item.product.salePrice %></span>
+                                <span><i class="fas fa-times"></i> <%= item.quantity %> qty</span>
+                            </div>
+                        </div>
+                        <div class="order-item-total">&#8377; <%= (item.product.salePrice * item.quantity).toFixed(2) %></div>
+                        <input type="hidden" name="quantity" value="<%= item.quantity %>">
+                    </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="single-item-grid">
+                        <div class="info-pill">
+                            <div class="pill-label">Product</div>
+                            <div class="pill-value" style="font-size:13px;font-family:'DM Sans',sans-serif;">
+                                <%= order.items[0].product.productName %>
+                            </div>
+                        </div>
+                        <div class="info-pill">
+                            <div class="pill-label">Price</div>
+                            <div class="pill-value">&#8377;<%= order.items[0].product.salePrice %></div>
+                        </div>
+                        <div class="info-pill">
+                            <div class="pill-label">Quantity</div>
+                            <div class="pill-value"><%= order.items[0].quantity %></div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="quantity" value="<%= order.items[0].quantity %>">
+                <% } %>
+            </div>
+        </div>
 
-    <!-- Coupon Code Section -->
-    <div class="card p-4 mb-4 shadow-sm">
-      <h4>Apply Coupon</h4>
-      <div class="input-group">
-        <input type="text" id="couponCode" name="couponCode" class="form-control" placeholder="Enter coupon code">
-        <button type="button" id="applyCouponBtn" class="btn btn-success">Apply</button>
-      </div>
-      <div id="couponMessage" class="mt-2"></div>
-      <p class="mt-3">Or <a href="/getCoupons" class="btn btn-link">view and apply more coupons</a></p>
+        <!-- Shipping Address -->
+        <div class="co-card">
+            <div class="co-card-header">
+                <i class="fas fa-map-marker-alt"></i>
+                <h4>Shipping Address</h4>
+            </div>
+            <div class="co-card-body">
+                <% if (user.defaultAddress) { %>
+                    <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
+                    <% if (defaultAddress) { %>
+                    <div class="address-row">
+                        <div class="address-left">
+                            <div class="address-icon"><i class="fas fa-home"></i></div>
+                            <div>
+                                <div class="address-name"><%= defaultAddress.fullName %></div>
+                                <div class="address-detail">
+                                    <%= defaultAddress.address %>, <%= defaultAddress.city %>,<br>
+                                    <%= defaultAddress.country %> — <%= defaultAddress.postalCode %>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-change"
+                                onclick="window.location.href='/user/addresses'">
+                            <i class="fas fa-edit" style="margin-right:5px;font-size:11px;"></i>Change
+                        </button>
+                    </div>
+                    <% } else { %>
+                        <p style="color:#6b8c78;font-size:14px;">
+                            No default address set. Please <a href="/userProfile" style="color:var(--green-mid);font-weight:500;">add an address</a>.
+                        </p>
+                    <% } %>
+                <% } else { %>
+                    <p style="color:#6b8c78;font-size:14px;">
+                        No default address set. Please <a href="/userProfile" style="color:var(--green-mid);font-weight:500;">add an address</a>.
+                    </p>
+                <% } %>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Order Summary -->
-    <div class="card p-4 mb-4 shadow-sm">
-      <h4>Order Summary</h4>
+    <!-- ── RIGHT COLUMN: PRICE DETAILS ── -->
+    <div class="summary-card">
+        <div class="summary-header">
+            <h4><i class="fas fa-receipt" style="margin-right:8px;"></i>Price Details</h4>
+        </div>
+        <div class="summary-body">
+            <div class="summary-row">
+                <span class="s-label">Item Total</span>
+                <span class="s-value">&#8377;<%= order.total %></span>
+            </div>
+            <div class="summary-row">
+                <span class="s-label">Delivery Charge</span>
+                <span class="s-value">&#8377;30</span>
+            </div>
+            <span id="displayDiscountAmount"></span>
 
-      <% if (order.items.length > 1) { %>
-        <ul class="list-unstyled">
-          <% order.items.forEach((item, index) => { %>
-            <li class="border-bottom py-2">
-              <p><strong>Product:</strong> <%= item.product.productName %></p>
-              <p><strong>Price:</strong> &#8377; <%= item.product.salePrice %></p>
-              <p><strong>Quantity:</strong> <%= item.quantity %></p>
-              <input type="hidden" name="quantity" value="<%= item.quantity %>">
-              <p><strong>Total:</strong> &#8377; <%= item.product.salePrice * item.quantity %></p>
-            </li>
-          <% }); %>
-        </ul>
-      <% } else { %>
-        <p><strong>Product:</strong> <%= order.items[0].product.productName %></p>
-        <p><strong>Price:</strong>&#8377; <%= order.items[0].product.salePrice %></p>
-        <p><strong>Quantity:</strong> <%= order.items[0].quantity %></p>
-        <input type="hidden" name="quantity" value="<%= order.items[0].quantity %>">
-      <% } %>
-     
-     
-        <div id="right-container">
-    <h3>Price Details</h3>
-    <p><strong>Price:</strong> &#8377;<%= order.total %></p>
-   
-    <p><strong>Delivery Charge:&#8377;</strong>30</p>
-  
+            <hr class="summary-divider">
 
-  <p id="displayDiscountAmount" class="font-weight-bold text-success"></p>
-  <p id="displaygrandtotal" class="font-weight-bold"><strong>Grand Total:&#8377;</strong>  <%= order.total+30 %></p>
-  <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total+30%>">
-  <input type="hidden" id="discountAmount" name="discountAmount" value="">
-  </div>
-  
-</div>
-        
+            <div class="summary-total">
+                <span class="t-label">Grand Total</span>
+                <span class="t-value">
+                    &#8377;<span id="displaygrandtotal"><%= order.total + 30 %></span>
+                </span>
+            </div>
 
-    <!-- Shipping Address -->
-    <div class="card p-4 mb-4 shadow-sm">
-      <h4>Shipping Address</h4>
-      <% if (user.defaultAddress) { %>
-        <% const defaultAddress = user.addresses.find(addr => addr._id.toString() === user.defaultAddress.toString()); %>
-        <% if (defaultAddress) { %>
-          <p>
-            <strong><%= defaultAddress.fullName %></strong><br>
-            <%= defaultAddress.address %>, <%= defaultAddress.city %>, <%= defaultAddress.country %> - <%= defaultAddress.postalCode %>
-          </p>
-          <button type="button" class="btn btn-outline-success" onclick="window.location.href='/user/addresses'">Change Address</button>
-        <% } else { %>
-          <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
-        <% } %>
-      <% } else { %>
-        <p>No default address set. Please <a href="/userProfile">add an address</a>.</p>
-      <% } %>
+            <!-- hidden inputs -->
+            <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total + 30 %>">
+            <input type="hidden" id="discountAmount" name="discountAmount" value="">
+
+            <button type="submit" class="btn-place-order" id="placeOrderBtn">
+                <i class="fas fa-lock" style="margin-right:8px;font-size:13px;"></i>Proceed to Payment
+            </button>
+            <div class="secure-note">
+                <i class="fas fa-shield-alt"></i> Secure &amp; Encrypted Payment
+            </div>
+        </div>
     </div>
 
-    
-
-    <button type="submit" class="btn btn-success w-90" id="placeOrderBtn" style="margin-bottom: 10px;">Proceed To Payment</button>
-    
-  </form>
 </div>
+</form>
 
 <%- include("../partials/user/footer") %>
 
 <script>
-  document.getElementById('applyCouponBtn').addEventListener('click', function() {
-    const couponCode = document.getElementById('couponCode').value;
-    const grandTotalElement = document.getElementById('hiddengrandtotal');
-    const couponMessage = document.getElementById('couponMessage');
-    const displayDiscountAmount = document.getElementById('displayDiscountAmount');
+    document.getElementById('applyCouponBtn').addEventListener('click', function () {
+        const couponCode = document.getElementById('couponCode').value;
+        const grandTotalElement = document.getElementById('hiddengrandtotal');
+        const couponMessage = document.getElementById('couponMessage');
+        const displayDiscountAmount = document.getElementById('displayDiscountAmount');
 
-    if (!grandTotalElement || isNaN(grandTotalElement.value)) {
-      alert("Total amount is invalid.");
-      return;
-    }
+        if (!grandTotalElement || isNaN(grandTotalElement.value)) {
+            alert("Total amount is invalid.");
+            return;
+        }
 
-    fetch('/apply-coupon', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ code: couponCode, totalAmount: parseFloat(grandTotalElement.value) })
-    })
-    .then(response => response.json())
-    .then(data => {
-      couponMessage.style.display = 'block';
-      couponMessage.className = data.success ? 'alert alert-success' : 'alert alert-danger';
-      couponMessage.textContent = data.message;
+        fetch('/apply-coupon', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: couponCode, totalAmount: parseFloat(grandTotalElement.value) })
+        })
+        .then(response => response.json())
+        .then(data => {
+            couponMessage.style.display = 'block';
+            couponMessage.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+            couponMessage.textContent = data.message;
 
-      if (data.success) {
-        const discountAmount = parseFloat(data.discountAmount);
-        const newTotalPrice = parseFloat(grandTotalElement.value) - discountAmount;
-        displayDiscountAmount.textContent = `Discount Applied: Rs ${discountAmount.toFixed(2)}`;
-        document.getElementById('displaygrandtotal').textContent = `Grand Total: Rs ${newTotalPrice.toFixed(2)}`;
-        grandTotalElement.value = newTotalPrice.toFixed(2);
-        document.getElementById('discountAmount').value = discountAmount;
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      couponMessage.style.display = 'block';
-      couponMessage.className = 'alert alert-danger';
-      couponMessage.textContent = 'Error applying coupon. Please try again.';
+            if (data.success) {
+                const discountAmount = parseFloat(data.discountAmount);
+                const newTotalPrice = parseFloat(grandTotalElement.value) - discountAmount;
+                displayDiscountAmount.textContent = `Discount Applied: Rs ${discountAmount.toFixed(2)}`;
+                document.getElementById('displaygrandtotal').textContent = newTotalPrice.toFixed(2);
+                grandTotalElement.value = newTotalPrice.toFixed(2);
+                document.getElementById('discountAmount').value = discountAmount;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            couponMessage.style.display = 'block';
+            couponMessage.className = 'alert alert-danger';
+            couponMessage.textContent = 'Error applying coupon. Please try again.';
+        });
     });
-  });
 </script>
-

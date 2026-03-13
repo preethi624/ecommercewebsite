@@ -1,159 +1,436 @@
 <%- include("../../views/partials/user/header") %>
-<div>
-<!-- views/orderDetails.ejs -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" integrity="sha384-9ndCyUa3YSk1YJ7zqdP1Qdm0T0YzQPIboqE41tjf9ADrFmCffpvuA3PTEGkC9xv2" crossorigin="anonymous">
 
-<h2 style="text-align: center; color: #333; font-family: 'Arial Black', sans-serif; margin-top: 20px;">Order Details</h2>
-
-<div style="max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px;">
-  
-
-  <h3 style="color: #555; margin-bottom: 20px; font-family: 'Verdana', sans-serif;">Items:</h3>
-
- 
-   
-    
-      <div style="border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
-        
-        <img src="/uploads/product-images/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" style="width: 120px; height: 120px; border-radius: 10px; border: 1px solid #ccc; margin-right: 20px;">
-        
-        <div>
-          
-          <p style="font-size: 18px; color: #333; margin-bottom: 5px;"><strong>Product:</strong> <%= item.product.productName %></p>
-          <p style="font-size: 16px; color: #777;"><strong>Price:&#8377;</strong> <%= item.price*item.quantity%></p>
-          <p style="font-size: 16px; color: #777;"><strong>Description:</strong> <%= item.product.description %></p>
-          <p style="font-size: 16px; color: #777;"><strong>Quantity:</strong> <%= item.quantity %></p>
-        </div>
-      </div>
-   
-    <div style="border-top: 1px solid #eee; padding-top: 20px;">
-      <p style="font-size: 18px; color: #333;"><strong>Order ID:</strong> <%= order.orderId %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Order Date:</strong> <%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'Date not available' %></p>
-      
-      <p style="font-size: 18px; color: #333;"><strong>Status:</strong> <%= item.status %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Payment Status:</strong> <%= item.paymentStatus %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Delivery Status:</strong> <%= item.deliveryStatus %></p>
-      <p style="font-size: 18px; color: #333;"><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
-
-      <h4>Order Status:</h4>
-      <%if(item.deliveryStatus==='confirmed'){%>
-        <div style="background-color: rgb(158, 217, 158); margin-bottom:15px">Order Confirmed (updatedDate:<%=order.updatedDate%>)</div>
-        <%}else{%>
-          <div style="background-color: rgb(157, 122, 122); margin-bottom:15px">Order Not Placed (updatedDate:<%=order.updatedDate%>)</div>
-          <%}%>
-      <%if((item.paymentStatus==='pending')&&(item.status!=='Cancelled'&&item.status!=='Return Request')){%>
-        <button id="rzp-button1" class="btn btn-outline-success">Pay Online  &#8377;<%=(item.price*item.quantity)+30-itemCouponShare%></button>
-
-        <%}else if(item.deliveryStatus==='order not placed'){%>
-          <button>Cash ondelivery</button>
-          <%}else{%>
-            <p><strong>Expected Delivery Date:</strong> <%=order.deliveryDate ? order.deliveryDate.toDateString():'Date not available' %></p>
-
-            <%}%>
-      
-    </div>
- 
-
-<div id="right">
-  <h3>Price Details</h3>
-    <p><strong>Price:</strong>&#8377; <%= item.price*item.quantity%></p>
-    <p><strong>Delivery Charge:&#8377;</strong>30</p>
-    <p><strong>GST(0%):&#8377;</strong>0</p>
-    <%if(order.discount>0){%>
-
-    <p><strong>Coupon Applied: &#8377;</strong><%=itemCouponShare%></p>
-    <%}else{%>
-      <p><strong>Coupon Applied: </strong>N/A</p>
-      <%}%>
-
-    <p><strong>Final Amount: &#8377;</strong><%=(item.price*item.quantity)+30-itemCouponShare%></p>
-    
-    
-  </div>
-  <h3 style="color: #555; margin-top: 30px; font-family: 'Verdana', sans-serif;">Shipping Address for this Order</h3>
-  <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background-color: #fafafa; margin-bottom: 20px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);">
-    <p style="font-size: 18px; color: #333;"><strong>Full Name:</strong> <%= orderAddress.fullName %></p>
-    <p style="font-size: 18px; color: #333;"><strong>Address:</strong> <%= orderAddress.address %></p>
-    <p style="font-size: 18px; color: #333;"><strong>City:</strong> <%= orderAddress.city %></p>
-    <p style="font-size: 18px; color: #333;"><strong>Postal Code:</strong> <%= orderAddress.postalCode %></p>
-    <p style="font-size: 18px; color: #333;"><strong>Country:</strong> <%= orderAddress.country %></p>
-    <style>
-      table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-      }
-      th, td {
-        padding: 8px;
-        text-align: center;
-      }
-      #right{
-        position: absolute;
-        top: 300px; /* Adjust as needed */
-        right: 25%; /* Adjust as needed */
-        width: 220px; /* Adjust based on desired width */
-        padding: 10px;
-        background-color: #f8f9fa; /* Optional: background for better visibility */
-        border: 1px solid #ddd; /* Optional: border for definition */
-        border-radius: 5px;
-      }
-    </style>
-    
-  </div>
-  <a href="/download-invoice/<%= order._id %>/<%=item._id%>">
-    <button type="button" class="btn btn-warning">Download Invoice</button>
-  </a>
- 
- 
-
-  <a href="/orders"><button class="btn btn-success">Back To OrderHistory</button></a>
-</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-  body {
-    background-color: #f4f4f4;
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
+  :root {
+    --green-dark:  #1a3c2e;
+    --green-mid:   #2d6a4f;
+    --green-light: #52b788;
+    --green-pale:  #d8f3dc;
+    --cream:       #faf7f0;
+    --gold:        #c9a84c;
+    --radius:      14px;
+    --shadow:      0 4px 24px rgba(26,60,46,0.08);
   }
 
-  h2, h3 {
-    font-family: 'Verdana', sans-serif;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); font-family: 'DM Sans', sans-serif; color: #1c2b1e; }
+
+  /* ── PAGE LAYOUT ── */
+  .detail-page {
+    max-width: 1100px;
+    margin: 100px auto 60px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 28px;
+    align-items: start;
   }
 
-  div.card {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    background-color: #fff;
-    margin-bottom: 20px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--green-dark);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    grid-column: 1 / -1;
+  }
+  .page-title i { color: var(--green-light); }
+
+  /* ── CARDS ── */
+  .co-card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid #e0ece5;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .co-card-header {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    padding: 13px 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .co-card-header h4 {
+    font-family: 'Playfair Display', serif;
+    color: #fff; font-size: 1rem; margin: 0; font-weight: 600;
+  }
+  .co-card-header i { color: var(--green-light); font-size: 13px; }
+  .co-card-body { padding: 20px; }
+
+  /* ── PRODUCT ROW ── */
+  .product-row {
+    display: flex; gap: 18px; align-items: flex-start;
+  }
+  .product-img {
+    width: 100px; height: 100px;
+    border-radius: 12px;
+    background: var(--green-pale);
+    object-fit: contain;
+    padding: 6px;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; }
+  .product-name {
+    font-weight: 600; font-size: 16px;
+    color: var(--green-dark); margin-bottom: 6px;
+  }
+  .product-desc {
+    font-size: 13px; color: #6b8c78;
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+  .meta-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--green-pale); border-radius: 8px;
+    padding: 4px 10px; font-size: 12.5px;
+    color: var(--green-dark); font-weight: 500;
+  }
+  .meta-tag i { color: var(--green-mid); font-size: 10px; }
+
+  /* ── ORDER META GRID ── */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .meta-pill {
+    background: var(--green-pale);
+    border-radius: 10px; padding: 13px 16px;
+  }
+  .meta-pill .pill-label {
+    font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--green-mid);
+    font-weight: 600; margin-bottom: 5px;
+  }
+  .meta-pill .pill-value {
+    font-size: 14px; font-weight: 600; color: var(--green-dark);
   }
 
-  p {
-    color: #333;
-    font-size: 18px;
+  /* status badges */
+  .badge-status {
+    display: inline-flex; align-items: center; gap: 5px;
+    border-radius: 100px; padding: 4px 12px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-status i { font-size: 8px; }
+  .badge-delivered { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+  .badge-pending   { background:#fff8e6; color:#8a6200; border:1px solid #ffe082; }
+  .badge-cancelled { background:#fdecea; color:#b71c1c; border:1px solid #ef9a9a; }
+  .badge-shipped   { background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; }
+  .badge-return    { background:#f3e5f5; color:#6a1b9a; border:1px solid #ce93d8; }
+  .badge-default   { background:#f5f5f5; color:#555;    border:1px solid #ddd; }
+  .badge-paid      { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+  .badge-unpaid    { background:#fdecea; color:#b71c1c; border:1px solid #ef9a9a; }
+
+  .status-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+  /* ── ORDER STATUS TRACK ── */
+  .status-track {
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; font-weight: 500;
+  }
+  .status-track.confirmed { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+  .status-track.not-placed { background: #fdecea; color: #b71c1c; border: 1px solid #ef9a9a; }
+  .status-track i { font-size: 18px; }
+  .status-date { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+
+  /* ── ADDRESS ── */
+  .address-row { display: flex; gap: 14px; align-items: flex-start; }
+  .address-icon {
+    width: 42px; height: 42px; background: var(--green-pale);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: var(--green-mid); font-size: 17px; flex-shrink: 0;
+  }
+  .address-name { font-weight: 600; font-size: 15px; color: var(--green-dark); margin-bottom: 4px; }
+  .address-detail { font-size: 13.5px; color: #4a6355; line-height: 1.7; }
+
+  /* ── ACTION BUTTONS ── */
+  .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .btn-action {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 20px; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px; font-weight: 500; cursor: pointer;
+    border: none; text-decoration: none;
+    transition: opacity 0.18s, transform 0.18s;
+  }
+  .btn-action:hover { opacity: 0.88; transform: translateY(-1px); text-decoration: none; }
+  .btn-pay     { background: linear-gradient(135deg, var(--green-light), var(--green-mid)); color: #fff; box-shadow: 0 4px 14px rgba(45,106,79,0.25); }
+  .btn-invoice { background: #fff8e6; color: #7a5500; border: 1.5px solid #ffe082; }
+  .btn-back    { background: var(--green-pale); color: var(--green-dark); border: 1.5px solid #b7e4c7; }
+
+  /* ── RIGHT: PRICE SUMMARY ── */
+  .summary-card {
+    background: #fff;
+    border-radius: var(--radius);
+    border: 1px solid #e0ece5;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: sticky; top: 90px;
+  }
+  .summary-header {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    padding: 15px 20px;
+  }
+  .summary-header h4 {
+    font-family: 'Playfair Display', serif;
+    color: #fff; font-size: 1.05rem; margin: 0;
+  }
+  .summary-body { padding: 18px 20px; }
+  .summary-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; color: #4a6355;
+    padding: 9px 0; border-bottom: 1px solid #f0f5f2;
+  }
+  .summary-row:last-of-type { border-bottom: none; }
+  .summary-row .s-label { font-weight: 400; }
+  .summary-row .s-value { font-weight: 600; color: var(--green-dark); }
+  .summary-row.saving .s-value { color: #e67e22; }
+  .summary-divider { border: none; border-top: 2px dashed #d8ead0; margin: 12px 0; }
+  .summary-total {
+    display: flex; justify-content: space-between; align-items: center; padding: 8px 0 4px;
+  }
+  .summary-total .t-label {
+    font-family: 'Playfair Display', serif; font-size: 1rem;
+    font-weight: 700; color: var(--green-dark);
+  }
+  .summary-total .t-value {
+    font-family: 'Playfair Display', serif; font-size: 1.3rem;
+    font-weight: 700; color: var(--green-mid);
   }
 
-  img {
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  /* expected delivery */
+  .delivery-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--green-pale); border-radius: 10px;
+    padding: 12px 14px; margin-top: 14px;
+    font-size: 13.5px; color: var(--green-dark);
   }
+  .delivery-chip i { color: var(--green-mid); font-size: 16px; }
 
-  a:hover {
-    background-color: #0056b3;
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .detail-page { grid-template-columns: 1fr; }
+    .summary-card { position: static; }
+    .page-title { grid-column: 1; }
   }
-
-  /* Add hover effects for product items */
-  div.card-body div:hover {
-    background-color: #f8f8f8;
-    transition: background-color 0.3s ease;
+  @media (max-width: 560px) {
+    .detail-page { padding: 0 14px; margin-top: 80px; }
+    .meta-grid { grid-template-columns: 1fr; }
+    .product-row { flex-direction: column; }
+    .product-img { width: 100%; height: 180px; }
   }
- 
 </style>
 
+<div class="detail-page">
+
+  <h1 class="page-title"><i class="fas fa-receipt"></i> Order Details</h1>
+
+  <!-- ── LEFT COLUMN ── -->
+  <div>
+
+    <!-- Product -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-box-open"></i>
+        <h4>Product</h4>
+      </div>
+      <div class="co-card-body">
+        <div class="product-row">
+          <img class="product-img"
+               src="/uploads/product-images/<%= item.product.productImage[0] %>"
+               alt="<%= item.product.productName %>">
+          <div class="product-info">
+            <div class="product-name"><%= item.product.productName %></div>
+            <div class="product-desc"><%= item.product.description %></div>
+            <div class="product-meta">
+              <span class="meta-tag"><i class="fas fa-times"></i> <%= item.quantity %> qty</span>
+              <span class="meta-tag"><i class="fas fa-tag"></i> &#8377;<%= item.price * item.quantity %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Info -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-info-circle"></i>
+        <h4>Order Information</h4>
+      </div>
+      <div class="co-card-body">
+        <div class="meta-grid">
+          <div class="meta-pill">
+            <div class="pill-label">Order ID</div>
+            <div class="pill-value" style="font-size:12px;">#<%= order.orderId %></div>
+          </div>
+          <div class="meta-pill">
+            <div class="pill-label">Order Date</div>
+            <div class="pill-value"><%= order.invoiceDate ? new Date(order.invoiceDate).toDateString() : 'N/A' %></div>
+          </div>
+          <div class="meta-pill">
+            <div class="pill-label">Payment Method</div>
+            <div class="pill-value"><%= order.paymentMethod %></div>
+          </div>
+          <div class="meta-pill">
+            <div class="pill-label">Delivery Status</div>
+            <div class="pill-value"><%= item.deliveryStatus %></div>
+          </div>
+        </div>
+
+        <!-- Status Badges -->
+        <div class="status-row">
+          <%
+            let sc = 'badge-default';
+            if (item.status === 'Delivered')           sc = 'badge-delivered';
+            else if (item.status === 'Cancelled')      sc = 'badge-cancelled';
+            else if (item.status === 'Shipped')        sc = 'badge-shipped';
+            else if (item.status === 'Return Request') sc = 'badge-return';
+            else if (item.status === 'Pending')        sc = 'badge-pending';
+          %>
+          <span class="badge-status <%= sc %>"><i class="fas fa-circle"></i> <%= item.status %></span>
+          <span class="badge-status <%= item.paymentStatus === 'paid' ? 'badge-paid' : 'badge-unpaid' %>">
+            <i class="fas fa-<%= item.paymentStatus === 'paid' ? 'check-circle' : 'clock' %>"></i>
+            <%= item.paymentStatus %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status Track -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-truck"></i>
+        <h4>Order Status</h4>
+      </div>
+      <div class="co-card-body">
+        <% if (item.deliveryStatus === 'confirmed') { %>
+          <div class="status-track confirmed">
+            <i class="fas fa-check-circle"></i>
+            <div>
+              <div>Order Confirmed</div>
+              <div class="status-date">Updated: <%= order.updatedDate %></div>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="status-track not-placed">
+            <i class="fas fa-times-circle"></i>
+            <div>
+              <div>Order Not Placed</div>
+              <div class="status-date">Updated: <%= order.updatedDate %></div>
+            </div>
+          </div>
+        <% } %>
+
+        <% if ((item.paymentStatus === 'pending') && (item.status !== 'Cancelled' && item.status !== 'Return Request')) { %>
+          <div class="action-row" style="margin-top:16px;">
+            <button id="rzp-button1" class="btn-action btn-pay">
+              <i class="fas fa-bolt"></i> Pay Online &#8377;<%= (item.price * item.quantity) + 30 - itemCouponShare %>
+            </button>
+          </div>
+        <% } else if (item.deliveryStatus === 'order not placed') { %>
+          <div style="margin-top:14px; font-size:14px; color:#6b8c78; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-money-bill-wave" style="color:var(--green-mid);"></i> Cash on Delivery
+          </div>
+        <% } else { %>
+          <% if (order.deliveryDate) { %>
+            <div class="delivery-chip">
+              <i class="fas fa-calendar-check"></i>
+              <div>
+                <div style="font-weight:600;">Expected Delivery</div>
+                <div style="font-size:13px; color:#4a6355;"><%= order.deliveryDate.toDateString() %></div>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="delivery-chip">
+              <i class="fas fa-calendar-check"></i>
+              <div style="color:#4a6355;">Date not available</div>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div class="co-card">
+      <div class="co-card-header">
+        <i class="fas fa-map-marker-alt"></i>
+        <h4>Shipping Address</h4>
+      </div>
+      <div class="co-card-body">
+        <div class="address-row">
+          <div class="address-icon"><i class="fas fa-home"></i></div>
+          <div>
+            <div class="address-name"><%= orderAddress.fullName %></div>
+            <div class="address-detail">
+              <%= orderAddress.address %>,<br>
+              <%= orderAddress.city %> — <%= orderAddress.postalCode %>,<br>
+              <%= orderAddress.country %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="action-row">
+      <a href="/download-invoice/<%= order._id %>/<%= item._id %>" class="btn-action btn-invoice">
+        <i class="fas fa-file-download"></i> Download Invoice
+      </a>
+      <a href="/orders" class="btn-action btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Orders
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT COLUMN: PRICE SUMMARY ── -->
+  <div class="summary-card">
+    <div class="summary-header">
+      <h4><i class="fas fa-receipt" style="margin-right:8px;"></i>Price Details</h4>
+    </div>
+    <div class="summary-body">
+      <div class="summary-row">
+        <span class="s-label">Item Total</span>
+        <span class="s-value">&#8377;<%= item.price * item.quantity %></span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">Delivery Charge</span>
+        <span class="s-value">&#8377;30</span>
+      </div>
+      <div class="summary-row">
+        <span class="s-label">GST (0%)</span>
+        <span class="s-value">&#8377;0</span>
+      </div>
+      <div class="summary-row saving">
+        <span class="s-label">Coupon Discount</span>
+        <% if (order.discount > 0) { %>
+          <span class="s-value">− &#8377;<%= itemCouponShare %></span>
+        <% } else { %>
+          <span class="s-value" style="color:#8aab96;">N/A</span>
+        <% } %>
+      </div>
+      <hr class="summary-divider">
+      <div class="summary-total">
+        <span class="t-label">Final Amount</span>
+        <span class="t-value">&#8377;<%= (item.price * item.quantity) + 30 - itemCouponShare %></span>
+      </div>
+    </div>
+  </div>
 
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
@@ -165,30 +442,27 @@
     "handler": function(response) {
       window.location.href = `/order-confirmation?payment_id=${response.razorpay_payment_id}&order_id=${response.razorpay_order_id}&system_order_id=<%= order._id %>&item_id=<%=item._id%>`;
     },
-    "theme": {
-      "color": "#007bff"
-    }
-  }
+    "theme": { "color": "#2d6a4f" }
+  };
 
   var rzp1 = new Razorpay(options);
-  document.getElementById('rzp-button1').onclick = function(e) {
-   
-    
-    e.preventDefault();
-    Swal.fire({
-      title: 'Proceed with Payment?',
-      text: 'Are you sure you want to continue with the online payment?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, Pay Now'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // If confirmed, open Razorpay payment gateway
-        rzp1.open();
-      }
-    });
+
+  const rzpBtn = document.getElementById('rzp-button1');
+  if (rzpBtn) {
+    rzpBtn.onclick = function(e) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Proceed with Payment?',
+        text: 'Are you sure you want to continue with online payment?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2d6a4f',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Pay Now'
+      }).then((result) => {
+        if (result.isConfirmed) rzp1.open();
+      });
+    };
   }
 </script>
 

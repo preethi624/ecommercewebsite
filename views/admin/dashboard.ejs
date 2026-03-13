@@ -1,178 +1,236 @@
 
 
+<%- include("../../views/partials/admin/header") %>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-    .footer{
-        margin-left:16%;
-        margin-top: 50px;
+    .report-page {
+        padding: 36px 36px 60px;
+        max-width: 1100px;
     }
-    .form-select {
-        z-index: 1060; /* Higher than the header to ensure dropdown shows above the header */
+
+    /* ── PAGE TITLE ── */
+    .report-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.9rem;
+        color: #1a3c2e;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 32px;
     }
-    .chart-title, .section-title {
-        background-color: rgb(122, 122, 206);
-        color: white;
-        text-align: center;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 20px;
+    .report-title i { color: #52b788; }
+
+    /* ── CARDS ── */
+    .rp-card {
+        background: #fff;
+        border-radius: 14px;
+        border: 1px solid #e0ece5;
+        box-shadow: 0 4px 24px rgba(26,60,46,0.08);
+        overflow: hidden;
+        margin-bottom: 28px;
     }
-    .sales {
-        background-color: rgb(122, 122, 206);
-        color: white;
-        text-align: center;
-        padding: 10px;
-        border-radius: 5px;
+    .rp-card-header {
+        background: linear-gradient(135deg, #1a3c2e, #2d6a4f);
+        padding: 13px 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
     }
-    .total-overview {
-        font-size: 1.1rem;
-        margin-top: 20px;
+    .rp-card-header h4 {
+        font-family: 'Playfair Display', serif;
+        color: #fff;
+        font-size: 1rem;
+        margin: 0;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    .sales-overview-card {
-        background-color: #ffc107;
-        color: white;
-        padding: 15px;
-        border-radius: 5px;
-        margin-left: 10%;
+    .rp-card-header h4 i { color: #52b788; font-size: 13px; }
+    .rp-card-body { padding: 24px; }
+
+    /* ── FILTER ROW ── */
+    .filter-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
-    .chart-container {
+    .filter-row label {
+        font-size: 13px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.75);
+        white-space: nowrap;
+    }
+    #reportType {
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.25);
+        color: #fff;
+        border-radius: 10px;
+        padding: 6px 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 28px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2352b788'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        z-index: 1060;
+    }
+    #reportType option { background: #1a3c2e; color: #fff; }
+
+    /* ── CHART CONTAINER ── */
+    .chart-wrap {
         position: relative;
         height: 300px;
         width: 100%;
     }
-    .container{
-        padding-top: 50px;
-        
-    
 
-      
+    /* ── OVERVIEW STATS ── */
+    .overview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    .overview-stat {
+        background: #d8f3dc;
+        border-radius: 12px;
+        padding: 20px 22px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .overview-stat.gold { background: #fff8e6; }
+
+    .stat-icon {
+        width: 46px; height: 46px;
+        border-radius: 12px;
+        background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 10px rgba(26,60,46,0.10);
+    }
+    .stat-icon.green { color: #2d6a4f; }
+    .stat-icon.gold  { color: #c9a84c; }
+
+    .stat-info .stat-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #2d6a4f;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .overview-stat.gold .stat-info .stat-label { color: #8a6200; }
+    .stat-info .stat-value {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a3c2e;
+    }
+    .overview-stat.gold .stat-info .stat-value { color: #7a5500; }
+
+    @media (max-width: 700px) {
+        .report-page { padding: 20px 16px 40px; }
     }
 </style>
-<div>
 
+<div class="report-page">
 
-<%- include("../../views/partials/admin/header") %>
+    <h1 class="report-title"><i class="fas fa-chart-bar"></i> Sales Report</h1>
 
-
-
-<div class="container mt-5">
-    
-    <!-- Filter Section -->
-    <div class="container-filter mt-5">
-        <!-- Filter Section -->
-        <div class="row">
-            <div class="col-12 col-md-4 offset-md-8 text-end mb-4">
-                <label for="reportType" class="form-label me-2">View Sales Report:</label>
-                <select id="reportType" class="form-select d-inline-block  w-auto" onchange="fetchSalesReport()"  >
+    <!-- ── SALES CHART ── -->
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h4><i class="fas fa-chart-bar"></i> Sales Chart</h4>
+            <div class="filter-row">
+                <label for="reportType">View by:</label>
+                <select id="reportType" onchange="fetchSalesReport()">
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                     <option value="yearly">Yearly</option>
                 </select>
             </div>
         </div>
+        <div class="rp-card-body">
+            <div class="chart-wrap">
+                <canvas id="salesReportChart"></canvas>
+            </div>
+        </div>
     </div>
-    
-    
-    
 
-    <!-- Sales Report Chart -->
-    <div class="row" style="margin-left: 10%;">
-        <div class="col-12 col-md-10 offset-md-1">
-            <div class="bg-light p-3 rounded">
-                <h2 class="chart-title"><i class="fas fa-chart-bar"></i> Sales Report</h2>
-                <div class="chart-container">
-                    <canvas id="salesReportChart"></canvas>
+    <!-- ── SALES OVERVIEW ── -->
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h4><i class="fas fa-rupee-sign"></i> Sales Overview</h4>
+        </div>
+        <div class="rp-card-body">
+            <div class="overview-grid">
+                <div class="overview-stat">
+                    <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Sales</span>
+                        <span class="stat-value">&#8377;<%= totalSales %></span>
+                    </div>
+                </div>
+                <div class="overview-stat gold">
+                    <div class="stat-icon gold"><i class="fas fa-tags"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Discount</span>
+                        <span class="stat-value">&#8377;<%= totalDiscount %></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Sales Overview -->
-    <div class="row mt-4">
-        <div class="col-12 col-md-10 offset-md-1">
-            <div class="sales-overview-card">
-                <div class="sales">
-                    <h2>&#8377;   Sales Overview </h2>
-                </div>
-                <div class="total-overview text-center">
-                    <p><strong>Total Sales:</strong> <%= totalSales %> </p>
-                    <p><strong>Total Discount:</strong> <%= totalDiscount %> </p>
-                </div>
-            </div>
+    <!-- ── TOP PRODUCTS ── -->
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h4><i class="fas fa-box"></i> Best Selling Products (Top 10)</h4>
         </div>
-    </div>
-
-    <!-- Top 10 Selling Products -->
-    <div class="row mt-5">
-        <div class="col-12 col-md-10 offset-md-1">
-            
-           
-        <div class="col-12 col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header text-white bg-primary">
-                    <i class="fas fa-box"></i> Best Selling Products (Top 10)
-                </div>
+        <div class="rp-card-body">
+            <div class="chart-wrap">
                 <canvas id="topProductsChart"></canvas>
             </div>
         </div>
     </div>
-            
-            </div>
+
+    <!-- ── TOP CATEGORIES ── -->
+    <div class="rp-card">
+        <div class="rp-card-header">
+            <h4><i class="fas fa-folder"></i> Best Selling Categories (Top 10)</h4>
         </div>
-    </div>
-    <div class="row mt-5">
-        <div class="col-12 col-md-10 offset-md-1">
-            
-           
-        <div class="col-12 col-md-6 offset-md-3">
-            <div class="card">
-                <div class="card-header text-white bg-primary">
-                    <i class="fas fa-folder"></i> Best Selling Categories (Top 10)
-                </div>
+        <div class="rp-card-body">
+            <div class="chart-wrap">
                 <canvas id="topCategoriesChart"></canvas>
             </div>
         </div>
     </div>
-            
-            </div>
-        </div>
-    </div>
-
-
-    
-</div>
-<div class="footer">
-    <%- include("../../views/partials/admin/footer") %>    
 
 </div>
-
-
-
-
-
-
-
-
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     async function fetchSalesReport() {
         const reportType = document.getElementById('reportType').value;
-
         try {
             const response = await fetch(`/admin/api/sales-report?reportType=${reportType}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
             });
             const data = await response.json();
-            
             displaySalesReportChart(data);
-         
-          
         } catch (error) {
             console.error('Error fetching sales report data:', error);
         }
@@ -181,26 +239,27 @@
     function displaySalesReportChart(data) {
         const ctx = document.getElementById('salesReportChart').getContext('2d');
         if (window.salesChart) window.salesChart.destroy();
-    
         window.salesChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: data.labels, 
+                labels: data.labels,
                 datasets: [
                     {
                         label: 'Net Sales',
-                        data: data.netSales, 
-                        borderColor: 'blue',
-                        backgroundColor: 'blue',
+                        data: data.netSales,
+                        backgroundColor: 'rgba(45,106,79,0.75)',
+                        borderColor: '#2d6a4f',
                         borderWidth: 1,
+                        borderRadius: 6,
                         fill: true
                     },
                     {
                         label: 'Total Discount',
-                        data: data.discount, 
-                        borderColor: 'green',
-                        backgroundColor: 'brown',
+                        data: data.discount,
+                        backgroundColor: 'rgba(201,168,76,0.70)',
+                        borderColor: '#c9a84c',
                         borderWidth: 1,
+                        borderRadius: 6,
                         fill: true
                     }
                 ]
@@ -209,70 +268,66 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { title: { display: true, text: 'Sales Report' } },
-                    y: { title: { display: true, text: 'Amount' }, beginAtZero: true }
+                    x: { title: { display: true, text: 'Period' }, grid: { display: false } },
+                    y: { title: { display: true, text: 'Amount (₹)' }, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }
                 },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
+                plugins: { legend: { display: true, position: 'top' } }
             }
         });
     }
-    
-    
+
     document.addEventListener("DOMContentLoaded", fetchSalesReport);
-    const topProductsData =JSON.parse('<%- JSON.stringify(resultp) %>');
+
+    const topProductsData   = JSON.parse('<%- JSON.stringify(resultp) %>');
     const topCategoriesData = JSON.parse('<%- JSON.stringify(results) %>');
 
-    // Top Products Chart
-    const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
-    new Chart(topProductsCtx, {
+    new Chart(document.getElementById('topProductsChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: topProductsData.map(product => product.productName),
+            labels: topProductsData.map(p => p.productName),
             datasets: [{
                 label: 'Total Sales',
-                data: topProductsData.map(product => product.totalSales),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
+                data: topProductsData.map(p => p.totalSales),
+                backgroundColor: 'rgba(82,183,136,0.70)',
+                borderColor: '#52b788',
+                borderWidth: 1,
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                x: { title: { display: true, text: 'Products' } },
-                y: { title: { display: true, text: 'Sales' }, beginAtZero: true }
-            }
+                x: { title: { display: true, text: 'Products' }, grid: { display: false } },
+                y: { title: { display: true, text: 'Sales' }, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }
+            },
+            plugins: { legend: { display: true, position: 'top' } }
         }
     });
 
-    // Top Categories Chart
-    const topCategoriesCtx = document.getElementById('topCategoriesChart').getContext('2d');
-    new Chart(topCategoriesCtx, {
+    new Chart(document.getElementById('topCategoriesChart').getContext('2d'), {
         type: 'bar',
         data: {
-            labels: topCategoriesData.map(category => category._id),
+            labels: topCategoriesData.map(c => c._id),
             datasets: [{
                 label: 'Total Sales',
-                data: topCategoriesData.map(category => category.totalSales),
-                backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1
+                data: topCategoriesData.map(c => c.totalSales),
+                backgroundColor: 'rgba(201,168,76,0.70)',
+                borderColor: '#c9a84c',
+                borderWidth: 1,
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
-                x: { title: { display: true, text: 'Categories' } },
-                y: { title: { display: true, text: 'Sales' }, beginAtZero: true }
-            }
+                x: { title: { display: true, text: 'Categories' }, grid: { display: false } },
+                y: { title: { display: true, text: 'Sales' }, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }
+            },
+            plugins: { legend: { display: true, position: 'top' } }
         }
-    }); 
+    });
 </script>
 
-
-
+<%- include("../../views/partials/admin/footer") %>

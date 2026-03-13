@@ -4,126 +4,204 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        .sidebar a.active {
-            background-color: #f0f0f0;
-            color: green;
-            font-weight: bold;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --green-dark:  #1a3c2e;
+            --green-mid:   #2d6a4f;
+            --green-light: #52b788;
+            --green-pale:  #d8f3dc;
+            --cream:       #faf7f0;
+            --sidebar-w:   260px;
+            --navbar-h:    64px;
+            --text-dark:   #1c2b1e;
+            --text-muted:  #6b8c78;
+            --radius:      12px;
         }
-        
-        
-       .main{
-        
-        width: 100%;
-        z-index: 1000;
-        top: 0;
-       
-       }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            height: 100%;
-           
+            margin: 0; padding: 0;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
         }
-        .navbar {
-            background-color:white;
-            padding: 10px;
-            color:black;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-           
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            border-color: gray;
+
+        /* ── NAVBAR ── */
+        .admin-navbar {
             position: fixed;
-            border-bottom: 2px solid rgb(239, 233, 233);
-           
+            top: 0; left: 0; right: 0;
+            height: var(--navbar-h);
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            z-index: 1100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.18);
         }
-        .navbar img {
-            height: 40px;
-            color: green;
-            background-color: green;
+        .admin-navbar .navbar-brand img {
+            height: 38px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 100px;
+            padding: 6px 14px 6px 8px;
+        }
+        .admin-avatar {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--green-light);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; color: #fff; font-weight: 600;
+        }
+        .admin-label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.88);
+            font-weight: 500;
         }
         .logout-btn {
-            background-color: white;
-            color:green ;
-            border: none;
-            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.10);
+            color: rgba(255,255,255,0.90);
+            border: 1px solid rgba(255,255,255,0.18);
+            padding: 7px 18px;
+            border-radius: 100px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
-        }
-        .sidebar {
-           
-            width: 250px;
-            background-color:white;
-            height: auto;
-         
-            overflow: auto;
-            padding-top: 50px;
-            padding-left: 20px;
-            position: fixed;
-            height: 100%;
-            z-index: 1000;
-            border: 2px;
-            border-right: 2px solid rgb(239, 233, 233);
-            margin-top: 68px;
-            
-           
-        }
-        .sidebar a {
-            display: block;
-            color: black;
-            padding: 15px;
             text-decoration: none;
+            transition: background 0.2s;
         }
-        .sidebar a:hover {
-            background-color: #575757;
+        .logout-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* ── SIDEBAR ── */
+        .admin-sidebar {
+            position: fixed;
+            top: var(--navbar-h);
+            left: 0;
+            width: var(--sidebar-w);
+            height: calc(100vh - var(--navbar-h));
+            background: #fff;
+            border-right: 1px solid #e8f0eb;
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 20px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-            margin-top: 70px;
+        .sidebar-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 14px 12px 6px;
         }
-        .header {
-            font-size: 24px;
-            margin-bottom: 20px;
+        .admin-sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: var(--radius);
+            color: #4a6355;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.18s, color 0.18s;
+            position: relative;
+        }
+        .admin-sidebar a i {
+            width: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: color 0.18s;
+        }
+        .admin-sidebar a:hover {
+            background: var(--green-pale);
+            color: var(--green-dark);
+        }
+        .admin-sidebar a:hover i { color: var(--green-mid); }
+        .admin-sidebar a.active {
+            background: linear-gradient(135deg, #d8f3dc, #b7e4c7);
+            color: var(--green-dark);
+            font-weight: 600;
+        }
+        .admin-sidebar a.active i { color: var(--green-mid); }
+        .admin-sidebar a.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 18%; bottom: 18%;
+            width: 3px;
+            background: var(--green-mid);
+            border-radius: 0 4px 4px 0;
+        }
+        .admin-sidebar::-webkit-scrollbar { width: 4px; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: #c8ddd0; border-radius: 4px; }
+
+        /* ── MAIN CONTENT OFFSET ── */
+        .admin-main {
+            margin-left: var(--sidebar-w);
+            margin-top: var(--navbar-h);
+            min-height: calc(100vh - var(--navbar-h));
+            background: var(--cream);
         }
     </style>
-    <link href="css/customer.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
 </head>
-
 <body>
-    <div class="main">
 
-    <!-- Top Navbar -->
-    <div class="navbar" >
-        <a class="navbar-brand" href="/"><img src="/images/organic-store-white-logo.png" alt="Logo" height="40"> </a>
-       
-        <a href="/logout"><button class="logout-btn">Logout</button>
+<!-- Navbar -->
+<nav class="admin-navbar">
+    <a class="navbar-brand" href="/">
+        <img src="/images/organic-store-white-logo.png" alt="Logo">
+    </a>
+    <div class="navbar-right">
+        <div class="admin-badge">
+            <div class="admin-avatar"><i class="fas fa-user"></i></div>
+            <span class="admin-label">Admin</span>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </a>
-   
     </div>
-    <div class="sidebar">
-        <a href="/admin" class="<%= path === '/admin' ? 'active' : '' %>"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-        <a href="/admin/users" class="<%= path === '/admin/users' ? 'active' : '' %>"><i class="fas fa-users"></i> Customers</a>
-        <a href="/admin/category" class="<%= path === '/admin/category' ? 'active' : '' %>"><i class="fas fa-th-large"></i> Category</a>
-        <a href="/admin/addProducts" class="<%= path === '/admin/addProducts' ? 'active' : '' %>"><i class="fas fa-plus-circle"></i> Add Product</a>
-        <a href="/admin/product" class="<%= path === '/admin/product' ? 'active' : '' %>"><i class="fas fa-box-open"></i> Products</a>
-        <a href="/admin/coupons" class="<%= path === '/admin/coupons' ? 'active' : '' %>"><i class="fas fa-tags"></i> Coupon</a>
-        <a href="/admin/orders" class="<%= path === '/admin/orders' ? 'active' : '' %>"><i class="fas fa-shopping-cart"></i> Orders</a>
-        <a href="/admin/sales-report" class="<%= path === '/admin/sales-report' ? 'active' : '' %>"><i class="fas fa-chart-bar"></i> Sales Report</a>
-    </div>
-    
+</nav>
 
-    
-    </div>
+<!-- Sidebar -->
+<div class="admin-sidebar">
+    <span class="sidebar-section-label">Main Menu</span>
+    <a href="/admin"          class="<%= path === '/admin'             ? 'active' : '' %>"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/admin/users"    class="<%= path === '/admin/users'       ? 'active' : '' %>"><i class="fas fa-users"></i> Customers</a>
+    <a href="/admin/category" class="<%= path === '/admin/category'    ? 'active' : '' %>"><i class="fas fa-th-large"></i> Category</a>
 
-</body>
-</html>
+    <span class="sidebar-section-label">Products</span>
+    <a href="/admin/addProducts" class="<%= path === '/admin/addProducts' ? 'active' : '' %>"><i class="fas fa-plus-circle"></i> Add Product</a>
+    <a href="/admin/product"     class="<%= path === '/admin/product'     ? 'active' : '' %>"><i class="fas fa-box-open"></i> Products</a>
+
+    <span class="sidebar-section-label">Sales</span>
+    <a href="/admin/coupons"      class="<%= path === '/admin/coupons'      ? 'active' : '' %>"><i class="fas fa-tags"></i> Coupon</a>
+    <a href="/admin/orders"       class="<%= path === '/admin/orders'       ? 'active' : '' %>"><i class="fas fa-shopping-cart"></i> Orders</a>
+    <a href="/admin/sales-report" class="<%= path === '/admin/sales-report' ? 'active' : '' %>"><i class="fas fa-chart-bar"></i> Sales Report</a>
+</div>
+
+<div class="admin-main">

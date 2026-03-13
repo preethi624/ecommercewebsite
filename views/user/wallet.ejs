@@ -1,188 +1,355 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Wallet</title>
-  <link rel="stylesheet" href="/css/styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    /* General Styles */
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding-top: 60px; /* Offset for fixed header */
-    }
-    
-    /* Header Styling */
-    header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      height: 60px;
-      
-      color: white;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    
-    
-    .wallet-container {
-      background-color: #fff;
-      width: 100%;
-      max-width: 500px;
-      padding: 20px;
-      margin-top: 100px;
-      margin-bottom: auto;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    
-    h1 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    
-    .balance-box {
-      background-color: #ffefcc;
-      padding: 20px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 30px;
-    }
-    
-    .balance-box p {
-      font-size: 18px;
-      color: #333;
-    }
-    
-    .wallet-balance {
-      font-size: 36px;
-      font-weight: bold;
-      color: #ff9900;
-    }
-    
-    .shop-now-btn, .add-funds-btn {
-      display: block;
-      width: 100%;
-      background: linear-gradient(45deg, #ff9900, #ff5500);
-      color: white;
-      border: none;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: 500;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      margin-top: 15px;
-    }
-    
-    .shop-now-btn:hover, .add-funds-btn:hover {
-      background: linear-gradient(45deg, #ff5500, #ff9900);
-    }
-    footer{
-      position: fixed;
-     bottom: 0;
-     
-      width: 100%;
-      height: 60px;
-      
-      color: white;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    
-    
-    /* Mobile Adjustments */
-    @media (max-width: 500px) {
-      .wallet-container {
-        padding: 15px;
-      }
-      
-      h1 {
-        font-size: 22px;
-      }
-      
-      .balance-box p {
-        font-size: 16px;
-      }
-      
-      .wallet-balance {
-        font-size: 32px;
-      }
-      
-      .shop-now-btn, .add-funds-btn {
-        font-size: 16px;
-        padding: 12px;
-      }
-    }
-  </style>
-</head>
+<%- include("../../views/partials/user/header") %>
 
-<body>
-  <!-- Full-width Header at the top of the page -->
-  <header>
-    <%- include("../../views/partials/user/header") %>
-  </header>
-  
-  <!-- Wallet content centered vertically -->
-  <div class="wallet-container">
-    <h1>Wallet Balance</h1>
-    
-    <div class="balance-box">
-      <p>Your current balance:</p>
-      <p class="wallet-balance">Rs <%= walletBalance %></p>
-    </div>
-    
-    <!-- Add Funds Form -->
-    <form action="/wallet/add" method="POST">
-      <label for="amount">Add Funds:</label>
-      <input type="number" name="amount" id="amount" min="1" placeholder="Enter amount" required>
-      <button type="submit" class="add-funds-btn">Add to Wallet</button>
-    </form>
-    
-    <!-- Shop Now Button -->
-    <a href="/shop" class="shop-now-btn">Shop Now</a>
-    <h2 class="mt-4">Transaction History</h2>
-    
-    <% if (transactions && transactions.length > 0) { %>
-      <div class="list-group">
-        <% transactions.forEach(transaction => { %>
-          <div class="list-group-item">
-            <p><strong>Type:</strong> <%= transaction.type %></p>
-            <p><strong>Amount:</strong> Rs<%= transaction.amount.toFixed(2) %></p>
-            <p><strong>Date:</strong> <%= new Date(transaction.date).toLocaleDateString() %></p>
-            <p><strong>Description:</strong> <%= transaction.description %></p>
-          </div>
-        <% }) %>
-      </div>
-    <% } else { %>
-      <p>No transactions available.</p>
-    <% } %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  const s = document.createElement('style');
+  s.textContent = `
+    body { background: #faf7f0 !important; font-family: 'DM Sans', sans-serif !important; }
+
+    .wallet-page {
+      max-width: 620px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
+    }
+
+    /* ── PAGE TITLE ── */
+    .wallet-title {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 2rem !important;
+      color: #1a3c2e !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 12px !important;
+      margin-bottom: 28px !important;
+    }
+    .wallet-title i { color: #52b788 !important; }
+
+    /* ── BALANCE CARD ── */
+    .balance-card {
+      background: linear-gradient(135deg, #1a3c2e 0%, #2d6a4f 100%) !important;
+      border-radius: 20px !important;
+      padding: 32px 28px !important;
+      margin-bottom: 24px !important;
+      position: relative !important;
+      overflow: hidden !important;
+      box-shadow: 0 12px 40px rgba(26,60,46,0.25) !important;
+    }
+    .balance-card::before {
+      content: '' !important;
+      position: absolute !important;
+      top: -40px !important; right: -40px !important;
+      width: 180px !important; height: 180px !important;
+      background: rgba(82,183,136,0.12) !important;
+      border-radius: 50% !important;
+    }
+    .balance-card::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: -30px !important; left: -20px !important;
+      width: 120px !important; height: 120px !important;
+      background: rgba(201,168,76,0.08) !important;
+      border-radius: 50% !important;
+    }
+    .balance-label {
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      letter-spacing: 2px !important;
+      text-transform: uppercase !important;
+      color: rgba(255,255,255,0.65) !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+    .balance-amount {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 3rem !important;
+      font-weight: 700 !important;
+      color: #fff !important;
+      display: block !important;
+      position: relative !important;
+      z-index: 1 !important;
+      margin-bottom: 4px !important;
+    }
+    .balance-amount .currency {
+      font-size: 1.4rem !important;
+      vertical-align: super !important;
+      margin-right: 4px !important;
+      color: #52b788 !important;
+    }
+    .balance-sub {
+      font-size: 12px !important;
+      color: rgba(255,255,255,0.45) !important;
+      position: relative !important;
+      z-index: 1 !important;
+    }
+    .balance-icon {
+      position: absolute !important;
+      right: 28px !important; top: 50% !important;
+      transform: translateY(-50%) !important;
+      font-size: 4rem !important;
+      color: rgba(255,255,255,0.07) !important;
+      z-index: 0 !important;
+    }
+
+    /* ── SECTION CARDS ── */
+    .pro-card {
+      background: #fff !important;
+      border-radius: 14px !important;
+      border: 1px solid #e0ece5 !important;
+      box-shadow: 0 4px 24px rgba(26,60,46,0.08) !important;
+      overflow: hidden !important;
+      margin-bottom: 24px !important;
+    }
+    .pro-card-header {
+      background: linear-gradient(135deg, #1a3c2e, #2d6a4f) !important;
+      padding: 13px 22px !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+    }
+    .pro-card-header h4 {
+      font-family: 'Playfair Display', serif !important;
+      color: #fff !important;
+      font-size: 1rem !important;
+      margin: 0 !important;
+      font-weight: 600 !important;
+    }
+    .pro-card-header i { color: #52b788 !important; font-size: 13px !important; }
+    .pro-card-body { padding: 22px !important; }
+
+    /* ── ADD FUNDS FORM ── */
+    .funds-label {
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #2d6a4f !important;
+      letter-spacing: 0.5px !important;
+      margin-bottom: 10px !important;
+      display: block !important;
+    }
+    .funds-input-row {
+      display: flex !important;
+      gap: 10px !important;
+    }
+    #amount {
+      flex: 1 !important;
+      border: 1.5px solid #d0e6d8 !important;
+      border-radius: 10px !important;
+      padding: 11px 16px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 14px !important;
+      color: #1a3c2e !important;
+      outline: none !important;
+      background: #fff !important;
+      transition: border-color 0.2s !important;
+    }
+    #amount:focus { border-color: #52b788 !important; box-shadow: 0 0 0 3px rgba(82,183,136,0.12) !important; }
+
+    .btn-add-funds {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      background: linear-gradient(135deg, #52b788, #2d6a4f) !important;
+      color: #fff !important;
+      border: none !important;
+      border-radius: 10px !important;
+      padding: 11px 22px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+      box-shadow: 0 4px 14px rgba(45,106,79,0.25) !important;
+      transition: opacity 0.18s !important;
+    }
+    .btn-add-funds:hover { opacity: 0.88 !important; }
+
+    .btn-shop {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      background: #f0f5f2 !important;
+      color: #2d6a4f !important;
+      border: 1.5px solid #b7e4c7 !important;
+      border-radius: 10px !important;
+      padding: 11px !important;
+      font-family: 'DM Sans', sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      text-decoration: none !important;
+      margin-top: 12px !important;
+      transition: background 0.18s !important;
+    }
+    .btn-shop:hover { background: #d8f3dc !important; color: #1a3c2e !important; }
+
+    /* ── TRANSACTIONS ── */
+    .txn-list { display: flex !important; flex-direction: column !important; gap: 12px !important; }
+
+    .txn-item {
+      display: flex !important;
+      align-items: center !important;
+      gap: 14px !important;
+      padding: 14px 16px !important;
+      background: #f8fdf9 !important;
+      border: 1px solid #e0ece5 !important;
+      border-radius: 12px !important;
+      transition: box-shadow 0.18s !important;
+    }
+    .txn-item:hover { box-shadow: 0 4px 16px rgba(26,60,46,0.08) !important; }
+
+    .txn-icon {
+      width: 42px !important; height: 42px !important;
+      border-radius: 10px !important;
+      display: flex !important; align-items: center !important; justify-content: center !important;
+      font-size: 16px !important;
+      flex-shrink: 0 !important;
+    }
+    .txn-icon.credit { background: #e8f5e9 !important; color: #2e7d32 !important; }
+    .txn-icon.debit  { background: #fdecea !important; color: #b71c1c !important; }
+    .txn-icon.default { background: #d8f3dc !important; color: #2d6a4f !important; }
+
+    .txn-info { flex: 1 !important; min-width: 0 !important; }
+    .txn-desc {
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      color: #1a3c2e !important;
+      margin-bottom: 3px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .txn-date {
+      font-size: 12px !important;
+      color: #8aab96 !important;
+    }
+    .txn-type-badge {
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.5px !important;
+      text-transform: uppercase !important;
+      padding: 2px 8px !important;
+      border-radius: 100px !important;
+      margin-left: 6px !important;
+    }
+    .txn-type-badge.credit { background: #e8f5e9 !important; color: #2e7d32 !important; }
+    .txn-type-badge.debit  { background: #fdecea !important; color: #b71c1c !important; }
+    .txn-type-badge.default { background: #d8f3dc !important; color: #2d6a4f !important; }
+
+    .txn-amount {
+      font-family: 'Playfair Display', serif !important;
+      font-size: 1.1rem !important;
+      font-weight: 700 !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+    }
+    .txn-amount.credit { color: #2e7d32 !important; }
+    .txn-amount.debit  { color: #b71c1c !important; }
+    .txn-amount.default { color: #2d6a4f !important; }
+
+    .no-txn {
+      text-align: center !important;
+      padding: 40px 20px !important;
+      color: #8aab96 !important;
+      font-size: 14px !important;
+    }
+    .no-txn i { font-size: 2.5rem !important; opacity: 0.3 !important; display: block !important; margin-bottom: 12px !important; }
+
+    @media (max-width: 600px) {
+      .wallet-page { padding: 0 14px !important; margin-top: 80px !important; }
+      .balance-amount { font-size: 2.2rem !important; }
+      .funds-input-row { flex-direction: column !important; }
+    }
+  `;
+  document.head.appendChild(s);
+</script>
+
+<div class="wallet-page">
+
+  <h1 class="wallet-title"><i class="fas fa-wallet"></i> My Wallet</h1>
+
+  <!-- ── BALANCE CARD ── -->
+  <div class="balance-card">
+    <i class="fas fa-wallet balance-icon"></i>
+    <span class="balance-label">Current Balance</span>
+    <span class="balance-amount">
+      <span class="currency">₹</span><%= walletBalance %>
+    </span>
+    <span class="balance-sub">Available to spend on your orders</span>
   </div>
- 
-  
-</body>
 
+  <!-- ── ADD FUNDS ── -->
+  <div class="pro-card">
+    <div class="pro-card-header">
+      <i class="fas fa-plus-circle"></i>
+      <h4>Add Funds</h4>
+    </div>
+    <div class="pro-card-body">
+      <form action="/wallet/add" method="POST">
+        <span class="funds-label">Enter amount to add</span>
+        <div class="funds-input-row">
+          <input type="number" name="amount" id="amount" min="1" placeholder="₹ Enter amount" required>
+          <button type="submit" class="btn-add-funds">
+            <i class="fas fa-plus"></i> Add to Wallet
+          </button>
+        </div>
+      </form>
+      <a href="/shop" class="btn-shop">
+        <i class="fas fa-shopping-bag"></i> Shop Now
+      </a>
+    </div>
+  </div>
 
-</html>
+  <!-- ── TRANSACTIONS ── -->
+  <div class="pro-card">
+    <div class="pro-card-header">
+      <i class="fas fa-history"></i>
+      <h4>Transaction History</h4>
+    </div>
+    <div class="pro-card-body">
+      <% if (transactions && transactions.length > 0) { %>
+        <div class="txn-list">
+          <% transactions.forEach(transaction => { %>
+            <%
+              const t = transaction.type ? transaction.type.toLowerCase() : '';
+              const isCredit = t === 'credit' || t === 'add' || t === 'refund';
+              const isDebit  = t === 'debit' || t === 'deducted' || t === 'purchase';
+              const cls = isCredit ? 'credit' : isDebit ? 'debit' : 'default';
+              const icon = isCredit ? 'fa-arrow-down' : isDebit ? 'fa-arrow-up' : 'fa-exchange-alt';
+              const prefix = isCredit ? '+' : isDebit ? '-' : '';
+            %>
+            <div class="txn-item">
+              <div class="txn-icon <%= cls %>">
+                <i class="fas <%= icon %>"></i>
+              </div>
+              <div class="txn-info">
+                <div class="txn-desc">
+                  <%= transaction.description %>
+                  <span class="txn-type-badge <%= cls %>"><%= transaction.type %></span>
+                </div>
+                <div class="txn-date">
+                  <i class="fas fa-calendar-alt" style="margin-right:4px; font-size:10px;"></i>
+                  <%= new Date(transaction.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) %>
+                </div>
+              </div>
+              <div class="txn-amount <%= cls %>">
+                <%= prefix %>₹<%= transaction.amount.toFixed(2) %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="no-txn">
+          <i class="fas fa-receipt"></i>
+          No transactions yet.
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+</div>
+
+<%- include("../../views/partials/user/footer") %>
