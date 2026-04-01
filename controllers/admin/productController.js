@@ -85,7 +85,7 @@ const getAllProducts=async(req,res)=>{
                 {productName:{$regex:new RegExp(".*"+search+".*","i")}}
 
             ]
-        }).limit(limit*1).skip((page-1)*limit).populate('category');
+        }).sort({createdAt:-1}).limit(limit*1).skip((page-1)*limit).populate('category');
         productData.forEach(async (product) => {
             if (product.category && product.category.categoryOffer > 0) {
                 product.salePrice = product.regularPrice - Math.floor(product.regularPrice * (product.category.categoryOffer / 100));
@@ -453,7 +453,7 @@ const saveCropped=async(req,res)=>{
         
     }
 }
-const getOrders=async(req,res)=>{
+/*const getOrders=async(req,res)=>{
     try {
         const orders = await Order.find().populate('orderedItems.product').sort({invoiceDate:-1});
         res.render("orders",{orders})
@@ -462,6 +462,31 @@ const getOrders=async(req,res)=>{
         console.error('Error fetching orders:', error);
     res.status(500).send('Internal Server Error');
         
+    }
+}*/
+const getOrders = async (req, res) => {
+    try {
+        let page = parseInt(req.query.page) || 1
+        let limit = 5
+        let skip = (page - 1) * limit
+
+        const totalOrders = await Order.countDocuments()
+
+        const orders = await Order.find()
+            .populate('orderedItems.product')
+            .sort({ invoiceDate: -1 })
+            .skip(skip)
+            .limit(limit)
+
+        res.render("orders", {
+            orders,
+            currentPage: page,   // ✅ ADD THIS
+            totalPages: Math.ceil(totalOrders / limit) // ✅ ADD THIS
+        })
+
+    } catch (error) {
+        console.error(error)
+        res.status(500).send("Server Error")
     }
 }
 const editOrder=async(req,res)=>{
@@ -581,7 +606,7 @@ const replaceImage=async(req,res)=>{
 }
 const getCoupon=async(req,res)=>{
     try {
-        const coupons=await Coupon.find()
+        const coupons=await Coupon.find().sort({createdAt:-1})
         res.render("coupon",{coupons})
         
     } catch (error) {

@@ -1,157 +1,740 @@
 <%- include("../../views/partials/user/header") %>
-<!-- Breadcrumbs Section -->
-<ul class="breadcrumb">
-    <li><a href="/">Home</a></li>
-    <li><a href="#"> <%= product.productName %></a></li>
-</ul>
 
-<style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<script>
+  const s = document.createElement('style');
+  s.textContent = `
+    body { background: #faf7f0 !important; font-family: 'DM Sans', sans-serif !important; }
+
+    .details-page {
+      max-width: 1200px;
+      margin: 100px auto 60px;
+      padding: 0 24px;
+    }
+
+    /* ── BREADCRUMB ── */
     .breadcrumb {
-        display: flex;
-        list-style: none;
-        padding: 10px 0;
-        margin-bottom: 20px;
-        background-color: transparent;
+      display: flex;
+      list-style: none;
+      padding: 0 0 20px;
+      margin: 0 0 28px;
+      background: transparent;
+      border-bottom: 1px solid #e0ece5;
     }
-
-    .breadcrumb li {
-        margin-right: 5px;
-    }
-
+    .breadcrumb li { margin-right: 5px; }
     .breadcrumb li a {
-        text-decoration: none;
-        color: #007bff;
-        transition: color 0.2s ease;
+      text-decoration: none;
+      color: #2d6a4f;
+      font-size: 13.5px;
+      transition: color 0.2s;
+    }
+    .breadcrumb li a:hover { color: #1a3c2e; }
+    .breadcrumb li::after { content: '>'; margin-left: 5px; color: #aac7b5; font-size: 12px; }
+    .breadcrumb li:last-child::after { content: ''; }
+    .breadcrumb li:last-child a { color: #6c9c80; pointer-events: none; }
+
+    /* ── LAYOUT ── */
+    .details-layout {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr;
+      gap: 28px;
+      align-items: start;
     }
 
-    .breadcrumb li a:hover {
-        color: #0056b3;
+    /* ── THUMBNAILS ── */
+    .thumbnail-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .thumbnail-col img {
+      width: 68px;
+      height: 68px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 2px solid #e0ece5;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .thumbnail-col img:hover {
+      border-color: #2d6a4f;
+      transform: scale(1.04);
+    }
+    .thumbnail-col img.active { border-color: #2d6a4f; }
+
+    /* ── MAIN IMAGE ── */
+    .main-image-col {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e0ece5;
+      box-shadow: 0 4px 24px rgba(26,60,46,0.07);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 420px;
+    }
+    .main-image-col img {
+      max-height: 360px;
+      max-width: 85%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+    .main-image-col img:hover { transform: scale(1.08); }
+
+    /* ── DETAILS PANEL ── */
+    .details-panel {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e0ece5;
+      box-shadow: 0 4px 24px rgba(26,60,46,0.07);
+      padding: 28px;
     }
 
-    .breadcrumb li::after {
-        content: '>';
-        margin-left: 5px;
+    .details-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      color: #1a3c2e;
+      margin: 0 0 6px;
+      line-height: 1.3;
+    }
+    .details-ratings {
+      font-size: 12.5px;
+      color: #6c9c80;
+      margin-bottom: 20px;
     }
 
-    .breadcrumb li:last-child::after {
-        content: '';
+    .price-block {
+      background: #f0f9f3;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      border: 1px solid #d0e6d8;
+    }
+    .regular-price {
+      font-size: 13px;
+      color: #6c9c80;
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .sale-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2d6a4f;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .offer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #d8f3dc;
+      color: #1a3c2e;
+      border: 1px solid #b7e4c7;
+      border-radius: 100px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 600;
     }
 
-    .breadcrumb li:last-child a {
-        color: #6c757d;
-        pointer-events: none;
+    .stock-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 20px;
+    }
+    .stock-badge.in-stock {
+      background: #d8f3dc;
+      color: #1a3c2e;
+      border: 1px solid #b7e4c7;
+    }
+    .stock-badge.out-of-stock {
+      background: #fdecea;
+      color: #b71c1c;
+      border: 1px solid #ef9a9a;
     }
 
-    .product-img {
-        width: 100%;
-        height: auto;
-        object-fit: cover;
-        transition: transform 0.25s ease;
+    .qty-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .qty-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #2d6a4f;
+      white-space: nowrap;
+    }
+    .qty-input {
+      width: 80px;
+      border: 1.5px solid #d0e6d8;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: #1a3c2e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .qty-input:focus { border-color: #52b788; box-shadow: 0 0 0 3px rgba(82,183,136,0.12); }
+
+    .btn-cart {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #2d6a4f, #1a3c2e);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.18s, transform 0.18s;
+      box-shadow: 0 4px 14px rgba(45,106,79,0.25);
+      margin-bottom: 10px;
+    }
+    .btn-cart:hover { opacity: 0.88; transform: scale(1.01); }
+
+    .notify-wrap {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .notify-input {
+      flex: 1;
+      border: 1.5px solid #d0e6d8;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      color: #1a3c2e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .notify-input:focus { border-color: #52b788; }
+    .btn-notify {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      background: linear-gradient(135deg, #52b788, #2d6a4f);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.18s;
+    }
+    .btn-notify:hover { opacity: 0.88; }
+
+    .divider { border: none; border-top: 1px solid #e0ece5; margin: 20px 0; }
+
+    .meta-list { list-style: none; padding: 0; margin: 0; }
+    .meta-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: #2c5f46;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f9f3;
+    }
+    .meta-list li:last-child { border-bottom: none; }
+    .meta-list li i { color: #52b788; margin-top: 2px; font-size: 13px; flex-shrink: 0; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .details-layout {
+        grid-template-columns: 1fr;
+      }
+      .thumbnail-col {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+    }
+    @media (max-width: 600px) {
+      .details-page { padding: 0 14px; margin-top: 80px; }
     }
 
-    .thumbnail-gallery img {
-        cursor: pointer;
-        border: 2px solid #ddd;
-        border-radius: 4px;
-        transition: border-color 0.2s ease;
+    /* ════════════════════════════════════════════
+       RELATED PRODUCTS — REDESIGNED
+    ════════════════════════════════════════════ */
+    .related-section {
+      max-width: 1200px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
     }
 
-    .thumbnail-gallery img:hover {
-        border-color: #007bff;
+    .related-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
     }
-    .container{
-        margin: 80px;
+
+    .related-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
-</style>
 
-<section class="product-details">
-    <div class="container mt-5">
-        <div class="row">
-            <!-- Thumbnails Column -->
-            <div class="col-md-2 d-none d-md-flex flex-column align-items-center thumbnail-gallery">
-                <% if (product.productImage.length > 1) { %>
-                    <% product.productImage.forEach(function(image, index) { %>
-                        <img src="/uploads/product-images/<%= image %>" alt="Image <%= index + 1 %>" class="img-thumbnail mb-2" onclick="changeMainImage('/uploads/product-images/<%= image %>')">
-                    <% }) %>
-                <% } %>
-            </div>
+    .related-eyebrow {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #52b788;
+    }
 
-            <!-- Main Image Column -->
-            <div class="col-md-6 text-center">
-                <img id="main-product-img" class="product-img img-fluid" src="/uploads/product-images/<%= product.productImage[0] %>" alt="<%= product.productName %>">
-            </div>
+    .related-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      color: #1a3c2e;
+      margin: 0;
+      line-height: 1.2;
+    }
 
-            <!-- Details Column -->
-            <div class="col-md-4">
-                <h2><%= product.productName %></h2>
-                <p class="text-muted small">0 ratings & 0 reviews</p>
-                <h4>Regular Price: Rs <%= product.regularPrice %></h4>
+    .related-view-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d6a4f;
+      text-decoration: none;
+      border: 1.5px solid #b7e4c7;
+      border-radius: 100px;
+      padding: 8px 20px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .related-view-all:hover {
+      background: #2d6a4f;
+      color: #fff;
+      border-color: #2d6a4f;
+    }
+    .related-view-all i { font-size: 11px; transition: transform 0.2s; }
+    .related-view-all:hover i { transform: translateX(3px); }
 
-                <% if(product.category.categoryOffer) { %>
-                    <h5>Offer added: <%= product.category.categoryOffer %></h5>
-                <% } else if(product.productOffer) { %>
-                    <h5>Offer added: <%= product.productOffer %></h5>
-                <% } else { %>
-                    <h5>Offer added: 0%</h5>
-                <% } %>
+    /* ── GRID ── */
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 22px;
+    }
 
-                <% if (product.regularPrice && product.productOffer > 0) { %>
-                    <h5>Sale Price: <%= (product.regularPrice - (product.regularPrice * product.productOffer / 100)).toFixed(2) %></h5>
-                <% } else { %>
-                    <h5>Sale Price: <%= product.regularPrice %></h5>
-                <% } %>
+    /* ── CARD ── */
+    .related-card {
+      background: #fff;
+      border-radius: 18px;
+      border: 1px solid #e8f3ec;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(26,60,46,0.06);
+      transition: transform 0.28s cubic-bezier(.22,.68,0,1.2), box-shadow 0.28s ease;
+      position: relative;
+    }
+    .related-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(26,60,46,0.13);
+    }
 
-                <% if (product.quantity > 0) { %>
-                    <h4>Stock: <%= product.quantity %> Kg</h4>
-                    <form action="/cart/add/<%= product._id %>" method="POST">
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity:</label>
-                            <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="<%= product.quantity %>">
-                        </div>
-                        <button type="submit" class="btn btn-success">Add to Cart</button>
-                    </form>
-                <% } else { %>
-                    <h4 class="text-danger">Sold Out</h4>
-                    <p class="text-muted">The item is currently out of stock.</p>
-                    <div class="input-group">
-                        <input type="email" class="form-control" placeholder="Enter your email" required>
-                        <button type="button" class="btn btn-warning">Notify Me</button>
-                    </div>
-                <% } %>
+    /* Image wrapper */
+    .related-card-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      overflow: hidden;
+      background: #f0f9f3;
+    }
+    .related-card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .related-card:hover .related-card-img-wrap img {
+      transform: scale(1.07);
+    }
 
-                <p class="mt-4">Highlights: <%= product.description %></p>
-                <p>Expiry: 10 days</p>
-                <p>30-day return policy</p>
+    /* Offer pill on image */
+    .related-card-offer {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #2d6a4f;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      z-index: 2;
+    }
 
-                
-            </div>
-        </div>
+    /* Quick-view overlay button */
+    .related-card-quick {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      opacity: 0;
+      background: #fff;
+      color: #2d6a4f;
+      border: 1.5px solid #2d6a4f;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 18px;
+      white-space: nowrap;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.22s, transform 0.22s, background 0.18s, color 0.18s;
+      z-index: 3;
+      text-decoration: none;
+    }
+    .related-card:hover .related-card-quick {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .related-card-quick:hover {
+      background: #2d6a4f;
+      color: #fff;
+    }
+
+    /* Body */
+    .related-card-body {
+      padding: 16px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .related-card-cat {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #52b788;
+      margin-bottom: 5px;
+    }
+
+    .related-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #1a3c2e;
+      margin: 0 0 12px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    .related-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+
+    .related-card-price {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #2d6a4f;
+    }
+
+    .related-card-unit {
+      font-size: 11.5px;
+      color: #8ab89a;
+      font-weight: 400;
+      margin-left: 2px;
+    }
+
+    .related-card-stars {
+      display: flex;
+      gap: 2px;
+    }
+    .related-card-stars i {
+      font-size: 10px;
+      color: #f4b942;
+    }
+    .related-card-stars i.empty { color: #d0e6d8; }
+
+    /* Divider between main and related */
+    .related-divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #d0e6d8 20%, #d0e6d8 80%, transparent);
+      margin: 0 0 60px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .related-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .related-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+      .related-card-img-wrap { height: 150px; }
+      .related-title { font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .related-grid { grid-template-columns: 1fr 1fr; }
+    }
+  `;
+  document.head.appendChild(s);
+</script>
+
+<div class="details-page">
+
+  <!-- Breadcrumb -->
+  <ul class="breadcrumb">
+    <li><a href="/"><i class="fas fa-home" style="font-size:12px;"></i> Home</a></li>
+    <li><a href="/products">Shop</a></li>
+    <li><a href="#"><%= product.productName %></a></li>
+  </ul>
+
+  <div class="details-layout">
+
+    <!-- ── THUMBNAILS ── -->
+    <div class="thumbnail-col d-none d-md-flex">
+      <% if (product.productImage.length > 1) { %>
+        <% product.productImage.forEach(function(image, index) { %>
+          <img src="/uploads/product-images/<%= image %>"
+               alt="Image <%= index + 1 %>"
+               class="<%= index === 0 ? 'active' : '' %>"
+               onclick="changeMainImage(this, '/uploads/product-images/<%= image %>')">
+        <% }) %>
+      <% } %>
     </div>
-</section>
+
+    <!-- ── MAIN IMAGE ── -->
+    <div class="main-image-col">
+      <img id="main-product-img"
+           src="/uploads/product-images/<%= product.productImage[0] %>"
+           alt="<%= product.productName %>">
+    </div>
+
+    <!-- ── DETAILS PANEL ── -->
+    <div class="details-panel">
+      <h2><%= product.productName %></h2>
+      <p class="details-ratings">
+        <i class="fas fa-star" style="color:#f4b942;font-size:12px;"></i>
+        <i class="fas fa-star" style="color:#f4b942;font-size:12px;"></i>
+        <i class="fas fa-star" style="color:#f4b942;font-size:12px;"></i>
+        <i class="fas fa-star" style="color:#f4b942;font-size:12px;"></i>
+        <i class="fas fa-star" style="color:#d0e6d8;font-size:12px;"></i>
+        &nbsp;0 ratings &amp; 0 reviews
+      </p>
+
+      <!-- Price block -->
+      <div class="price-block">
+        <div class="regular-price">Regular Price: &#8377;<%= product.regularPrice %></div>
+        <div class="sale-price">
+          &#8377;
+          <% if (product.regularPrice && product.productOffer > 0) { %>
+            <%= (product.regularPrice - (product.regularPrice * product.productOffer / 100)).toFixed(2) %>
+          <% } else { %>
+            <%= product.regularPrice %>
+          <% } %>
+        </div>
+        <% const offer = product.category && product.category.categoryOffer ? product.category.categoryOffer : (product.productOffer || 0); %>
+        <% if (offer > 0) { %>
+          <span class="offer-badge">
+            <i class="fas fa-tag" style="font-size:11px;"></i>
+            <%= offer %>% off
+          </span>
+        <% } %>
+      </div>
+
+      <!-- Stock -->
+      <% if (product.quantity > 0) { %>
+        <span class="stock-badge in-stock">
+          <i class="fas fa-check-circle" style="font-size:12px;"></i>
+          <%= product.quantity %> kg in stock
+        </span>
+      <% } else { %>
+        <span class="stock-badge out-of-stock">
+          <i class="fas fa-times-circle" style="font-size:12px;"></i>
+          Out of stock
+        </span>
+      <% } %>
+
+      <!-- Add to Cart or Notify -->
+      <% if (product.quantity > 0) { %>
+        <form action="/cart/add/<%= product._id %>" method="POST">
+          <div class="qty-row">
+            <span class="qty-label">Quantity:</span>
+            <input type="number" id="quantity" name="quantity" class="qty-input"
+                   value="1" min="1" max="<%= product.quantity %>">
+            <span style="font-size:12px;color:#6c9c80;">kg</span>
+          </div>
+          <button type="submit" class="btn-cart">
+            <i class="fas fa-shopping-cart" style="font-size:13px;"></i>
+            Add to Cart
+          </button>
+        </form>
+      <% } else { %>
+        <p style="font-size:13px;color:#b71c1c;margin-bottom:10px;">
+          This item is currently unavailable. Get notified when it's back:
+        </p>
+        <div class="notify-wrap">
+          <input type="email" class="notify-input" placeholder="Enter your email" required>
+          <button type="button" class="btn-notify">
+            <i class="fas fa-bell" style="font-size:12px;"></i> Notify Me
+          </button>
+        </div>
+      <% } %>
+
+      <hr class="divider">
+
+      <!-- Meta info -->
+      <ul class="meta-list">
+        <li>
+          <i class="fas fa-leaf"></i>
+          <span><strong style="color:#1a3c2e;">Highlights:</strong> <%= product.description %></span>
+        </li>
+        <li>
+          <i class="fas fa-calendar-alt"></i>
+          <span>Best before: <strong style="color:#1a3c2e;">10 days</strong> from delivery</span>
+        </li>
+        <li>
+          <i class="fas fa-undo-alt"></i>
+          <span>30-day hassle-free return policy</span>
+        </li>
+        <li>
+          <i class="fas fa-truck"></i>
+          <span>Fresh delivery to your doorstep</span>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     RELATED PRODUCTS — REDESIGNED SECTION
+════════════════════════════════════════════ -->
+<% if (relatedProducts && relatedProducts.length > 0) { %>
+
+  <hr class="related-divider" style="max-width:1200px;margin:0 auto 60px;">
+
+  <div class="related-section">
+
+    <!-- Section Header -->
+    <div class="related-header">
+      <div class="related-header-left">
+        <span class="related-eyebrow">
+          <i class="fas fa-seedling" style="margin-right:5px;"></i>Fresh Picks
+        </span>
+        <h3 class="related-title">You Might Also Love</h3>
+      </div>
+      <a href="/products" class="related-view-all">
+        View All <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="related-grid">
+      <% relatedProducts.forEach(item => { %>
+        <%
+          const itemOffer = item.productOffer || 0;
+          const discountedPrice = itemOffer > 0
+            ? (item.regularPrice - (item.regularPrice * itemOffer / 100)).toFixed(2)
+            : null;
+        %>
+        <div class="related-card">
+
+          <!-- Image + overlays -->
+          <div class="related-card-img-wrap">
+            <img src="/uploads/product-images/<%= item.productImage[0] %>"
+                 alt="<%= item.productName %>">
+
+            <% if (itemOffer > 0) { %>
+              <span class="related-card-offer"><%= itemOffer %>% OFF</span>
+            <% } %>
+
+            <a href="/productDetails?id=<%= item._id %>" class="related-card-quick">
+              <i class="fas fa-eye" style="font-size:11px;"></i> View Details
+            </a>
+          </div>
+
+          <!-- Body -->
+          <div class="related-card-body">
+            <% if (item.category && item.category.name) { %>
+              <span class="related-card-cat"><%= item.category.name %></span>
+            <% } %>
+
+            <a href="/productDetails?id=<%= item._id %>" style="text-decoration:none;">
+              <h4 class="related-card-name"><%= item.productName %></h4>
+            </a>
+
+            <div class="related-card-footer">
+              <div class="related-card-price">
+                <% if (discountedPrice) { %>
+                  &#8377;<%= discountedPrice %>
+                  <span class="related-card-unit">/ kg</span>
+                  <br>
+                  <span style="font-size:11px;color:#8ab89a;text-decoration:line-through;font-weight:400;">
+                    &#8377;<%= item.regularPrice %>
+                  </span>
+                <% } else { %>
+                  &#8377;<%= item.regularPrice %>
+                  <span class="related-card-unit">/ kg</span>
+                <% } %>
+              </div>
+
+              <div class="related-card-stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star empty"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      <% }) %>
+    </div>
+
+  </div>
+<% } %>
 
 <%- include("../../views/partials/user/footer") %>
 
 <script>
-    // Change the main product image when a thumbnail is clicked
-    function changeMainImage(newImageUrl) {
-        const mainImg = document.getElementById('main-product-img');
-        mainImg.src = newImageUrl;
-    }
+  function changeMainImage(thumb, url) {
+    document.getElementById('main-product-img').src = url;
+    document.querySelectorAll('.thumbnail-col img').forEach(img => img.classList.remove('active'));
+    thumb.classList.add('active');
+  }
 
-    // Zoom functionality
-    const mainImg = document.getElementById('main-product-img');
-    mainImg.addEventListener('mouseenter', function() {
-        this.style.transform = 'scale(1.5)';
-    });
-
-    mainImg.addEventListener('mouseleave', function() {
-        this.style.transform = 'scale(1)';
-    });
-    const quantityInput = document.getElementById('quantity');
-    const orderNowBtn = document.getElementById('order-now-btn');
-
+  const quantityInput = document.getElementById('quantity');
+  if (quantityInput) {
     quantityInput.addEventListener('input', function () {
-        const selectedQuantity = quantityInput.value;
-        orderNowBtn.href = `/order/summary/<%= product._id %>?quantity=${selectedQuantity}`;
+      const orderNowBtn = document.getElementById('order-now-btn');
+      if (orderNowBtn) {
+        orderNowBtn.href = `/order/summary/<%= product._id %>?quantity=${quantityInput.value}`;
+      }
     });
+  }
 </script>

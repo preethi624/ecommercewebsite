@@ -371,8 +371,11 @@
           <div class="product-card">
 
             <div class="product-img-wrap">
-              <img src="/uploads/product-images/<%= product.productImage[0] %>"
-                   alt="<%= product.productName %>">
+            
+              <a href="/productDetails?id=<%= product._id %>">
+    <img src="/uploads/product-images/<%= product.productImage[0] %>"
+         alt="<%= product.productName %>">
+  </a>
               <% if (product.quantity <= 0) { %>
                 <div class="out-of-stock-overlay">
                   <span class="out-of-stock-tag"><i class="fas fa-times-circle" style="margin-right:4px;"></i>Out of Stock</span>

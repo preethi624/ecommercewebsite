@@ -38,7 +38,7 @@ const couponSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true  // Coupons are active by default
-  }
-});
+  },
+},{timestamps:true});
 
 module.exports = mongoose.model('Coupon', couponSchema);

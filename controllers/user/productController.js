@@ -818,7 +818,7 @@ const getCoupon=async(req,res)=>{
   try {
     const today=new Date()
     today.setHours(0, 0, 0, 0);
-    coupon=await Coupon.find({ isActive:true, expiryDate: { $gte: today }})
+    coupon=await (await Coupon.find({ isActive:true, expiryDate: { $gte: today }})).sort({creatdAt:-1})
    
     res.render("coupons.ejs",{coupon})
     
