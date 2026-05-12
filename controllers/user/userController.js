@@ -4,7 +4,7 @@ const Product=require("../../models/productSchema")
 
 const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 const STATUS_CODES  = require("../../statusCodes");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
