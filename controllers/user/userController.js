@@ -6,6 +6,7 @@ const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const sgMail = require("@sendgrid/mail");
+const STATUS_CODES  = require("../../statusCodes");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const pageNotFound = async (req, res) => {
@@ -82,7 +83,7 @@ const loadHomepage = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).send("Server error occurred while loading the homepage.");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Server error occurred while loading the homepage.");
     }
 };
 
@@ -91,7 +92,7 @@ const loadSignup = async (req, res) => {
         return res.render("signup");
     } catch (error) {
         console.log("homepage not found", error);
-        res.status(500).send("server error");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("server error");
     }
 };
 
@@ -135,6 +136,8 @@ async function sendVerificationEmail(email, otp) {
         });
         return true;
     } catch (error) {
+        console.log(error);
+        
         console.error("Error sending email", error.response?.body || error.message);
         return false;
     }
@@ -224,12 +227,12 @@ const verifyOtp = async (req, res) => {
           
             
         }else{
-            res.status(400).json({success:false,message:"Invalid OTP,please try again"})
+            res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Invalid OTP,please try again"})
         }
         
     } catch (error) {
         console.error("Error verifying Otp",error);
-        res.status(500).json({success:false,message:"An error occured"})
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"An error occured"})
         
     }
 }
@@ -237,7 +240,7 @@ const resendOtp=async (req,res)=>{
     try {
         const {email}=req.session.userData;
         if(!email){
-            return res.status(400).json({success:false,message:"Email not found in session"})
+            return res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Email not found in session"})
 
         }
         const otp=generateOtp();
@@ -245,10 +248,10 @@ const resendOtp=async (req,res)=>{
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
           
-            res.status(200).json({success:true,message:"OTP resend successfully"})
+            res.status(STATUS_CODES.OK).json({success:true,message:"OTP resend successfully"})
 
         }else{
-            res.status(500).json({success:false,message:"Failed to resend otp,please try again"})
+            res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"Failed to resend otp,please try again"})
         }
         
     } catch (error) {
@@ -327,13 +330,13 @@ const products=async (req,res)=>{
         const productId=req.query.id;
         const product=await Product.findById(productId);
         if(!product){
-            return res.status(404).send("product not found")
+            return res.status(STATUS_CODES.NOT_FOUND).send("product not found")
         }
         res.render("product.ejs",{product})
         
         
     } catch (error) {
-        res.status(500).send("server error")
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("server error")
         
     }
 }
@@ -342,7 +345,7 @@ const productDetails=async(req,res)=>{
         const productId=req.query.id;
         const product=await Product.findById(productId).populate('category');
         if(!product){
-            return res.status(404).send("product not found")
+            return res.status(STATUS_CODES.NOT_FOUND).send("product not found")
         }
         const relatedProducts = await Product.find({
             category: product.category._id,
@@ -355,7 +358,7 @@ const productDetails=async(req,res)=>{
         res.render('product-details.ejs',{product,relatedProducts})
         
     } catch (error) {
-        res.status(500).send("server error")
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("server error")
         
     }
 }

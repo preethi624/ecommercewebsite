@@ -9,6 +9,7 @@ const env=require("dotenv").config()
 const session=require("express-session")
 const { getMaxListeners } = require('nodemailer/lib/xoauth2')
 const mongoose = require('mongoose');
+const STATUS_CODES = require('../../statusCodes')
 function generateOtp(){
     const digits="1234567890"
     let otp="";
@@ -109,7 +110,7 @@ const verifyForgotPassOtp=async(req,res)=>{
         }
         
     } catch (error) {
-        res.status(500).json({success:false,message:"An errror occured please try again"})
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"An errror occured please try again"})
         
     }
 }
@@ -131,7 +132,7 @@ const resendOtp=async(req,res)=>{
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
             console.log("ResendOTP:",otp)
-            res.status(200).json({success:true,message:"Resend OTP successful"})
+            res.status(STATUS_CODES.OK).json({success:true,message:"Resend OTP successful"})
         }
         
     } catch (error) {
@@ -222,7 +223,7 @@ const getUserProfile=async(req,res)=>{
         
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Server Error');
         
     }
 }
@@ -249,7 +250,7 @@ const addAddress=async(req,res)=>{
         res.redirect('/userProfile'); // Redirect to profile or any other page
     }catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Internal Server Error');
     }
 }
 const editAddress = async (req, res) => {
@@ -257,7 +258,7 @@ const editAddress = async (req, res) => {
         const user = req.session.user;
 
     if (!user) {
-        return res.status(401).send('User not logged in');
+        return res.status(STATUS_CODES.BAD_REQUEST).send('User not logged in');
     }
    
        
@@ -270,11 +271,11 @@ const editAddress = async (req, res) => {
         
         const addressIndex = userData.addresses.findIndex(a => a._id.toString() ===addressId);
         if (!userData.addresses) {
-            return res.status(404).send('Addresses not found'); // Handle case when addresses is undefined
+            return res.status(STATUS_CODES.NOT_FOUND).send('Addresses not found'); // Handle case when addresses is undefined
         }
 
         if (addressIndex === -1) {
-            return res.status(404).send('Address not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send('Address not found');
         }
         userData.addresses[addressIndex] = {
             _id: addressId,
@@ -321,7 +322,7 @@ const defaultAddress=async(req,res)=>{
         
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error setting default address");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Error setting default address");
         
     }
 }
@@ -329,7 +330,7 @@ const addresses=async(req,res)=>{
     try {
         const user=req.session.user;
         if(!user){
-            return res.status(401).send("Unauthorized");
+            return res.status(STATUS_CODES.UNAUTHORIZED).send("Unauthorized");
         }
         const userRecord = await User.findById(user.id);
         
@@ -337,7 +338,7 @@ const addresses=async(req,res)=>{
         
     } catch (error) {
         console.error("Error fetching addresses:", error);
-        res.status(500).send("Error fetching addresses");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Error fetching addresses");
         
     }
 }
@@ -398,7 +399,7 @@ const getProducts=async(req,res)=>{
     
     } catch (error) {
         console.error("Error fetching products:", error);
-        res.status(500).send("Error fetching products");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Error fetching products");
         
     }
 }  
@@ -408,7 +409,7 @@ const getWallet=async(req,res)=>{
     const transactions = await Transaction.find({ userId }).sort({ date: -1 });
     const updatedUser=await User.findById(userId)
     if (!updatedUser) {
-        return res.status(404).send('User not found');
+        return res.status(STATUS_CODES.NOT_FOUND).send('User not found');
     }
     const walletBalance=updatedUser.wallet
     res.render("wallet",{walletBalance:walletBalance,transactions:transactions,user:user})
@@ -419,11 +420,11 @@ const addWallet=async(req,res)=>{
         const userId=user.id
         const amount=req.body.amount
         if (!amount || amount <= 0) {
-            return res.status(400).send('Invalid amount');
+            return res.status(STATUS_CODES.NOT_FOUND).send('Invalid amount');
           }
           const updatedUser=await User.findByIdAndUpdate(userId,{$inc:{wallet:amount}},{new:true})
           if (!updatedUser) {
-            return res.status(404).send('User not found');
+            return res.status(STATUS_CODES.NOT_FOUND).send('User not found');
           }
 
       res.redirect('/wallet');
@@ -432,7 +433,7 @@ const addWallet=async(req,res)=>{
         
     } catch (error) {
         console.error(error);
-        res.status(500).send('An error occurred while updating the wallet balance');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('An error occurred while updating the wallet balance');
         
     }
 }                                                     

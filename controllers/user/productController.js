@@ -12,6 +12,7 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
+const STATUS_CODES  = require('../../statusCodes');
 require('dotenv').config();
 
 var razorpayInstance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
@@ -98,7 +99,7 @@ const getCart = async (req, res) => {
       : 0;
 
     if (!user) {
-      return res.status(404).send('User not found.');
+      return res.status(STATUS_CODES.NOT_FOUND).send('User not found.');
     }
 
     // Calculate cart total only if there are products in the cart
@@ -124,7 +125,7 @@ const getCart = async (req, res) => {
     res.render('cart.ejs', { cart: user.cart, addresses: user.addresses, user: user, cartTotal: cartTotal, effectiveDiscountPercentage: effectiveDiscountPercentage.toFixed(2),cartRegularTotal});
   } catch (error) {
     console.error('Error fetching cart:', error);
-    res.status(500).send('An error occurred while fetching the cart');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('An error occurred while fetching the cart');
   }
 };
 
@@ -151,7 +152,7 @@ const removeCart=async(req,res)=>{
         
     } catch (error) {
         console.log(error)
-        res.status(500).send("Error removing item from cart");
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Error removing item from cart");
         
     }
 }
@@ -192,7 +193,7 @@ const getOrderSummary=async(req,res)=>{
   const product = await Product.findById(productId).populate('category');
   
   if (!product) {
-    return res.status(404).send('Product not found.');
+    return res.status(STATUS_CODES.NOT_FOUND).send('Product not found.');
   }
   
   const discount=product.category.categoryOffer?product.category.categoryOffer:product.productOffer
@@ -212,7 +213,7 @@ const getOrderSummary=async(req,res)=>{
       
   } catch (error) {
       console.error('Error fetching order summary:', error);
-  res.status(500).send('An error occurred while fetching the order summary.'); 
+  res.status(STATUS_CODES.NOT_FOUND).send('An error occurred while fetching the order summary.'); 
       
   }
 }
@@ -266,7 +267,7 @@ const getCheckout = async (req, res) => {
     productId.forEach((id, index) => {
       const cartItem = user.cart.find(item => item.product._id.toString() === id);
       if (!cartItem) {
-        return res.status(404).send(`Product not found in cart for productId: ${id}`);
+        return res.status(STATUS_CODES.NOT_FOUND).send(`Product not found in cart for productId: ${id}`);
       }
 
       const productQuantity = quantity[index] || cartItem.quantity;
@@ -293,7 +294,7 @@ const getCheckout = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching checkout page:', error);
-    res.status(500).send('An error occurred while preparing the checkout.');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('An error occurred while preparing the checkout.');
   }
 };
 
@@ -360,7 +361,7 @@ const postCheckout = async (req, res) => {
       const purchaseQuantity = quantity[i];
 
       if (product.quantity < purchaseQuantity) {
-        return res.status(400).send(`Insufficient quantity for product: ${cartItem.product.name}`);
+        return res.status(STATUS_CODES.NOT_FOUND).send(`Insufficient quantity for product: ${cartItem.product.name}`);
       }
     }
 
@@ -421,7 +422,7 @@ const postCheckout = async (req, res) => {
     return res.redirect(`/order/confirmation/${newOrder._id}`);
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Post checkout failed');
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Post checkout failed');
   }
 };
 
@@ -449,7 +450,7 @@ const confirmation=async(req,res)=>{
       const totalPrice = order.finalAmount
 
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(STATUS_CODES.NOT_FOUND).send("Order not found");
     }
     const defaultAddress = userData?.addresses
     ? userData.addresses.find(addr => addr._id.toString() === userData.defaultAddress?.toString())
@@ -484,7 +485,7 @@ const confirmation=async(req,res)=>{
 
      }catch(error){
      console.log(error)
-      return res.status(500).send('Payment setup failed.');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Payment setup failed.');
 
      }
     
@@ -499,7 +500,7 @@ const confirmation=async(req,res)=>{
   } catch (error) {
 
     console.error("Error retrieving order confirmation:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 }
 const orderCancel=async(req,res)=>{
@@ -519,7 +520,7 @@ const orderCancel=async(req,res)=>{
     );
     
     if (!item) {
-      return res.status(404).send('Item not found in order');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Item not found in order');
     }
       res.render("cancel.ejs",{order:order,orderId:Id,item})
     
@@ -543,7 +544,7 @@ const cancelOrder=async(req,res)=>{
       (orderedItem) => orderedItem.product._id.toString() ===productId.toString( ) 
     );
     if (!item) {
-      return res.status(404).send('Item not found in order');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Item not found in order');
     }
 
     if (['Shipped', 'Delivered', 'Cancelled'].includes(item.status)) {
@@ -586,7 +587,7 @@ const cancelOrder=async(req,res)=>{
     
   } catch (error) {
     console.error('Error cancelling order:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Internal Server Error');
     
   }
 
@@ -614,7 +615,7 @@ const orderDetails = async (req, res) => {
 
     const order = await Order.findById(orderId).populate('orderedItems.product');
     if (!order) {
-      return res.status(404).send('Order not found');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Order not found');
     }
     const length=order.orderedItems.length
     const itemCouponShare=order.discount/Number(length);
@@ -622,7 +623,7 @@ const orderDetails = async (req, res) => {
     
     const item = order.orderedItems.find(i => i._id.toString() === itemId);
     if (!item) {
-      return res.status(404).send('Item not found in this order');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Item not found in this order');
     }
 
     
@@ -634,7 +635,7 @@ const orderDetails = async (req, res) => {
     );
 
     if (!orderAddress) {
-      return res.status(404).send('Address not found for the order');
+      return res.status(STATUS_CODES.NOT_FOUND).send('Address not found for the order');
     }
 
 
@@ -671,7 +672,7 @@ const orderDetails = async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching order details:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Internal Server Error');
   }
 };
 
@@ -714,7 +715,7 @@ const codConfirmation=async(req,res)=>{
    res.redirect('/orders')
   } catch (error) {
     console.log("error",error)
-    res.status(500).send("Internal server error");
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Internal server error");
     
   }
 }
@@ -727,7 +728,7 @@ const orderConfirmation = async (req, res) => {
 
     const order = await Order.findById(system_order_id);
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(STATUS_CODES.NOT_FOUND).send("Order not found");
     }
 
     if (item_id) {
@@ -772,7 +773,7 @@ const orderConfirmation = async (req, res) => {
     res.redirect("/orders");
   } catch (error) {
     console.error("Error in order confirmation:", error);
-    res.status(500).send("Internal Server Error");
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("Internal Server Error");
   }
 };
 
@@ -782,10 +783,10 @@ const applyCoupon=async(req,res)=>{
     const userId=req.session.user.id
     const coupon=await Coupon.findOne({code:code,isActive:true})
     if (!coupon) {
-      return res.status(400).json({ success: false, message: 'Invalid coupon code or inactive coupon.' });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Invalid coupon code or inactive coupon.' });
   }
   if(coupon.usersUsed.length>coupon.usageLimit){
-    return res.status(400).json({ success: false, message: 'Coupon usage limit exceeded.' });
+    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Coupon usage limit exceeded.' });
 
   }
   coupon.usersUsed.push(userId)
@@ -795,7 +796,7 @@ const applyCoupon=async(req,res)=>{
   await coupon.save(); 
 
   if (new Date(coupon.expiryDate) < new Date()) {
-    return res.status(400).json({ success: false, message: 'Coupon has expired.' });
+    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Coupon has expired.' });
 }
 let discountAmount=coupon.discountValue
 
@@ -810,7 +811,7 @@ return res.json({ success: true, message: 'Coupon applied successfully!', discou
     
   } catch (error) {
     console.error('Error applying coupon:', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again.' });
     
   }
 }
@@ -818,13 +819,16 @@ const getCoupon=async(req,res)=>{
   try {
     const today=new Date()
     today.setHours(0, 0, 0, 0);
-    coupon=await (await Coupon.find({ isActive:true, expiryDate: { $gte: today }})).sort({creatdAt:-1})
+    const coupon = await Coupon.find({
+      isActive: true,
+      expiryDate: { $gte: today }
+    }).sort({ createdAt: -1 });
    
     res.render("coupons.ejs",{coupon})
     
   } catch (error) {
     console.error('Error getting coupon', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again.' });
     
   }
 
@@ -835,7 +839,7 @@ const addToWishlist = async (req, res) => {
     const { productId } = req.body;
 
     if (!productId) {
-      return res.status(400).json({ error: "Product ID is required" });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ error: "Product ID is required" });
     }
 
    
@@ -846,13 +850,13 @@ const addToWishlist = async (req, res) => {
     );
 
     if (!user) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(STATUS_CODES.NOT_FOUND).json({ error: "User not found" });
     }
 
-    return res.status(200).json({ message: "Product added to wishlist", wishlist: user.wishlist });
+    return res.status(STATUS_CODES.OK).json({ message: "Product added to wishlist", wishlist: user.wishlist });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: "An error occurred while adding to wishlist" });
+    return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ error: "An error occurred while adding to wishlist" });
   }
 };
 
@@ -865,7 +869,7 @@ const removeWishlist=async(req,res)=>{
  if (updatedUser) {
   return res.redirect("/wishlist");
 } else {
-  return res.status(404).send("User or product not found.");
+  return res.status(STATUS_CODES.NOT_FOUND).send("User or product not found.");
 }
 
   }catch(error){
@@ -882,7 +886,7 @@ const getWishlist=async(req,res)=>{
     const userId=user.id
     const userData=await User.findById(userId).populate("wishlist")
     if (!userData) {
-      return res.status(404).send('User not found.');
+      return res.status(STATUS_CODES.NOT_FOUND).send('User not found.');
     }
     if (userData.wishlist.length === 0) {
       return res.send('Your wishlist is empty.');
@@ -891,7 +895,7 @@ const getWishlist=async(req,res)=>{
     
   } catch (error) {
     console.error(error);
-    res.status(500).send("internal server error")
+    res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send("internal server error")
     
   }
 }
@@ -906,12 +910,12 @@ const returnOrder=async(req,res)=>{
         model: 'Product'
       })
       if (!order) {
-        return res.status(404).send("Order not found");
+        return res.status(STATUS_CODES.NOT_FOUND).send("Order not found");
       }
       const item = order.orderedItems.find(orderedItem => orderedItem.product._id.toString() === itemId);
       
     if (!item) {
-      return res.status(404).send("Item not found in order");
+      return res.status(STATUS_CODES.NOT_FOUND).send("Item not found in order");
     }
       res.render("return.ejs",{order:order,id,item,itemId})
     
@@ -931,11 +935,11 @@ const confirmReturn=async(req,res)=>{
     
     const order=await Order.findById(orderId).populate('orderedItems.product');
     if (!order) {
-      return res.status(404).send("Order not found");
+      return res.status(STATUS_CODES.NOT_FOUND).send("Order not found");
     }
     const item = order.orderedItems.find(orderedItem => orderedItem.product._id.toString() === productId);
     if (!item) {
-      return res.status(404).send("Product not found in order");
+      return res.status(STATUS_CODES.NOT_FOUND).send("Product not found in order");
     }
 
     item.status="Return Request"
@@ -1034,7 +1038,7 @@ const orderHistory = await Order.find({ user: userId })
   } catch (error) {
 
      console.error(error);
-        res.status(500).send('Server Error');
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).send('Server Error');
         
   }
 }
@@ -1054,18 +1058,18 @@ const downloadInvoice=async(req,res)=>{
   .populate('user')
   
   if (!order) {
-    return res.status(404).send('Order not found');
+    return res.status(STATUS_CODES.BAD_REQUEST).send('Order not found');
   }
   const orderItem=order.orderedItems.find(item=>item._id.toString()===itemId
 
   )
   if (!orderItem) {
-    return res.status(404).send('Item not found in the order');
+    return res.status(STATUS_CODES.NOT_FOUND).send('Item not found in the order');
   }
 
   const orderAddress=userData.addresses.find(address=>address._id.toString()===order.address.toString())
   if (!orderAddress) {
-    return res.status(404).send('Address not found for the order');
+    return res.status(STATUS_CODES.NOT_FOUND).send('Address not found for the order');
   }
  
   res.setHeader('Content-Type', 'application/pdf');
