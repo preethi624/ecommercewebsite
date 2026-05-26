@@ -10,6 +10,7 @@ const session=require("express-session")
 const { getMaxListeners } = require('nodemailer/lib/xoauth2')
 const mongoose = require('mongoose');
 const STATUS_CODES = require('../../statusCodes')
+const MESSAGES = require('../../constants/messages')
 function generateOtp(){
     const digits="1234567890"
     let otp="";
@@ -85,11 +86,11 @@ const forgotEmailValid=async(req,res)=>{
                 console.log("OTP",otp);
             }
             else{
-                res.json({success:false,message:"failed to send otp please try again"})
+                res.json({success:false,message:MESSAGES.FAILED_TO_RESEND})
             }
         }else{
             res.render("forgot-password",{
-                message:"User with this email does not exist"
+                message:MESSAGES.USER_NOT_FOUND
             });
         }
         
@@ -110,7 +111,7 @@ const verifyForgotPassOtp=async(req,res)=>{
         }
         
     } catch (error) {
-        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"An errror occured please try again"})
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:MESSAGES.ERROR_OCCURED})
         
     }
 }
@@ -132,12 +133,12 @@ const resendOtp=async(req,res)=>{
         const emailSent=await sendVerificationEmail(email,otp);
         if(emailSent){
             console.log("ResendOTP:",otp)
-            res.status(STATUS_CODES.OK).json({success:true,message:"Resend OTP successful"})
+            res.status(STATUS_CODES.OK).json({success:true,message:MESSAGES.OTP_RESENT})
         }
         
     } catch (error) {
         console.error('Error in resnd otp',error)
-        res.status(500).json({success:false,message:"Internal server error"})
+        res.status(500).json({success:false,message:MESSAGES.INTERNAL_SERVER_ERROR})
         
         
     }
@@ -154,7 +155,7 @@ const postNewPassword=async(req,res)=>{
             )
             res.redirect("/login")
         }else{
-            res.render("reset-password",{message:"passwords are not matching"})
+            res.render("reset-password",{message:MESSAGES.INCORRECT_PASSWORD})
         }
         
     } catch (error) {

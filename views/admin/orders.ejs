@@ -212,12 +212,40 @@
                     </td>
                     <td><span class="date-cell"><%= new Date(order.createdOn).toDateString() %></span></td>
                     <td>
-                      <form action="/admin/order/<%= order._id %>/item/<%= item._id %>/cancel" method="POST" style="display:inline;">
-                        <button type="submit" class="action-btn btn-cancel">
-                          <i class="fas fa-times"></i> Cancel
-                        </button>
-                      </form>
-                    </td>
+
+  <% if(item.status === 'Cancelled') { %>
+
+      <button
+  type="button"
+  class="action-btn btn-cancel"
+  onclick="showReason('<%= item.cancelReason %>')">
+
+  <i class="fas fa-info-circle"></i>
+
+  View Reason
+
+</button>
+
+  <% } else { %>
+
+      <form
+        action="/admin/order/<%= order._id %>/item/<%= item._id %>/cancel"
+        method="POST"
+        style="display:inline;">
+
+          <button type="submit" class="action-btn btn-cancel">
+
+              <i class="fas fa-times"></i>
+
+              Cancel
+
+          </button>
+
+      </form>
+
+  <% } %>
+
+</td>
                   </tr>
                 <% }) %>
               <% }) %>
@@ -305,5 +333,16 @@
   </div><!-- /page-content -->
 
   <%- include("../../views/partials/admin/footer") %>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+  function showReason(reason) {
+    Swal.fire({
+      title: 'Cancellation Reason',
+      text: reason,
+      icon: 'info',
+      confirmButtonText: 'OK'
+    });
+  }
+</script>
 </body>
 </html>

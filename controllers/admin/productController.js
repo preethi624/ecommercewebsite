@@ -10,6 +10,7 @@ const ExcelJS = require('exceljs');
 const fs=require("fs")
 const path=require("path")
 const sharp=require("sharp");
+const MESSAGES = require("../../constants/messages");
 
 
 
@@ -134,7 +135,7 @@ const addProductOffer = async (req, res) => {
         
         // If product is not found, return an error
         if (!findProduct) {
-            return res.status(404).json({ status: false, message: "Product not found" });
+            return res.status(404).json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND});
         }
 
         // Find the category of the product
@@ -142,7 +143,7 @@ const addProductOffer = async (req, res) => {
         
         // If the category is not found, return an error
         if (!findCategory) {
-            return res.status(404).json({ status: false, message: "Category not found" });
+            return res.status(404).json({ status: false, message: MESSAGES.CATEGORY_NOT_FOUND });
         }
 
         // Check if there is an existing category offer
@@ -150,7 +151,7 @@ const addProductOffer = async (req, res) => {
             
                      
             
-            return res.json({ status: false, message: "Cannot add product offer because the category has an existing offer" });
+            return res.json({ status: false, message: MESSAGES.CATEGORY_OFFER_EXISTS });
         }
 
         // Calculate the new sale price
@@ -167,11 +168,11 @@ const addProductOffer = async (req, res) => {
         await findCategory.save();
 
         // Return success response
-        res.json({ status: true, message: "Product offer added successfully" });
+        res.json({ status: true, message: MESSAGES.PRODUCT_OFFER_ADDED });
 
     } catch (error) {
         console.error("Error applying product offer:", error);
-        return res.status(500).json({ status: false, message: "Internal server error" });
+        return res.status(500).json({ status: false, message: MESSAGES.SERVER_ERROR});
     }
 };
 
@@ -181,7 +182,7 @@ const removeProductOffer = async (req, res) => {
 
         
         if (!productId) {
-            return res.status(400).json({ status: false, message: "Product ID is required" });
+            return res.status(400).json({ status: false, message: MESSAGES.PRODUCT_ID_REQUIRED });
         }
 
         
@@ -189,7 +190,7 @@ const removeProductOffer = async (req, res) => {
 
        
         if (!findProduct) {
-            return res.status(404).json({ status: false, message: "Product not found" });
+            return res.status(404).json({ status: false, message: MESSAGES.PRODUCT_NOT_FOUND });
         }
 
       
@@ -206,12 +207,12 @@ const removeProductOffer = async (req, res) => {
      
 
         
-        return res.json({ status: true, message: "Product offer removed successfully" });
+        return res.json({ status: true, message: MESSAGES.PRODUCT_OFFER_REMOVED });
     } catch (error) {
         console.error("Error removing product offer:", error);
 
       
-        return res.status(500).json({ status: false, message: "Internal server error" });
+        return res.status(500).json({ status: false, message: MESSAGES.SERVER_ERROR});
     }
 };
 const getEditProduct=async(req,res)=>{
@@ -366,11 +367,11 @@ const softDeleteProduct=async(req,res)=>{
     try {
        
         await Product.findByIdAndUpdate(productId,{$set:{isDeleted:true}});
-        res.json({ status: true, message: 'Product deleted successfully' });
+        res.json({ status: true, message: MESSAGES.PRODUCT_DELETED});
         
     } catch (error) {
         console.error(error);
-        res.json({ status: false, message: 'Error deleting product' });
+        res.json({ status: false, message: MESSAGES. PRODUCT_DELETING_ERROR});
         
     }
 }
@@ -398,7 +399,7 @@ const restore=async(req,res)=>{
         
     } catch (error) {
         console.error('Error restoring product:', error);
-    res.status(500).json({ status: false, message: 'Failed to restore product' });
+    res.status(500).json({ status: false, message: MESSAGES.FAILED_TO_RESTORE });
         
         
     }
@@ -453,17 +454,7 @@ const saveCropped=async(req,res)=>{
         
     }
 }
-/*const getOrders=async(req,res)=>{
-    try {
-        const orders = await Order.find().populate('orderedItems.product').sort({invoiceDate:-1});
-        res.render("orders",{orders})
-        
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-    res.status(500).send('Internal Server Error');
-        
-    }
-}*/
+
 const getOrders = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1

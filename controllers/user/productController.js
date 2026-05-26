@@ -13,12 +13,16 @@ const fs = require('fs');
 const path = require('path');
 const Razorpay = require('razorpay');
 const STATUS_CODES  = require('../../statusCodes');
+const MESSAGES = require('../../constants/messages');
 require('dotenv').config();
 
 var razorpayInstance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
 const addToCart=async(req,res)=>{
   
     try {
+       if (!req.session.user) {
+            return res.redirect("/login");
+        }
       
         const user=req.session.user
        
@@ -530,7 +534,8 @@ const orderCancel=async(req,res)=>{
   }
 }
 const cancelOrder=async(req,res)=>{
-  const {orderId,productId}=req.body
+  const {orderId,productId,cancelReason,otherReason}=req.body
+  console.log("cancel reason",cancelReason)
   
   try {
     const userId=req.session.user.id
@@ -546,6 +551,10 @@ const cancelOrder=async(req,res)=>{
     if (!item) {
       return res.status(STATUS_CODES.NOT_FOUND).send('Item not found in order');
     }
+    const finalReason =
+  cancelReason === "Other"
+    ? otherReason
+    : cancelReason;
 
     if (['Shipped', 'Delivered', 'Cancelled'].includes(item.status)) {
       return res.status(400).send('Order cannot be cancelled');
@@ -581,6 +590,7 @@ const cancelOrder=async(req,res)=>{
     
     item.deliveryStatus='order not placed'
     item.status = 'Cancelled';
+    item.cancelReason = finalReason;
     await order.save();
     
     res.redirect("/orders")
@@ -783,10 +793,10 @@ const applyCoupon=async(req,res)=>{
     const userId=req.session.user.id
     const coupon=await Coupon.findOne({code:code,isActive:true})
     if (!coupon) {
-      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Invalid coupon code or inactive coupon.' });
+      return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_COUPON });
   }
   if(coupon.usersUsed.length>coupon.usageLimit){
-    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Coupon usage limit exceeded.' });
+    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_EXCEED});
 
   }
   coupon.usersUsed.push(userId)
@@ -796,7 +806,7 @@ const applyCoupon=async(req,res)=>{
   await coupon.save(); 
 
   if (new Date(coupon.expiryDate) < new Date()) {
-    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: 'Coupon has expired.' });
+    return res.status(STATUS_CODES.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_EXCEED });
 }
 let discountAmount=coupon.discountValue
 
@@ -811,7 +821,7 @@ return res.json({ success: true, message: 'Coupon applied successfully!', discou
     
   } catch (error) {
     console.error('Error applying coupon:', error);
-        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message:MESSAGES.INTERNAL_SERVER_ERROR });
     
   }
 }
@@ -828,7 +838,7 @@ const getCoupon=async(req,res)=>{
     
   } catch (error) {
     console.error('Error getting coupon', error);
-        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again.' });
+        return res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     
   }
 
@@ -1163,7 +1173,7 @@ const walletPayment=async(req,res)=>{
    res.redirect("/orders")
   } catch (error) {
     console.error(error);
-    res.json({ success: false, message: 'Error processing wallet payment' });
+    res.json({ success: false, message: MESSAGES.WALLET_PAYMENT_ERROR});
   }
 
 }

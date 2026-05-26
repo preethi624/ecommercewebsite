@@ -49,6 +49,10 @@ const orderSchema = new Schema({
             enum:['confirmed','order not placed']
     
         },
+         cancelReason:{
+        type:String,
+        default:""
+    }
         
 
     }],
@@ -101,7 +105,9 @@ const orderSchema = new Schema({
         type:String,
         required:false,
         enum:['Online payment','Cash on delivery','Wallet payment']
-    }
+    },
+    
+
     
 
 

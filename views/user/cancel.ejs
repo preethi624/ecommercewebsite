@@ -167,6 +167,51 @@ body {
               
                 <input type="hidden" name="orderId" value="<%= orderId %>">
                 <input type="hidden" name="productId" value="<%= item.product._id %>">
+                <div class="reason-section">
+
+        <label>
+            <strong>Reason for Cancellation</strong>
+        </label>
+
+        <select name="cancelReason" id="cancelReason" required>
+
+            <option value="">Select reason</option>
+
+            <option value="Changed my mind">
+                Changed my mind
+            </option>
+
+            <option value="Ordered by mistake">
+                Ordered by mistake
+            </option>
+
+            <option value="Delivery taking too long">
+                Delivery taking too long
+            </option>
+
+            <option value="Found better price elsewhere">
+                Found better price elsewhere
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div id="otherReasonBox" style="display:none; margin-top:15px;">
+
+        <textarea
+            name="otherReason"
+            id="otherReason"
+            rows="4"
+            placeholder="Enter your reason">
+        </textarea>
+
+    </div>
                 
                 
                 <button type="submit" class="confirm-btn">Confirm Cancel</button>
@@ -182,3 +227,26 @@ body {
 
 </html>
 
+
+<script>
+
+    const cancelReason =
+        document.getElementById('cancelReason');
+
+    const otherReasonBox =
+        document.getElementById('otherReasonBox');
+
+    cancelReason.addEventListener('change', function () {
+
+        if (this.value === 'Other') {
+
+            otherReasonBox.style.display = 'block';
+
+        } else {
+
+            otherReasonBox.style.display = 'none';
+        }
+
+    });
+
+</script>

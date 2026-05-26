@@ -311,6 +311,10 @@
         color: #8aab96;
         margin-top: 12px;
     }
+    .disabled-btn{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
@@ -471,9 +475,14 @@
             <input type="hidden" id="hiddengrandtotal" name="grandtotal" value="<%= order.total + 30 %>">
             <input type="hidden" id="discountAmount" name="discountAmount" value="">
 
-            <button type="submit" class="btn-place-order" id="placeOrderBtn">
-                <i class="fas fa-lock" style="margin-right:8px;font-size:13px;"></i>Proceed to Payment
-            </button>
+            <button 
+    type="<%= user.defaultAddress ? 'submit' : 'button' %>" 
+    class="btn-place-order <%= !user.defaultAddress ? 'disabled-btn' : '' %>" 
+    id="placeOrderBtn">
+
+    <i class="fas fa-lock" style="margin-right:8px;font-size:13px;"></i>
+    Proceed to Payment
+</button>
             <div class="secure-note">
                 <i class="fas fa-shield-alt"></i> Secure &amp; Encrypted Payment
             </div>
@@ -486,6 +495,7 @@
 <%- include("../partials/user/footer") %>
 
 <script>
+   
     document.getElementById('applyCouponBtn').addEventListener('click', function () {
         const couponCode = document.getElementById('couponCode').value;
         const grandTotalElement = document.getElementById('hiddengrandtotal');
@@ -524,4 +534,5 @@
             couponMessage.textContent = 'Error applying coupon. Please try again.';
         });
     });
+    
 </script>

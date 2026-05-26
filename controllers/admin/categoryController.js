@@ -1,3 +1,4 @@
+const MESSAGES = require("../../constants/messages");
 const Category=require("../../models/categorySchema")
 const Product=require("../../models/productSchema");
 const mongoose = require("mongoose");
@@ -40,7 +41,7 @@ const addCategory=async (req,res)=>{
 
         const existingCategory=await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') }})
         if(existingCategory){
-            return res.status(400).json({error:"Category already exists"})
+            return res.status(400).json({error:MESSAGES.CATEGORY_ADDED})
         }
 
         
@@ -49,7 +50,7 @@ const addCategory=async (req,res)=>{
             description
         })
         await newCategory.save();
-        return res.json({message:"Category added successfully"})
+        return res.json({message:MESSAGES.CATEGORY_ADDED})
         
     } catch (error) {
         return res.status(500).json({error:"Internal server error"})
@@ -82,11 +83,11 @@ const addCategoryOffer = async (req, res) => {
             await product.save();
         }
 
-        res.json({ status: true, message: "Category offer added, product offers reset" });
+        res.json({ status: true, message:MESSAGES.CATEGORY_OFFER_ADDED});
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ status: false, message: "Internal server error" });
+        res.status(500).json({ status: false, message: MESSAGES.SERVER_ERROR });
     }
 };
 
@@ -96,7 +97,7 @@ const removeCategoryOffer=async (req,res)=>{
         const categoryId=req.body.categoryId;
         const category=await Category.findById(categoryId);
         if(!category){
-            return res.staus(404).json({status:false,message:"Category not found"})
+            return res.staus(404).json({status:false,message:MESSAGES.CATEGORY_NOT_FOUND})
 
         }
         const percentage=category.categoryOffer;
@@ -113,7 +114,7 @@ const removeCategoryOffer=async (req,res)=>{
         res.json({status:true})
         
     } catch (error) {
-        res.status(500).json({status:false,message:"Internal server error"})
+        res.status(500).json({status:false,message:MESSAGES.SERVER_ERROR})
         
     }
 }
@@ -184,7 +185,7 @@ const softDeleteCategory=async (req,res)=>{
     try {
         const result=await Category.updateOne({_id:categoryId},{$set:{isDeleted:true}});
         if(result.nModified===0){
-            return res.stautus(404).json({status:false,message:"Category not found or already soft deleted"});
+            return res.stautus(404).json({status:false,message:MESSAGES.CATEGORY_NOT_FOUND});
 
         }
         return res.json({ status: true, message: 'Category successfully soft-deleted' });
@@ -218,7 +219,7 @@ const restore=async (req,res)=>{
     res.json({ status: true, message: 'Category restored successfully' })
     } catch (error) {
         console.error('Error restoring category:', error);
-    res.status(500).json({ status: false, message: 'Failed to restore category' });
+    res.status(500).json({ status: false, message: MESSAGES.FAILED_TO_RESTORE});
         
     }
 }

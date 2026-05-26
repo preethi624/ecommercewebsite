@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 const STATUS_CODES  = require("../../statusCodes");
+const MESSAGES = require("../../constants/messages");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const pageNotFound = async (req, res) => {
@@ -100,31 +101,7 @@ function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-/*async function sendVerificationEmail(email, otp) {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD,
-            }
-        });
-        await transporter.sendMail({
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "Verify your account",
-            text: `Your OTP is ${otp}`,
-            html: `<b>Your OTP: ${otp}</b>`,
-        });
-        return true;
-    } catch (error) {
-        console.error("Error sending email", error);
-        return false;
-    }
-}*/
+
 async function sendVerificationEmail(email, otp) {
     try {
         await sgMail.send({
@@ -149,7 +126,7 @@ const signup = async (req, res) => {
         // Check if user exists
         const findUser = await User.findOne({ email });
         if (findUser) {
-            return res.render("signup", { message: "User with this email already exists." });
+            return res.render("signup", {message:MESSAGES.USER_ALREADY_EXISTS });
         }
 
         // Referral logic
@@ -170,7 +147,7 @@ const signup = async (req, res) => {
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp);
         if (!emailSent) {
-            return res.render("signup", { message: "Error sending verification email." });
+            return res.render("signup", { message: MESSAGES.EMAIL_SEND_ERROR });
         }
 
         // Initialize session data
@@ -227,12 +204,12 @@ const verifyOtp = async (req, res) => {
           
             
         }else{
-            res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:"Invalid OTP,please try again"})
+            res.status(STATUS_CODES.BAD_REQUEST).json({success:false,message:MESSAGES.OTP_INVALID})
         }
         
     } catch (error) {
         console.error("Error verifying Otp",error);
-        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"An error occured"})
+        res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:MESSAGES.ERROR_OCCURED})
         
     }
 }
@@ -251,12 +228,12 @@ const resendOtp=async (req,res)=>{
             res.status(STATUS_CODES.OK).json({success:true,message:"OTP resend successfully"})
 
         }else{
-            res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:"Failed to resend otp,please try again"})
+            res.status(STATUS_CODES.INTERNAL_SERVER_ERROR).json({success:false,message:MESSAGES.FAILED_TO_RESEND})
         }
         
     } catch (error) {
         console.error("Error resending OTP",error)
-        res.status(500).json({success:false,message:"Internal server error,please try again"})
+        res.status(500).json({success:false,message:MESSAGES.INTERNAL_SERVER_ERROR})
         
     }
 };
@@ -279,16 +256,16 @@ const login=async(req,res)=>{
         const {email,password}=req.body;
         const findUser=await User.findOne({isAdmin:0,email:email});
         if(!findUser){
-            return res.render("login",{message:"user not found"})
+            return res.render("login",{message:MESSAGES.USER_NOT_FOUND})
 
         }
         if(findUser.isBlocked){
-            return res.render("login",{message:"User is blocked by admin"})
+            return res.render("login",{message:MESSAGES.USER_BLOCKED})
 
         }
         const passwordMatch=await bcrypt.compare(password,findUser.password)
         if(!passwordMatch){
-            return res.render("login",{message:"Incorrect password"})
+            return res.render("login",{message:MESSAGES.INCORRECT_PASSWORD})
 
         }
        
@@ -303,7 +280,7 @@ const login=async(req,res)=>{
         
     } catch (error) {
         console.error("Login error",error)
-        res.render("login",{message:"Login failed please try later"})
+        res.render("login",{message:MESSAGES.LOGIN_FAILED})
         
     }
 }
