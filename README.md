@@ -51,7 +51,7 @@ The project is built using server-side rendering with EJS and follows MVC archit
 | Frontend | HTML, CSS, EJS |
 | Backend | Node.js, Express.js |
 | Database | MongoDB, Mongoose |
-| Authentication | Express Session / JWT (if used) |
+| Authentication | Express Session |
 
 ---
 
