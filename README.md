@@ -1,7 +1,7 @@
 🎉 Organic Store
 Full Stack E-Commerce Platform (Organic Products)
-
-🌐 Live Demo • GitHub Repository
+🌐 Live Demo: [Click Here](https://ecommercewebsite-5-xs1e.onrender.com/)  
+🔗 GitHub Repository: [View Code](https://github.com/preethi624/ecommercewebsite)
 
 ---
 
